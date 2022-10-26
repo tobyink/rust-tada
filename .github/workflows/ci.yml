@@ -1,0 +1,126 @@
+name: CI
+
+env:
+  CARGO_TERM_COLOR: always
+
+on: [push]
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: cargo check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: target/release/
+
+  doc:
+    name: Rustdoc
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - name: cargo doc
+        run: cargo doc -vv --all-features
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: doc
+          path: target/doc/
+    
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: cargo test
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: rustup component add rustfmt
+      - name: cargo fmt
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: rustup component add clippy
+      - name: cargo clippy
+        run: cargo clippy -- -D warnings
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: rust-cache
+        uses: Swatinem/rust-cache@v2
+      - run: cargo install cargo-tarpaulin
+      - name: cargo tarpaulin
+        run: cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
+      - name: upload to codecov.io
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: false
