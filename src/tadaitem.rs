@@ -15,7 +15,7 @@ pub struct TadaItem {
 }
 
 impl fmt::Debug for TadaItem {
-	/// Debugging output; used for format!("{#?}")
+	/// Debugging output; used for format!("{:?}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("Item")
 			.field("completion", &self.completion)
@@ -102,5 +102,70 @@ impl TadaItem {
 		}
 
 		r
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use chrono::NaiveDate;
+
+	#[test]
+	fn test_debug() {
+		let i = TadaItem {
+			completion: false,
+			has_priority: false,
+			priority: '\0',
+			has_completion_date: false,
+			completion_date: NaiveDate::from_ymd(0, 1, 1),
+			has_creation_date: false,
+			creation_date: NaiveDate::from_ymd(0, 1, 1),
+			description: "foo bar baz".to_string(),
+		};
+		let dbug = format!("{:?}", i);
+		assert!(dbug.len() > 1);
+	}
+	
+	#[test]
+	fn test_display() {
+		let i = TadaItem {
+			completion: false,
+			has_priority: false,
+			priority: '\0',
+			has_completion_date: false,
+			completion_date: NaiveDate::from_ymd(0, 1, 1),
+			has_creation_date: false,
+			creation_date: NaiveDate::from_ymd(0, 1, 1),
+			description: "foo bar baz".to_string(),
+		};
+
+		assert_eq!("foo bar baz", format!("{}", i));
+
+		let j = TadaItem {
+			completion: true,
+			has_priority: true,
+			priority: 'B',
+			has_completion_date: true,
+			completion_date: NaiveDate::from_ymd(2010, 1, 1),
+			has_creation_date: true,
+			creation_date: NaiveDate::from_ymd(2000, 12, 31),
+			description: "foo bar baz".to_string(),
+		};
+
+		assert_eq!("x (B) 2010-01-01 2000-12-31 foo bar baz", format!("{}", j));
+	}
+
+	#[test]
+	fn test_parse() {
+		let i = TadaItem::parse("x (B) 2010-01-01 2000-12-31 foo bar baz");
+
+		assert_eq!(true, i.completion);
+		assert_eq!(true, i.has_priority);
+		assert_eq!('B', i.priority);
+		assert_eq!(true, i.has_completion_date);
+		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.completion_date);
+		assert_eq!(true, i.has_creation_date);
+		assert_eq!(NaiveDate::from_ymd(2000, 12, 31), i.creation_date);
+		assert_eq!("foo bar baz".to_string(), i.description);
 	}
 }
