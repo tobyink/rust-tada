@@ -52,7 +52,7 @@ jobs:
       - name: rust-cache
         uses: Swatinem/rust-cache@v2
       - name: cargo doc
-        run: cargo doc -vv --all-features
+        run: cargo doc -vv --no-deps --all-features
       - name: upload
         uses: actions/upload-artifact@v3
         with:
