@@ -125,7 +125,7 @@ mod tests {
 		let dbug = format!("{:?}", i);
 		assert!(dbug.len() > 1);
 	}
-	
+
 	#[test]
 	fn test_display() {
 		let i = TadaItem {
