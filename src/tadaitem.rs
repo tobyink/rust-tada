@@ -167,5 +167,14 @@ mod tests {
 		assert_eq!(true, i.has_creation_date);
 		assert_eq!(NaiveDate::from_ymd(2000, 12, 31), i.creation_date);
 		assert_eq!("foo bar baz".to_string(), i.description);
+
+		let j = TadaItem::parse("2010-01-01 (A) foo bar baz");
+
+		assert_eq!(false, j.completion);
+		assert_eq!(false, j.has_priority);
+		assert_eq!(false, j.has_completion_date);
+		assert_eq!(true, j.has_creation_date);
+		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), j.creation_date);
+		assert_eq!("(A) foo bar baz".to_string(), j.description);
 	}
 }
