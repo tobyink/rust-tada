@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 /// A line type — item, comment, or blank
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum TadaListLineType {
 	Item,
 	Comment,
@@ -61,5 +61,16 @@ impl TadaList {
 		}
 
 		TadaList { lines }
+	}
+
+	pub fn items(&self) -> Vec<&TadaItem> {
+		let mut items = Vec::new();
+		for line in &self.lines {
+			if line.line_type == TadaListLineType::Item {
+				let item = line.item.as_ref().unwrap();
+				items.push(item);
+			}
+		}
+		items
 	}
 }

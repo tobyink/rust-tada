@@ -9,5 +9,5 @@ fn main() {
 	let testfile = File::open("example-todo.txt");
 	let l = TadaList::new_from_file(testfile.unwrap());
 
-	println!("{:?}", l);
+	println!("{:?}", l.items());
 }
