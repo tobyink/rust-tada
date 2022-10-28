@@ -10,8 +10,8 @@ Exploratory stage.
 
 ## Licence
 
-This project is dual licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0) and the [MIT License](http://opensource.org/licenses/MIT).
+This project is triple licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0), the [MIT License](http://opensource.org/licenses/MIT), and the [GNU General Public License, version 2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
 ### Contribution
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion into this project by you, shall be dual licensed as Apache 2/MIT, without any additional terms or conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion into this project by you, shall be triple licensed as Apache-2.0/MIT/GPL-2.0, without any additional terms or conditions.
