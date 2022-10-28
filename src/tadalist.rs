@@ -29,7 +29,7 @@ impl TadaList {
 	/// Parse a todo list from an open file.
 	pub fn new_from_file(f: File) -> TadaList {
 		let io = BufReader::new(f);
-		let mut stack = Vec::new();
+		let mut lines = Vec::new();
 
 		let re_comment = Regex::new(r"^\s*#").unwrap();
 		let re_blank = Regex::new(r"^\s*$").unwrap();
@@ -57,9 +57,11 @@ impl TadaList {
 				}
 			};
 
-			stack.push(tl_line);
+			lines.push(tl_line);
 		}
 
-		TadaList { lines: stack }
+		TadaList { lines }
 	}
+
+	
 }
