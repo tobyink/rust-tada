@@ -21,6 +21,7 @@ impl fmt::Debug for TadaItem {
 			.field("completion", &self.completion)
 			.field("priority", &self.priority)
 			.field("completion_date", &self.completion_date)
+			.field("creation_date", &self.creation_date)
 			.field("description", &self.description)
 			.finish()
 	}
