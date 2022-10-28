@@ -78,53 +78,51 @@ impl TadaList {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use tempfile::tempdir;
 	use std::fs::File;
 	use std::io::Write;
+	use tempfile::tempdir;
 
 	#[test]
 	fn test_new_from_file() {
-		
 		let dir = tempdir().unwrap();
 		let file_path = dir.path().join("test-todo.txt");
 		let mut f1 = File::create(&file_path).unwrap();
 		writeln!(f1, "# Comment").unwrap();
 		writeln!(f1, "x (A) 2000-01-01 Foo bar @baz").unwrap();
 		writeln!(f1, "  ").unwrap();
-		
+
 		let f2 = File::open(&file_path).unwrap();
-		
+
 		let list = TadaList::new_from_file(f2);
 		assert_eq!(3, list.lines.len());
-		
+
 		let line0 = list.lines.get(0).unwrap();
 		assert_eq!(TadaListLineType::Comment, line0.line_type);
 		assert_eq!("# Comment", line0.text);
-		
+
 		let line1 = list.lines.get(1).unwrap();
 		assert_eq!(TadaListLineType::Item, line1.line_type);
 		assert_eq!('A', line1.item.as_ref().unwrap().priority);
-		
+
 		let line2 = list.lines.get(2).unwrap();
 		assert_eq!(TadaListLineType::Blank, line2.line_type);
 	}
 
 	#[test]
 	fn test_items() {
-		
 		let dir = tempdir().unwrap();
 		let file_path = dir.path().join("test-todo.txt");
 		let mut f1 = File::create(&file_path).unwrap();
 		writeln!(f1, "# Comment").unwrap();
 		writeln!(f1, "x (A) 2000-01-01 Foo bar @baz").unwrap();
 		writeln!(f1, "  ").unwrap();
-		
+
 		let f2 = File::open(&file_path).unwrap();
-		
+
 		let list = TadaList::new_from_file(f2);
 		let items = list.items();
 		assert_eq!(1, items.len());
-		
+
 		let item0 = items.get(0).unwrap();
 		assert_eq!('A', item0.priority);
 	}
