@@ -22,7 +22,7 @@ pub struct TadaListLine {
 /// A todo list.
 #[derive(Debug)]
 pub struct TadaList {
-	pub items: Vec<TadaListLine>,
+	pub lines: Vec<TadaListLine>,
 }
 
 impl TadaList {
@@ -60,6 +60,6 @@ impl TadaList {
 			stack.push(tl_line);
 		}
 
-		TadaList { items: stack }
+		TadaList { lines: stack }
 	}
 }
