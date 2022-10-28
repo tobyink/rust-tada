@@ -6,7 +6,7 @@ Command-line [todo.txt](https://github.com/todotxt/todo.txt) manager.
 
 ## Status
 
-Exploratory stage.
+Early implementation stage.
 
 ## Licence
 
