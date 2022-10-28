@@ -1,6 +1,6 @@
 # tada
 
-Command-line todo.txt manager.
+Command-line [todo.txt](https://github.com/todotxt/todo.txt) manager.
 
 [![CI](https://github.com/tobyink/rust-tada/actions/workflows/ci.yml/badge.svg)](https://github.com/tobyink/rust-tada/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/tobyink/rust-tada/branch/master/graph/badge.svg?token=4B6I1ovnvW)](https://codecov.io/gh/tobyink/rust-tada)
 
