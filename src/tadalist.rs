@@ -62,6 +62,4 @@ impl TadaList {
 
 		TadaList { lines }
 	}
-
-	
 }
