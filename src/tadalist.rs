@@ -45,26 +45,18 @@ impl TadaList {
 	}
 
 	/// Helper function to convert a single line string into a TadaListLine.
-	fn _handle_line(line: String) -> TadaListLine {
-		if RE_LINE_BLANK.is_match(&line) {
-			TadaListLine {
-				text: line,
-				kind: TadaListLineKind::Blank,
-				item: None,
-			}
-		} else if RE_LINE_COMMENT.is_match(&line) {
-			TadaListLine {
-				text: line,
-				kind: TadaListLineKind::Comment,
-				item: None,
-			}
+	fn _handle_line(text: String) -> TadaListLine {
+		let item = None;
+		if RE_LINE_BLANK.is_match(&text) {
+			let kind = TadaListLineKind::Blank;
+			TadaListLine { text, kind, item }
+		} else if RE_LINE_COMMENT.is_match(&text) {
+			let kind = TadaListLineKind::Comment;
+			TadaListLine { text, kind, item }
 		} else {
-			let parsed = TadaItem::parse(&line);
-			TadaListLine {
-				text: line,
-				kind: TadaListLineKind::Item,
-				item: Some(parsed),
-			}
+			let kind = TadaListLineKind::Item;
+			let item = Some(TadaItem::parse(&text));
+			TadaListLine { text, kind, item }
 		}
 	}
 
