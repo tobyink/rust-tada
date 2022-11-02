@@ -48,7 +48,11 @@ impl fmt::Display for TadaItem {
 		}
 
 		if self.creation_date.is_some() {
-			let date2 = self.creation_date.unwrap().format("%Y-%m-%d ").to_string();
+			let date2 = self
+				.creation_date
+				.unwrap()
+				.format("%Y-%m-%d ")
+				.to_string();
 			r.push_str(&date2);
 		}
 
@@ -59,14 +63,18 @@ impl fmt::Display for TadaItem {
 }
 
 /// Syntax for a tada item line.
-const RE_TADA_ITEM: &str = r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$";
+const RE_TADA_ITEM: &str =
+	r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$";
 
 impl TadaItem {
 	/// Parse an item from a line of text.
 	///
 	/// Assumes the [todo.txt](https://github.com/todotxt/todo.txt) format.
 	pub fn parse(text: &str) -> TadaItem {
-		let caps = Regex::new(RE_TADA_ITEM).unwrap().captures(text).unwrap();
+		let caps = Regex::new(RE_TADA_ITEM)
+			.unwrap()
+			.captures(text)
+			.unwrap();
 
 		TadaItem {
 			completion: caps.get(1).is_some(),
