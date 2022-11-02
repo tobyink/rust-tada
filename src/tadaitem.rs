@@ -66,13 +66,13 @@ impl fmt::Display for TadaItem {
 lazy_static! {
 	/// Regular expression to capture the parts of a tada list line.
 	static ref RE_TADA_ITEM: Regex = Regex::new(r##"(?x)
-		^
-		( x \s+ )?
-		( [(] [A-Z] [)] \s+ )?
-		( \d{4} - \d{2} - \d{2} \s+ )?
-		( \d{4} - \d{2} - \d{2} \s+ )?
-		( .+ )
-		$
+		^                               # start
+		( x \s+ )?                      # optional "x"
+		( [(] [A-Z] [)] \s+ )?          # optional priority letter
+		( \d{4} - \d{2} - \d{2} \s+ )?  # optional date
+		( \d{4} - \d{2} - \d{2} \s+ )?  # optional date
+		( .+ )                          # description
+		$                               # end
 	"##)
 	.unwrap();
 }
