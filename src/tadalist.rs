@@ -49,11 +49,11 @@ impl TadaList {
 					item: None,
 				}
 			} else {
-				let cloned = got.clone();
+				let parsed = TadaItem::parse(&got);
 				TadaListLine {
 					text: got,
 					line_type: TadaListLineType::Item,
-					item: Some(TadaItem::parse(&cloned)),
+					item: Some(parsed),
 				}
 			};
 
