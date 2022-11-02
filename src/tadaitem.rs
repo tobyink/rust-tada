@@ -69,14 +69,8 @@ impl TadaItem {
 
 		let descr = caps.get(5).map_or("", |m| m.as_str());
 		let mut r = TadaItem {
-			completion: match caps.get(1) {
-				Some(_) => true,
-				None => false,
-			},
-			has_priority: match caps.get(2) {
-				Some(_) => true,
-				None => false,
-			},
+			completion: caps.get(1).is_some(),
+			has_priority: caps.get(2).is_some(),
 			priority: match caps.get(2) {
 				Some(p) => p.as_str().chars().nth(1).unwrap(),
 				None => '\0',
@@ -88,11 +82,11 @@ impl TadaItem {
 			description: String::from(descr),
 		};
 
-		if caps.get(3) != None {
+		if caps.get(3).is_some() {
 			let cap3 = caps.get(3).unwrap();
 			// If cap3 and cap4 are both set, then they are the completion date and creation date.
 			// If only cap3 is set, it's the creation date.
-			if caps.get(4) != None {
+			if caps.get(4).is_some() {
 				let cap4 = caps.get(4).unwrap();
 				r.has_completion_date = true;
 				r.has_creation_date = true;
