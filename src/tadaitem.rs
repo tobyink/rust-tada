@@ -1,4 +1,5 @@
 use chrono::NaiveDate;
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::fmt;
 
@@ -62,19 +63,19 @@ impl fmt::Display for TadaItem {
 	}
 }
 
-/// Syntax for a tada item line.
-const RE_TADA_ITEM: &str =
-	r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$";
+lazy_static! {
+	static ref RE_TADA_ITEM: Regex = Regex::new(
+		r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$"
+	)
+	.unwrap();
+}
 
 impl TadaItem {
 	/// Parse an item from a line of text.
 	///
 	/// Assumes the [todo.txt](https://github.com/todotxt/todo.txt) format.
 	pub fn parse(text: &str) -> TadaItem {
-		let caps = Regex::new(RE_TADA_ITEM)
-			.unwrap()
-			.captures(text)
-			.unwrap();
+		let caps = RE_TADA_ITEM.captures(text).unwrap();
 
 		TadaItem {
 			completion: caps.get(1).is_some(),

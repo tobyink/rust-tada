@@ -1,4 +1,5 @@
 use crate::tadaitem::*;
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -25,6 +26,11 @@ pub struct TadaList {
 	pub lines: Vec<TadaListLine>,
 }
 
+lazy_static! {
+	static ref RE_LINE_COMMENT: Regex = Regex::new(r"^\s*#").unwrap();
+	static ref RE_LINE_BLANK: Regex = Regex::new(r"^\s*$").unwrap();
+}
+
 impl TadaList {
 	/// Parse a todo list from an open file.
 	pub fn new_from_file(f: File) -> TadaList {
@@ -40,16 +46,13 @@ impl TadaList {
 	}
 
 	fn _handle_line(line: String) -> TadaListLine {
-		let re_comment = Regex::new(r"^\s*#").unwrap();
-		let re_blank = Regex::new(r"^\s*$").unwrap();
-
-		if re_blank.is_match(&line) {
+		if RE_LINE_BLANK.is_match(&line) {
 			TadaListLine {
 				text: line,
 				line_type: TadaListLineType::Blank,
 				item: None,
 			}
-		} else if re_comment.is_match(&line) {
+		} else if RE_LINE_COMMENT.is_match(&line) {
 			TadaListLine {
 				text: line,
 				line_type: TadaListLineType::Comment,
