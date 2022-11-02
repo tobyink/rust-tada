@@ -37,13 +37,10 @@ impl TadaList {
 	/// Parse a todo list from an open file.
 	pub fn new_from_file(f: File) -> TadaList {
 		let io = BufReader::new(f);
-		let mut lines = Vec::new();
-
-		for line in io.lines() {
-			let tl_line = Self::_handle_line(line.unwrap());
-			lines.push(tl_line);
-		}
-
+		let lines = io
+			.lines()
+			.map(|l| Self::_handle_line(l.unwrap()))
+			.collect();
 		TadaList { lines }
 	}
 
