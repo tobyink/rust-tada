@@ -40,21 +40,21 @@ impl fmt::Display for TadaItem {
 		}
 
 		if self.completion && self.completion_date.is_some() {
-			let date1 = self
+			let date = self
 				.completion_date
 				.unwrap()
 				.format("%Y-%m-%d ")
 				.to_string();
-			r.push_str(&date1);
+			r.push_str(&date);
 		}
 
 		if self.creation_date.is_some() {
-			let date2 = self
+			let date = self
 				.creation_date
 				.unwrap()
 				.format("%Y-%m-%d ")
 				.to_string();
-			r.push_str(&date2);
+			r.push_str(&date);
 		}
 
 		r.push_str(&self.description);
@@ -65,9 +65,15 @@ impl fmt::Display for TadaItem {
 
 lazy_static! {
 	/// Regular expression to capture the parts of a tada list line.
-	static ref RE_TADA_ITEM: Regex = Regex::new(
-		r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$"
-	)
+	static ref RE_TADA_ITEM: Regex = Regex::new(r"(?x)
+		^
+		( x \s+ )?
+		( [(] [A-Z] [)] \s+ )?
+		( \d{4} - \d{2} - \d{2} \s+ )?
+		( \d{4} - \d{2} - \d{2} \s+ )?
+		( .+ )
+		$
+	")
 	.unwrap();
 }
 
@@ -86,21 +92,21 @@ impl TadaItem {
 			},
 			completion_date: if caps.get(3).is_some() && caps.get(4).is_some() {
 				let cap3 = caps.get(3).unwrap().as_str();
-				NaiveDate::parse_from_str(cap3, "%Y-%m-%d ").ok()
+				NaiveDate::parse_from_str(cap3.trim(), "%Y-%m-%d").ok()
 			} else {
 				None
 			},
 			creation_date: if caps.get(3).is_some() && caps.get(4).is_some() {
 				let cap4 = caps.get(4).unwrap().as_str();
-				NaiveDate::parse_from_str(cap4, "%Y-%m-%d ").ok()
+				NaiveDate::parse_from_str(cap4.trim(), "%Y-%m-%d").ok()
 			} else if caps.get(3).is_some() {
 				let cap3 = caps.get(3).unwrap().as_str();
-				NaiveDate::parse_from_str(cap3, "%Y-%m-%d ").ok()
+				NaiveDate::parse_from_str(cap3.trim(), "%Y-%m-%d").ok()
 			} else {
 				None
 			},
 			description: match caps.get(5) {
-				Some(m) => String::from(m.as_str()),
+				Some(m) => String::from(m.as_str().trim()),
 				None => String::from(""),
 			},
 		}
