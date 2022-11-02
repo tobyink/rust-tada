@@ -30,7 +30,7 @@ impl fmt::Debug for TadaItem {
 impl fmt::Display for TadaItem {
 	/// File-ready output; used for format!("{}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		let mut r: String = "".to_string();
+		let mut r: String = String::new();
 
 		if self.completion {
 			r.push_str("x ");
@@ -57,48 +57,50 @@ impl fmt::Display for TadaItem {
 	}
 }
 
+/// Syntax for a tada item line.
+const RE_TADA_ITEM: &str = r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$";
+
 impl TadaItem {
 	/// Parse an item from a line of text.
 	///
 	/// Assumes the [todo.txt](https://github.com/todotxt/todo.txt) format.
 	pub fn parse(text: &str) -> TadaItem {
-		let re = Regex::new(r"^(x )?(\([A-Z]\) )?(\d{4}-\d{2}-\d{2} )?(\d{4}-\d{2}-\d{2} )?(.+)$")
-			.unwrap();
-		let caps = re.captures(text).unwrap();
+		let caps = Regex::new(RE_TADA_ITEM).unwrap().captures(text).unwrap();
 
+		let descr = caps.get(5).map_or("", |m| m.as_str());
 		let mut r = TadaItem {
-			completion: false,
-			has_priority: false,
-			priority: '\0',
+			completion: match caps.get(1) {
+				Some(_) => true,
+				None => false,
+			},
+			has_priority: match caps.get(2) {
+				Some(_) => true,
+				None => false,
+			},
+			priority: match caps.get(2) {
+				Some(p) => p.as_str().chars().nth(1).unwrap(),
+				None => '\0',
+			},
 			has_completion_date: false,
 			completion_date: NaiveDate::from_ymd(0, 1, 1),
 			has_creation_date: false,
 			creation_date: NaiveDate::from_ymd(0, 1, 1),
-			description: caps.get(5).map_or("", |m| m.as_str()).to_string(),
+			description: String::from(descr),
 		};
 
-		if caps.get(1) != None {
-			r.completion = true;
-		}
-
-		if caps.get(2) != None {
-			let matched = caps.get(2).unwrap().as_str();
-			r.priority = matched.chars().nth(1).unwrap();
-			r.has_priority = true;
-		}
-
 		if caps.get(3) != None {
+			let cap3 = caps.get(3).unwrap();
+			// If cap3 and cap4 are both set, then they are the completion date and creation date.
+			// If only cap3 is set, it's the creation date.
 			if caps.get(4) != None {
+				let cap4 = caps.get(4).unwrap();
 				r.has_completion_date = true;
 				r.has_creation_date = true;
-				r.completion_date =
-					NaiveDate::parse_from_str(caps.get(3).unwrap().as_str(), "%Y-%m-%d ").unwrap();
-				r.creation_date =
-					NaiveDate::parse_from_str(caps.get(4).unwrap().as_str(), "%Y-%m-%d ").unwrap();
+				r.completion_date = NaiveDate::parse_from_str(cap3.as_str(), "%Y-%m-%d ").unwrap();
+				r.creation_date = NaiveDate::parse_from_str(cap4.as_str(), "%Y-%m-%d ").unwrap();
 			} else {
 				r.has_creation_date = true;
-				r.creation_date =
-					NaiveDate::parse_from_str(caps.get(3).unwrap().as_str(), "%Y-%m-%d ").unwrap();
+				r.creation_date = NaiveDate::parse_from_str(cap3.as_str(), "%Y-%m-%d ").unwrap();
 			}
 		}
 
