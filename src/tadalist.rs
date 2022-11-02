@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader};
 
 /// A line type — item, comment, or blank
 #[derive(Debug, Eq, PartialEq)]
-pub enum TadaListLineType {
+pub enum TadaListLineKind {
 	Item,
 	Comment,
 	Blank,
@@ -15,7 +15,7 @@ pub enum TadaListLineType {
 /// An line in a todo list.
 #[derive(Debug)]
 pub struct TadaListLine {
-	pub line_type: TadaListLineType,
+	pub kind: TadaListLineKind,
 	pub text: String,
 	pub item: Option<TadaItem>,
 }
@@ -49,20 +49,20 @@ impl TadaList {
 		if RE_LINE_BLANK.is_match(&line) {
 			TadaListLine {
 				text: line,
-				line_type: TadaListLineType::Blank,
+				kind: TadaListLineKind::Blank,
 				item: None,
 			}
 		} else if RE_LINE_COMMENT.is_match(&line) {
 			TadaListLine {
 				text: line,
-				line_type: TadaListLineType::Comment,
+				kind: TadaListLineKind::Comment,
 				item: None,
 			}
 		} else {
 			let parsed = TadaItem::parse(&line);
 			TadaListLine {
 				text: line,
-				line_type: TadaListLineType::Item,
+				kind: TadaListLineKind::Item,
 				item: Some(parsed),
 			}
 		}
@@ -72,7 +72,7 @@ impl TadaList {
 	pub fn items(&self) -> Vec<&TadaItem> {
 		let mut items = Vec::new();
 		for line in &self.lines {
-			if line.line_type == TadaListLineType::Item {
+			if line.kind == TadaListLineKind::Item {
 				let item = line.item.as_ref().unwrap();
 				items.push(item);
 			}
@@ -103,15 +103,15 @@ mod tests {
 		assert_eq!(3, list.lines.len());
 
 		let line = list.lines.get(0).unwrap();
-		assert_eq!(TadaListLineType::Comment, line.line_type);
+		assert_eq!(TadaListLineKind::Comment, line.kind);
 		assert_eq!("# Comment", line.text);
 
 		let line = list.lines.get(1).unwrap();
-		assert_eq!(TadaListLineType::Item, line.line_type);
+		assert_eq!(TadaListLineKind::Item, line.kind);
 		assert_eq!('A', line.item.as_ref().unwrap().priority);
 
 		let line = list.lines.get(2).unwrap();
-		assert_eq!(TadaListLineType::Blank, line.line_type);
+		assert_eq!(TadaListLineKind::Blank, line.kind);
 	}
 
 	#[test]
