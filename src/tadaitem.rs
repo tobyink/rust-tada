@@ -24,6 +24,14 @@ enum Urgency {
 	Later,
 }
 
+/// Three sizes are defined.
+#[allow(dead_code)]
+enum TshirtSize {
+	Small,
+	Medium,
+	Large,
+}
+
 impl fmt::Debug for TadaItem {
 	/// Debugging output; used for format!("{:?}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -187,6 +195,14 @@ impl TadaItem {
 			_ => Some('E'),
 		}
 	}
+
+	/// Return the size of this task.
+	///
+	/// Not implemented yet - needs tag support to work.
+	#[allow(dead_code)]
+	fn tshirt_size(&self) -> Option<TshirtSize> {
+		None
+	}
 }
 
 #[cfg(test)]
@@ -241,6 +257,7 @@ mod tests {
 		assert_eq!("foo bar baz".to_string(), i.description);
 		assert!(i.urgency().is_none());
 		assert_eq!('B', i.importance().unwrap());
+		assert!(i.tshirt_size().is_none());
 
 		let i = TadaItem::parse("2010-01-01 (A) foo bar baz");
 
@@ -251,5 +268,6 @@ mod tests {
 		assert_eq!("(A) foo bar baz".to_string(), i.description);
 		assert!(i.urgency().is_none());
 		assert!(i.importance().is_none());
+		assert!(i.tshirt_size().is_none());
 	}
 }
