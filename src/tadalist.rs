@@ -62,14 +62,10 @@ impl TadaList {
 
 	/// Get a Vec of TadaItem objects from an already-parsed file.
 	pub fn items(&self) -> Vec<&TadaItem> {
-		let mut items = Vec::new();
-		for line in &self.lines {
-			if line.kind == TadaListLineKind::Item {
-				let item = line.item.as_ref().unwrap();
-				items.push(item);
-			}
-		}
-		items
+		let iter = self.lines.iter();
+		iter.filter(|l| l.kind == TadaListLineKind::Item)
+			.map(|l| l.item.as_ref().unwrap())
+			.collect()
 	}
 }
 
