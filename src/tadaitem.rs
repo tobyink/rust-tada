@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::fmt;
@@ -10,6 +10,18 @@ pub struct TadaItem {
 	pub completion_date: Option<NaiveDate>,
 	pub creation_date: Option<NaiveDate>,
 	pub description: String,
+}
+
+/// Seven levels of urgency are defined.
+#[allow(dead_code)]
+enum Urgency {
+	Overdue,
+	Today,
+	Soon,
+	ThisWeek,
+	NextWeek,
+	NextMonth,
+	Later,
 }
 
 impl fmt::Debug for TadaItem {
@@ -111,6 +123,70 @@ impl TadaItem {
 			},
 		}
 	}
+
+	#[allow(dead_code)]
+	fn _last_day_of_next_month(date: &NaiveDate) -> NaiveDate {
+		match date.month() {
+			11 => NaiveDate::from_ymd_opt(date.year() + 1, 1, 1),
+			12 => NaiveDate::from_ymd_opt(date.year() + 1, 2, 1),
+			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
+		}
+		.unwrap()
+		.pred()
+	}
+
+	/// Classify how urgent this task is.
+	#[allow(dead_code)]
+	fn urgency(&self) -> Option<Urgency> {
+		let _date_today = Utc::now().date_naive();
+		let _date_soon = _date_today + Duration::days(2);
+		let _date_weekend = _date_today.week(Weekday::Mon).last_day();
+		let _date_next_weekend = _date_weekend + Duration::days(7);
+		let _date_next_month = Self::_last_day_of_next_month(&_date_today);
+
+		let due = match self.due_date() {
+			Some(d) => d,
+			None => return None,
+		};
+
+		if due < _date_today {
+			Some(Urgency::Overdue)
+		} else if due == _date_today {
+			Some(Urgency::Today)
+		} else if due <= _date_soon {
+			Some(Urgency::Soon)
+		} else if due <= _date_weekend {
+			Some(Urgency::ThisWeek)
+		} else if due <= _date_next_weekend {
+			Some(Urgency::NextWeek)
+		} else if due <= _date_next_month {
+			Some(Urgency::NextMonth)
+		} else {
+			Some(Urgency::Later)
+		}
+	}
+
+	/// Return the date when this task is due by.
+	///
+	/// Not implemented yet - needs tag support to work.
+	#[allow(dead_code)]
+	fn due_date(&self) -> Option<NaiveDate> {
+		None
+	}
+
+	/// Return the importance of this task.
+	///
+	/// Basically the same as priority, except all letters after E
+	/// are treated as being the same as E. Returns None for \0.
+	#[allow(dead_code)]
+	fn importance(&self) -> Option<char> {
+		let p = self.priority;
+		match p {
+			'\0' => None,
+			'A' | 'B' | 'C' | 'D' => Some(p),
+			_ => Some('E'),
+		}
+	}
 }
 
 #[cfg(test)]
@@ -163,6 +239,8 @@ mod tests {
 		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.completion_date.unwrap());
 		assert_eq!(NaiveDate::from_ymd(2000, 12, 31), i.creation_date.unwrap());
 		assert_eq!("foo bar baz".to_string(), i.description);
+		assert!(i.urgency().is_none());
+		assert_eq!('B', i.importance().unwrap());
 
 		let i = TadaItem::parse("2010-01-01 (A) foo bar baz");
 
@@ -171,5 +249,7 @@ mod tests {
 		assert!(!i.completion_date.is_some());
 		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.creation_date.unwrap());
 		assert_eq!("(A) foo bar baz".to_string(), i.description);
+		assert!(i.urgency().is_none());
+		assert!(i.importance().is_none());
 	}
 }
