@@ -27,8 +27,10 @@ pub struct TadaList {
 }
 
 lazy_static! {
-	static ref RE_LINE_COMMENT: Regex = Regex::new(r"^\s*#").unwrap();
+	/// Regular expression to match lines which are entirely whitespace.
 	static ref RE_LINE_BLANK: Regex = Regex::new(r"^\s*$").unwrap();
+	/// Regular expression to match lines which are comments.
+	static ref RE_LINE_COMMENT: Regex = Regex::new(r"^\s*#").unwrap();
 }
 
 impl TadaList {
@@ -45,6 +47,7 @@ impl TadaList {
 		TadaList { lines }
 	}
 
+	/// Helper function to convert a single line string into a TadaListLine.
 	fn _handle_line(line: String) -> TadaListLine {
 		if RE_LINE_BLANK.is_match(&line) {
 			TadaListLine {
@@ -68,6 +71,7 @@ impl TadaList {
 		}
 	}
 
+	/// Get a Vec of TadaItem objects from an already-parsed file.
 	pub fn items(&self) -> Vec<&TadaItem> {
 		let mut items = Vec::new();
 		for line in &self.lines {
