@@ -31,36 +31,38 @@ impl TadaList {
 		let io = BufReader::new(f);
 		let mut lines = Vec::new();
 
-		let re_comment = Regex::new(r"^\s*#").unwrap();
-		let re_blank = Regex::new(r"^\s*$").unwrap();
-
 		for line in io.lines() {
-			let got = line.unwrap();
-			let tl_line = if re_blank.is_match(&got) {
-				TadaListLine {
-					text: got,
-					line_type: TadaListLineType::Blank,
-					item: None,
-				}
-			} else if re_comment.is_match(&got) {
-				TadaListLine {
-					text: got,
-					line_type: TadaListLineType::Comment,
-					item: None,
-				}
-			} else {
-				let parsed = TadaItem::parse(&got);
-				TadaListLine {
-					text: got,
-					line_type: TadaListLineType::Item,
-					item: Some(parsed),
-				}
-			};
-
+			let tl_line = Self::_handle_line(line.unwrap());
 			lines.push(tl_line);
 		}
 
 		TadaList { lines }
+	}
+
+	fn _handle_line(line: String) -> TadaListLine {
+		let re_comment = Regex::new(r"^\s*#").unwrap();
+		let re_blank = Regex::new(r"^\s*$").unwrap();
+
+		if re_blank.is_match(&line) {
+			TadaListLine {
+				text: line,
+				line_type: TadaListLineType::Blank,
+				item: None,
+			}
+		} else if re_comment.is_match(&line) {
+			TadaListLine {
+				text: line,
+				line_type: TadaListLineType::Comment,
+				item: None,
+			}
+		} else {
+			let parsed = TadaItem::parse(&line);
+			TadaListLine {
+				text: line,
+				line_type: TadaListLineType::Item,
+				item: Some(parsed),
+			}
+		}
 	}
 
 	pub fn items(&self) -> Vec<&TadaItem> {
