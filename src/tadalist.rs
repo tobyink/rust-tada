@@ -125,5 +125,6 @@ mod tests {
 
 		let item0 = items.get(0).unwrap();
 		assert_eq!('A', item0.priority);
+		assert!(item0.creation_date.is_some());
 	}
 }
