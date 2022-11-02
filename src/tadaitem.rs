@@ -135,7 +135,7 @@ mod tests {
 
 		assert_eq!("foo bar baz", format!("{}", i));
 
-		let j = TadaItem {
+		let i = TadaItem {
 			completion: true,
 			priority: 'B',
 			completion_date: Some(NaiveDate::from_ymd(2010, 1, 1)),
@@ -143,7 +143,7 @@ mod tests {
 			description: "foo bar baz".to_string(),
 		};
 
-		assert_eq!("x (B) 2010-01-01 2000-12-31 foo bar baz", format!("{}", j));
+		assert_eq!("x (B) 2010-01-01 2000-12-31 foo bar baz", format!("{}", i));
 	}
 
 	#[test]

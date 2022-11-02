@@ -96,16 +96,16 @@ mod tests {
 		let list = TadaList::new_from_file(f2);
 		assert_eq!(3, list.lines.len());
 
-		let line0 = list.lines.get(0).unwrap();
-		assert_eq!(TadaListLineType::Comment, line0.line_type);
-		assert_eq!("# Comment", line0.text);
+		let line = list.lines.get(0).unwrap();
+		assert_eq!(TadaListLineType::Comment, line.line_type);
+		assert_eq!("# Comment", line.text);
 
-		let line1 = list.lines.get(1).unwrap();
-		assert_eq!(TadaListLineType::Item, line1.line_type);
-		assert_eq!('A', line1.item.as_ref().unwrap().priority);
+		let line = list.lines.get(1).unwrap();
+		assert_eq!(TadaListLineType::Item, line.line_type);
+		assert_eq!('A', line.item.as_ref().unwrap().priority);
 
-		let line2 = list.lines.get(2).unwrap();
-		assert_eq!(TadaListLineType::Blank, line2.line_type);
+		let line = list.lines.get(2).unwrap();
+		assert_eq!(TadaListLineType::Blank, line.line_type);
 	}
 
 	#[test]
@@ -123,8 +123,8 @@ mod tests {
 		let items = list.items();
 		assert_eq!(1, items.len());
 
-		let item0 = items.get(0).unwrap();
-		assert_eq!('A', item0.priority);
-		assert!(item0.creation_date.is_some());
+		let item = items.get(0).unwrap();
+		assert_eq!('A', item.priority);
+		assert!(item.creation_date.is_some());
 	}
 }
