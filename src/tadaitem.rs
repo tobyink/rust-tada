@@ -14,7 +14,7 @@ pub struct TadaItem {
 
 /// Seven levels of urgency are defined.
 #[allow(dead_code)]
-enum Urgency {
+pub enum Urgency {
 	Overdue,
 	Today,
 	Soon,
@@ -26,7 +26,7 @@ enum Urgency {
 
 /// Three sizes are defined.
 #[allow(dead_code)]
-enum TshirtSize {
+pub enum TshirtSize {
 	Small,
 	Medium,
 	Large,
