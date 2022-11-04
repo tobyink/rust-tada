@@ -1,6 +1,7 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::collections::HashMap;
 use std::fmt;
 
 /// An item in a todo list.
@@ -10,6 +11,13 @@ pub struct Item {
 	pub completion_date: Option<NaiveDate>,
 	pub creation_date: Option<NaiveDate>,
 	pub description: String,
+	_importance: Option<Option<char>>,
+	_due_date: Option<Option<NaiveDate>>,
+	_urgency: Option<Option<Urgency>>,
+	_tshirt_size: Option<Option<TshirtSize>>,
+	_tags: Option<Vec<String>>,
+	_contexts: Option<Vec<String>>,
+	_kv: Option<HashMap<String, String>>,
 }
 
 /// Seven levels of urgency are defined.
@@ -98,11 +106,29 @@ lazy_static! {
 }
 
 impl Item {
+	pub fn new() -> Item {
+		Item {
+			completion: false,
+			priority: '\0',
+			completion_date: None,
+			creation_date: None,
+			description: String::new(),
+			_importance: None,
+			_due_date: None,
+			_urgency: None,
+			_tshirt_size: None,
+			_tags: None,
+			_contexts: None,
+			_kv: None,
+		}
+	}
+
 	/// Parse an item from a line of text.
 	///
 	/// Assumes the [todo.txt](https://github.com/todotxt/todo.txt) format.
 	pub fn parse(text: &str) -> Item {
 		let caps = RE_TADA_ITEM.captures(text).unwrap();
+		let blank = Self::new();
 
 		Item {
 			completion: caps.get(1).is_some(),
@@ -129,6 +155,7 @@ impl Item {
 				Some(m) => String::from(m.as_str().trim()),
 				None => String::from(""),
 			},
+			..blank
 		}
 	}
 
@@ -212,12 +239,14 @@ mod tests {
 
 	#[test]
 	fn test_debug() {
+		let b = Item::new();
 		let i = Item {
 			completion: false,
 			priority: '\0',
 			completion_date: None,
 			creation_date: None,
 			description: "foo bar baz".to_string(),
+			..b
 		};
 		let dbug = format!("{:?}", i);
 		assert!(dbug.len() > 1);
@@ -225,22 +254,22 @@ mod tests {
 
 	#[test]
 	fn test_display() {
+		let b = Item::new();
 		let i = Item {
-			completion: false,
-			priority: '\0',
-			completion_date: None,
-			creation_date: None,
 			description: "foo bar baz".to_string(),
+			..b
 		};
 
 		assert_eq!("foo bar baz", format!("{}", i));
 
+		let b = Item::new();
 		let i = Item {
 			completion: true,
 			priority: 'B',
 			completion_date: Some(NaiveDate::from_ymd(2010, 1, 1)),
 			creation_date: Some(NaiveDate::from_ymd(2000, 12, 31)),
 			description: "foo bar baz".to_string(),
+			..b
 		};
 
 		assert_eq!("x (B) 2010-01-01 2000-12-31 foo bar baz", format!("{}", i));
