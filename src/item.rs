@@ -221,15 +221,18 @@ impl Item {
 		// type declaration though. :(
 		let cell = &self._importance;
 		if cell.get().is_none() {
-			let priority = self.priority;
-			let importance = match priority {
-				'\0' => None,
-				'A' | 'B' | 'C' | 'D' => Some(priority),
-				_ => Some('E'),
-			};
-			cell.set(Some(importance));
+			cell.set(Some(self._build_importance()));
 		}
 		cell.get().unwrap()
+	}
+	
+	fn _build_importance(&self) -> Option<char> {
+		let priority = self.priority;
+		match priority {
+			'\0' => None,
+			'A' | 'B' | 'C' | 'D' => Some(priority),
+			_ => Some('E'),
+		}
 	}
 
 	/// Return the size of this task.
