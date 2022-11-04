@@ -4,7 +4,7 @@ use regex::Regex;
 use std::fmt;
 
 /// An item in a todo list.
-pub struct TadaItem {
+pub struct Item {
 	pub completion: bool,
 	pub priority: char,
 	pub completion_date: Option<NaiveDate>,
@@ -32,7 +32,7 @@ pub enum TshirtSize {
 	Large,
 }
 
-impl fmt::Debug for TadaItem {
+impl fmt::Debug for Item {
 	/// Debugging output; used for format!("{:?}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("Item")
@@ -45,7 +45,7 @@ impl fmt::Debug for TadaItem {
 	}
 }
 
-impl fmt::Display for TadaItem {
+impl fmt::Display for Item {
 	/// File-ready output; used for format!("{}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		let mut r: String = String::new();
@@ -97,14 +97,14 @@ lazy_static! {
 	.unwrap();
 }
 
-impl TadaItem {
+impl Item {
 	/// Parse an item from a line of text.
 	///
 	/// Assumes the [todo.txt](https://github.com/todotxt/todo.txt) format.
-	pub fn parse(text: &str) -> TadaItem {
+	pub fn parse(text: &str) -> Item {
 		let caps = RE_TADA_ITEM.captures(text).unwrap();
 
-		TadaItem {
+		Item {
 			completion: caps.get(1).is_some(),
 			priority: match caps.get(2) {
 				Some(p) => p.as_str().chars().nth(1).unwrap(),
@@ -212,7 +212,7 @@ mod tests {
 
 	#[test]
 	fn test_debug() {
-		let i = TadaItem {
+		let i = Item {
 			completion: false,
 			priority: '\0',
 			completion_date: None,
@@ -225,7 +225,7 @@ mod tests {
 
 	#[test]
 	fn test_display() {
-		let i = TadaItem {
+		let i = Item {
 			completion: false,
 			priority: '\0',
 			completion_date: None,
@@ -235,7 +235,7 @@ mod tests {
 
 		assert_eq!("foo bar baz", format!("{}", i));
 
-		let i = TadaItem {
+		let i = Item {
 			completion: true,
 			priority: 'B',
 			completion_date: Some(NaiveDate::from_ymd(2010, 1, 1)),
@@ -248,7 +248,7 @@ mod tests {
 
 	#[test]
 	fn test_parse() {
-		let i = TadaItem::parse("x (B) 2010-01-01 2000-12-31 foo bar baz");
+		let i = Item::parse("x (B) 2010-01-01 2000-12-31 foo bar baz");
 
 		assert_eq!(true, i.completion);
 		assert_eq!('B', i.priority);
@@ -259,7 +259,7 @@ mod tests {
 		assert_eq!('B', i.importance().unwrap());
 		assert!(i.tshirt_size().is_none());
 
-		let i = TadaItem::parse("2010-01-01 (A) foo bar baz");
+		let i = Item::parse("2010-01-01 (A) foo bar baz");
 
 		assert!(!i.completion);
 		assert_eq!('\0', i.priority);
