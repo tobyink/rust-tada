@@ -1,9 +1,9 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::cell::Cell;
 use std::collections::HashMap;
 use std::fmt;
-use std::cell::Cell;
 
 /// An item in a todo list.
 pub struct Item {
@@ -12,17 +12,21 @@ pub struct Item {
 	pub completion_date: Option<NaiveDate>,
 	pub creation_date: Option<NaiveDate>,
 	pub description: String,
+	// Cell<Option<Option<T>>> seems to be the best pattern for
+	// implementing Moose-like lazy builders. Kind of an ugly
+	// type declaration though. :(
 	_importance: Cell<Option<Option<char>>>,
 	_due_date: Cell<Option<Option<NaiveDate>>>,
 	_urgency: Cell<Option<Option<Urgency>>>,
 	_tshirt_size: Cell<Option<Option<TshirtSize>>>,
-	_tags: Cell<Option<Vec<String>>>,
-	_contexts: Cell<Option<Vec<String>>>,
-	_kv: Cell<Option<HashMap<String, String>>>,
+	//_tags: Cell<Option<Vec<String>>>,
+	//_contexts: Cell<Option<Vec<String>>>,
+	//_kv: Cell<Option<HashMap<String, String>>>,
 }
 
 /// Seven levels of urgency are defined.
 #[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Urgency {
 	Overdue,
 	Today,
@@ -35,6 +39,7 @@ pub enum Urgency {
 
 /// Three sizes are defined.
 #[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TshirtSize {
 	Small,
 	Medium,
@@ -118,9 +123,9 @@ impl Item {
 			_due_date: Cell::new(None),
 			_urgency: Cell::new(None),
 			_tshirt_size: Cell::new(None),
-			_tags: Cell::new(None),
-			_contexts: Cell::new(None),
-			_kv: Cell::new(None),
+			//_tags: Cell::new(None),
+			//_contexts: Cell::new(None),
+			//_kv: Cell::new(None),
 		}
 	}
 
@@ -160,20 +165,57 @@ impl Item {
 		}
 	}
 
+	/// Return the importance of this task.
+	///
+	/// Basically the same as priority, except all letters after E
+	/// are treated as being the same as E. Returns None for \0.
 	#[allow(dead_code)]
-	fn _last_day_of_next_month(date: &NaiveDate) -> NaiveDate {
-		match date.month() {
-			11 => NaiveDate::from_ymd_opt(date.year() + 1, 1, 1),
-			12 => NaiveDate::from_ymd_opt(date.year() + 1, 2, 1),
-			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
+	fn importance(&self) -> Option<char> {
+		let cell = &self._importance;
+		if cell.get().is_none() {
+			cell.set(Some(self._build_importance()));
 		}
-		.unwrap()
-		.pred()
+		cell.get().unwrap()
+	}
+
+	fn _build_importance(&self) -> Option<char> {
+		let priority = self.priority;
+		match priority {
+			'\0' => None,
+			'A' | 'B' | 'C' | 'D' => Some(priority),
+			_ => Some('E'),
+		}
+	}
+
+	/// Return the date when this task is due by.
+	///
+	/// Not implemented yet - needs tag support to work.
+	#[allow(dead_code)]
+	fn due_date(&self) -> Option<NaiveDate> {
+		let cell = &self._due_date;
+		if cell.get().is_none() {
+			cell.set(Some(self._build_due_date()));
+		}
+		cell.get().unwrap()
+	}
+
+	fn _build_due_date(&self) -> Option<NaiveDate> {
+		None
 	}
 
 	/// Classify how urgent this task is.
+	//
+	// Not implemented fully - needs tag support to work.
 	#[allow(dead_code)]
 	fn urgency(&self) -> Option<Urgency> {
+		let cell = &self._urgency;
+		if cell.get().is_none() {
+			cell.set(Some(self._build_urgency()));
+		}
+		cell.get().unwrap()
+	}
+
+	fn _build_urgency(&self) -> Option<Urgency> {
 		let _date_today = Utc::now().date_naive();
 		let _date_soon = _date_today + Duration::days(2);
 		let _date_weekend = _date_today.week(Weekday::Mon).last_day();
@@ -202,37 +244,15 @@ impl Item {
 		}
 	}
 
-	/// Return the date when this task is due by.
-	///
-	/// Not implemented yet - needs tag support to work.
 	#[allow(dead_code)]
-	fn due_date(&self) -> Option<NaiveDate> {
-		None
-	}
-
-	/// Return the importance of this task.
-	///
-	/// Basically the same as priority, except all letters after E
-	/// are treated as being the same as E. Returns None for \0.
-	#[allow(dead_code)]
-	fn importance(&self) -> Option<char> {
-		// Cell<Option<Option<T>>> seems to be the best pattern for
-		// implementing Moose-like lazy builders. Kind of an ugly
-		// type declaration though. :(
-		let cell = &self._importance;
-		if cell.get().is_none() {
-			cell.set(Some(self._build_importance()));
+	fn _last_day_of_next_month(date: &NaiveDate) -> NaiveDate {
+		match date.month() {
+			11 => NaiveDate::from_ymd_opt(date.year() + 1, 1, 1),
+			12 => NaiveDate::from_ymd_opt(date.year() + 1, 2, 1),
+			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
 		}
-		cell.get().unwrap()
-	}
-	
-	fn _build_importance(&self) -> Option<char> {
-		let priority = self.priority;
-		match priority {
-			'\0' => None,
-			'A' | 'B' | 'C' | 'D' => Some(priority),
-			_ => Some('E'),
-		}
+		.unwrap()
+		.pred()
 	}
 
 	/// Return the size of this task.
@@ -240,7 +260,45 @@ impl Item {
 	/// Not implemented yet - needs tag support to work.
 	#[allow(dead_code)]
 	fn tshirt_size(&self) -> Option<TshirtSize> {
+		let cell = &self._tshirt_size;
+		if cell.get().is_none() {
+			cell.set(Some(self._build_tshirt_size()));
+		}
+		cell.get().unwrap()
+	}
+
+	fn _build_tshirt_size(&self) -> Option<TshirtSize> {
 		None
+	}
+
+	/// Tags.
+	#[allow(dead_code)]
+	fn tags(&self) -> Vec<String> {
+		self._build_tags()
+	}
+
+	fn _build_tags(&self) -> Vec<String> {
+		Vec::new()
+	}
+
+	/// Contexts.
+	#[allow(dead_code)]
+	fn contexts(&self) -> Vec<String> {
+		self._build_contexts()
+	}
+
+	fn _build_contexts(&self) -> Vec<String> {
+		Vec::new()
+	}
+
+	/// Key-Value Tags.
+	#[allow(dead_code)]
+	fn kv(&self) -> HashMap<String, String> {
+		self._build_kv()
+	}
+
+	fn _build_kv(&self) -> HashMap<String, String> {
+		HashMap::new()
 	}
 }
 
@@ -299,6 +357,9 @@ mod tests {
 		assert!(i.urgency().is_none());
 		assert_eq!('B', i.importance().unwrap());
 		assert!(i.tshirt_size().is_none());
+		assert_eq!(Vec::<String>::new(), i.tags());
+		assert_eq!(Vec::<String>::new(), i.contexts());
+		assert_eq!(HashMap::<String, String>::new(), i.kv());
 
 		let i = Item::parse("2010-01-01 (A) foo bar baz");
 
