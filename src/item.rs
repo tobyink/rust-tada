@@ -109,6 +109,42 @@ lazy_static! {
 		$                               # end
 	"##)
 	.unwrap();
+
+	/// Constant for today's date.
+	///
+	/// These date constants are evaluated once to ensure predictable behaviour
+	/// when the application is run at midnight.
+	///
+	/// This may cause issues later on if we want to run a persistent tadalist
+	/// process.
+	static ref DATE_TODAY: NaiveDate = Utc::now().date_naive();
+
+	/// Constant representing "soon".
+	///
+	/// Tomorrow or overmorrow.
+	static ref DATE_SOON: NaiveDate = Utc::now().date_naive() + Duration::days(2);
+
+	/// Constant representing the end of this week.
+	///
+	/// Weeks end on Sunday.
+	static ref DATE_WEEKEND: NaiveDate = Utc::now().date_naive().week(Weekday::Mon).last_day();
+
+	/// Constant representing the end of next week.
+	static ref DATE_NEXT_WEEKEND: NaiveDate = Utc::now().date_naive().week(Weekday::Mon).last_day() + Duration::days(7);
+
+	/// Constant representing the end of next month.
+	///
+	/// Who cares when *this* month ends?!
+	static ref DATE_NEXT_MONTH: NaiveDate = {
+		let date = Utc::now().date_naive();
+		match date.month() {
+			11 => NaiveDate::from_ymd_opt(date.year() + 1, 1, 1),
+			12 => NaiveDate::from_ymd_opt(date.year() + 1, 2, 1),
+			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
+		}
+		.unwrap()
+		.pred()
+	};
 }
 
 impl Item {
@@ -216,43 +252,26 @@ impl Item {
 	}
 
 	fn _build_urgency(&self) -> Option<Urgency> {
-		let _date_today = Utc::now().date_naive();
-		let _date_soon = _date_today + Duration::days(2);
-		let _date_weekend = _date_today.week(Weekday::Mon).last_day();
-		let _date_next_weekend = _date_weekend + Duration::days(7);
-		let _date_next_month = Self::_last_day_of_next_month(&_date_today);
-
 		let due = match self.due_date() {
 			Some(d) => d,
 			None => return None,
 		};
 
-		if due < _date_today {
+		if due < *DATE_TODAY {
 			Some(Urgency::Overdue)
-		} else if due == _date_today {
+		} else if due == *DATE_TODAY {
 			Some(Urgency::Today)
-		} else if due <= _date_soon {
+		} else if due <= *DATE_SOON {
 			Some(Urgency::Soon)
-		} else if due <= _date_weekend {
+		} else if due <= *DATE_WEEKEND {
 			Some(Urgency::ThisWeek)
-		} else if due <= _date_next_weekend {
+		} else if due <= *DATE_NEXT_WEEKEND {
 			Some(Urgency::NextWeek)
-		} else if due <= _date_next_month {
+		} else if due <= *DATE_NEXT_MONTH {
 			Some(Urgency::NextMonth)
 		} else {
 			Some(Urgency::Later)
 		}
-	}
-
-	#[allow(dead_code)]
-	fn _last_day_of_next_month(date: &NaiveDate) -> NaiveDate {
-		match date.month() {
-			11 => NaiveDate::from_ymd_opt(date.year() + 1, 1, 1),
-			12 => NaiveDate::from_ymd_opt(date.year() + 1, 2, 1),
-			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
-		}
-		.unwrap()
-		.pred()
 	}
 
 	/// Return the size of this task.
