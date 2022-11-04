@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
+use std::cell::Cell;
 
 /// An item in a todo list.
 pub struct Item {
@@ -11,13 +12,13 @@ pub struct Item {
 	pub completion_date: Option<NaiveDate>,
 	pub creation_date: Option<NaiveDate>,
 	pub description: String,
-	_importance: Option<Option<char>>,
-	_due_date: Option<Option<NaiveDate>>,
-	_urgency: Option<Option<Urgency>>,
-	_tshirt_size: Option<Option<TshirtSize>>,
-	_tags: Option<Vec<String>>,
-	_contexts: Option<Vec<String>>,
-	_kv: Option<HashMap<String, String>>,
+	_importance: Cell<Option<Option<char>>>,
+	_due_date: Cell<Option<Option<NaiveDate>>>,
+	_urgency: Cell<Option<Option<Urgency>>>,
+	_tshirt_size: Cell<Option<Option<TshirtSize>>>,
+	_tags: Cell<Option<Vec<String>>>,
+	_contexts: Cell<Option<Vec<String>>>,
+	_kv: Cell<Option<HashMap<String, String>>>,
 }
 
 /// Seven levels of urgency are defined.
@@ -113,13 +114,13 @@ impl Item {
 			completion_date: None,
 			creation_date: None,
 			description: String::new(),
-			_importance: None,
-			_due_date: None,
-			_urgency: None,
-			_tshirt_size: None,
-			_tags: None,
-			_contexts: None,
-			_kv: None,
+			_importance: Cell::new(None),
+			_due_date: Cell::new(None),
+			_urgency: Cell::new(None),
+			_tshirt_size: Cell::new(None),
+			_tags: Cell::new(None),
+			_contexts: Cell::new(None),
+			_kv: Cell::new(None),
 		}
 	}
 
@@ -215,12 +216,20 @@ impl Item {
 	/// are treated as being the same as E. Returns None for \0.
 	#[allow(dead_code)]
 	fn importance(&self) -> Option<char> {
-		let p = self.priority;
-		match p {
-			'\0' => None,
-			'A' | 'B' | 'C' | 'D' => Some(p),
-			_ => Some('E'),
+		// Cell<Option<Option<T>>> seems to be the best pattern for
+		// implementing Moose-like lazy builders. Kind of an ugly
+		// type declaration though. :(
+		let cell = &self._importance;
+		if cell.get().is_none() {
+			let priority = self.priority;
+			let importance = match priority {
+				'\0' => None,
+				'A' | 'B' | 'C' | 'D' => Some(priority),
+				_ => Some('E'),
+			};
+			cell.set(Some(importance));
 		}
+		cell.get().unwrap()
 	}
 
 	/// Return the size of this task.
