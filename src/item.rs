@@ -131,6 +131,10 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	static ref RE_SIZE_SMALL: Regex  = Regex::new("(?i)^X*S$").unwrap();
+	static ref RE_SIZE_MEDIUM: Regex = Regex::new("(?i)^X*M$").unwrap();
+	static ref RE_SIZE_LARGE: Regex  = Regex::new("(?i)^X*L$").unwrap();
+
 	/// Constant for today's date.
 	///
 	/// These date constants are evaluated once to ensure predictable behaviour
@@ -311,6 +315,32 @@ impl Item {
 	}
 
 	fn _build_tshirt_size(&self) -> Option<TshirtSize> {
+		let ctx = self.contexts();
+
+		let ctx_s: Vec<&String> = ctx
+			.iter()
+			.filter(|x| RE_SIZE_SMALL.is_match(x))
+			.collect();
+		if !ctx_s.is_empty() {
+			return Some(TshirtSize::Small);
+		}
+
+		let ctx_m: Vec<&String> = ctx
+			.iter()
+			.filter(|x| RE_SIZE_MEDIUM.is_match(x))
+			.collect();
+		if !ctx_m.is_empty() {
+			return Some(TshirtSize::Medium);
+		}
+
+		let ctx_l: Vec<&String> = ctx
+			.iter()
+			.filter(|x| RE_SIZE_LARGE.is_match(x))
+			.collect();
+		if !ctx_l.is_empty() {
+			return Some(TshirtSize::Large);
+		}
+
 		None
 	}
 
@@ -467,5 +497,17 @@ mod tests {
 			"bam".to_string(),
 		]);
 		assert_eq!(expected_ctx, i.contexts());
+	}
+
+	#[test]
+	fn test_tshirt_size() {
+		let i = Item::parse("@M Barble");
+		assert_eq!(TshirtSize::Medium, i.tshirt_size().unwrap());
+
+		let i = Item::parse("(A) Fooble @XxL Barble");
+		assert_eq!(TshirtSize::Large, i.tshirt_size().unwrap());
+
+		let i = Item::parse("Barble");
+		assert!(i.tshirt_size().is_none());
 	}
 }
