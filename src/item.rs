@@ -239,7 +239,7 @@ impl Item {
 	/// Basically the same as priority, except all letters after E
 	/// are treated as being the same as E. Returns None for \0.
 	#[allow(dead_code)]
-	fn importance(&self) -> Option<char> {
+	pub fn importance(&self) -> Option<char> {
 		let cell = &self._importance;
 		if cell.get().is_none() {
 			cell.set(Some(self._build_importance()));
@@ -258,7 +258,7 @@ impl Item {
 
 	/// Return the date when this task is due by.
 	#[allow(dead_code)]
-	fn due_date(&self) -> Option<NaiveDate> {
+	pub fn due_date(&self) -> Option<NaiveDate> {
 		let cell = &self._due_date;
 		if cell.get().is_none() {
 			cell.set(Some(self._build_due_date()));
@@ -275,7 +275,7 @@ impl Item {
 
 	/// Classify how urgent this task is.
 	#[allow(dead_code)]
-	fn urgency(&self) -> Option<Urgency> {
+	pub fn urgency(&self) -> Option<Urgency> {
 		let cell = &self._urgency;
 		if cell.get().is_none() {
 			cell.set(Some(self._build_urgency()));
@@ -308,7 +308,7 @@ impl Item {
 
 	/// Return the size of this task.
 	#[allow(dead_code)]
-	fn tshirt_size(&self) -> Option<TshirtSize> {
+	pub fn tshirt_size(&self) -> Option<TshirtSize> {
 		let cell = &self._tshirt_size;
 		if cell.get().is_none() {
 			cell.set(Some(self._build_tshirt_size()));
@@ -339,7 +339,7 @@ impl Item {
 
 	/// Tags.
 	#[allow(dead_code)]
-	fn tags(&self) -> Vec<String> {
+	pub fn tags(&self) -> Vec<String> {
 		self._build_tags()
 	}
 
@@ -353,7 +353,7 @@ impl Item {
 
 	/// Contexts.
 	#[allow(dead_code)]
-	fn contexts(&self) -> Vec<String> {
+	pub fn contexts(&self) -> Vec<String> {
 		self._build_contexts()
 	}
 
@@ -367,7 +367,7 @@ impl Item {
 
 	/// Key-Value Tags.
 	#[allow(dead_code)]
-	fn kv(&self) -> HashMap<String, String> {
+	pub fn kv(&self) -> HashMap<String, String> {
 		self._build_kv()
 	}
 
