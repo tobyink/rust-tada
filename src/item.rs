@@ -36,7 +36,7 @@ pub struct Item {
 
 /// Seven levels of urgency are defined.
 #[allow(dead_code)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Urgency {
 	Overdue,
 	Today,
@@ -47,9 +47,19 @@ pub enum Urgency {
 	Later,
 }
 
+pub static URGENCIES: [Urgency; 7] = [
+	Urgency::Overdue,
+	Urgency::Today,
+	Urgency::Soon,
+	Urgency::ThisWeek,
+	Urgency::NextWeek,
+	Urgency::NextMonth,
+	Urgency::Later,
+];
+
 /// Three sizes are defined.
 #[allow(dead_code)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum TshirtSize {
 	Small,
 	Medium,
@@ -460,10 +470,34 @@ impl Item {
 			r = console::strip_ansi_codes(&r).to_string();
 		}
 
-		write!(stream, "{}", r).expect("panik");
 		if cfg.with_newline {
-			write!(stream, "\n").expect("panik");
+			writeln!(stream, "{}", r).expect("panik");
+		} else {
+			write!(stream, "{}", r).expect("panik");
 		}
+	}
+
+	pub fn preferred_sort(items: Vec<&Item>) -> Vec<&Item> {
+		let mut out = items.clone();
+		out.sort_by_cached_key(|i| {
+			(
+				i.urgency().unwrap_or(Urgency::Soon),
+				i.importance().unwrap_or('D'),
+				i.tshirt_size().unwrap_or(TshirtSize::Medium),
+			)
+		});
+		out
+	}
+
+	pub fn split_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>> {
+		let mut out: HashMap<Urgency, Vec<&Item>> = HashMap::new();
+		for i in items {
+			let list = out
+				.entry(i.urgency().unwrap_or(Urgency::Soon))
+				.or_insert_with(Vec::new);
+			list.push(i);
+		}
+		out
 	}
 }
 

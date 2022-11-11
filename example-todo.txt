@@ -1,4 +1,10 @@
 x (A) 2000-01-01 Foo bar @baz
-Meh meh meh
-(B) Quux quuux
+Meh meh meh due:2024-01-01 yeah +S
+Meh meh meh due:2024-01-01 yeah +M
+Meh meh meh due:2024-01-01 yeah +XL
+Meh meh meh due:2022-12-01 yeah
+Meh meh meh due:2024-01-01 yeah
+(B) Quux quuux due:1980-06-01
+(C) Quux quuux due:1980-06-01 low
+(A) Quux quuux due:1980-06-01 high
 (C) Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. Yeah yeah yeah. 
