@@ -352,6 +352,7 @@ impl Item {
 	}
 
 	/// Tags.
+	#[allow(dead_code)]
 	pub fn tags(&self) -> Vec<String> {
 		self._build_tags()
 	}
