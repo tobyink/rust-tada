@@ -110,6 +110,8 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	static ref RE_KV: Regex = Regex::new(r##"([^\s:]+):([^\s:]+)"##).unwrap();
+
 	/// Constant for today's date.
 	///
 	/// These date constants are evaluated once to ensure predictable behaviour
@@ -236,7 +238,10 @@ impl Item {
 	}
 
 	fn _build_due_date(&self) -> Option<NaiveDate> {
-		None
+		match self.kv().get("due") {
+			Some(dd) => NaiveDate::parse_from_str(dd, "%Y-%m-%d").ok(),
+			None => None,
+		}
 	}
 
 	/// Classify how urgent this task is.
@@ -317,7 +322,11 @@ impl Item {
 	}
 
 	fn _build_kv(&self) -> HashMap<String, String> {
-		HashMap::new()
+		let mut kv: HashMap<String, String> = HashMap::new();
+		for cap in RE_KV.captures_iter(&self.description) {
+			kv.insert(cap[1].to_string(), cap[2].to_string());
+		}
+		kv
 	}
 }
 
@@ -366,6 +375,7 @@ mod tests {
 
 	#[test]
 	fn test_parse() {
+		// Parse a complex line
 		let i = Item::parse("x (B) 2010-01-01 2000-12-31 foo bar baz");
 
 		assert_eq!(true, i.completion);
@@ -380,15 +390,33 @@ mod tests {
 		assert_eq!(Vec::<String>::new(), i.contexts());
 		assert_eq!(HashMap::<String, String>::new(), i.kv());
 
+		// Parse a misleading line
 		let i = Item::parse("2010-01-01 (A) foo bar baz");
 
 		assert!(!i.completion);
 		assert_eq!('\0', i.priority);
-		assert!(!i.completion_date.is_some());
+		assert!(i.completion_date.is_none());
 		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.creation_date.unwrap());
 		assert_eq!("(A) foo bar baz".to_string(), i.description);
-		assert!(i.urgency().is_none());
-		assert!(i.importance().is_none());
-		assert!(i.tshirt_size().is_none());
+	}
+
+	#[test]
+	fn test_kv() {
+		let i = Item::parse("(A) foo bar abc:xyz def:123");
+		let expected_kv = HashMap::from([
+			("abc".to_string(), "xyz".to_string()),
+			("def".to_string(), "123".to_string()),
+		]);
+
+		assert_eq!('A', i.priority);
+		assert_eq!("foo bar abc:xyz def:123".to_string(), i.description);
+		assert_eq!(expected_kv, i.kv());
+	}
+
+	#[test]
+	fn test_due_date() {
+		let i = Item::parse("(A) foo bar due:1980-06-01");
+
+		assert_eq!(NaiveDate::from_ymd(1980, 6, 1), i.due_date().unwrap());
 	}
 }
