@@ -35,7 +35,6 @@ pub struct Item {
 }
 
 /// Seven levels of urgency are defined.
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Urgency {
 	Overdue,
@@ -58,7 +57,6 @@ pub static URGENCIES: [Urgency; 7] = [
 ];
 
 /// Three sizes are defined.
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum TshirtSize {
 	Small,
@@ -258,7 +256,6 @@ impl Item {
 	///
 	/// Basically the same as priority, except all letters after E
 	/// are treated as being the same as E. Returns None for \0.
-	#[allow(dead_code)]
 	pub fn importance(&self) -> Option<char> {
 		let cell = &self._importance;
 		if cell.get().is_none() {
@@ -277,7 +274,6 @@ impl Item {
 	}
 
 	/// Return the date when this task is due by.
-	#[allow(dead_code)]
 	pub fn due_date(&self) -> Option<NaiveDate> {
 		let cell = &self._due_date;
 		if cell.get().is_none() {
@@ -294,7 +290,6 @@ impl Item {
 	}
 
 	/// Classify how urgent this task is.
-	#[allow(dead_code)]
 	pub fn urgency(&self) -> Option<Urgency> {
 		let cell = &self._urgency;
 		if cell.get().is_none() {
@@ -327,7 +322,6 @@ impl Item {
 	}
 
 	/// Return the size of this task.
-	#[allow(dead_code)]
 	pub fn tshirt_size(&self) -> Option<TshirtSize> {
 		let cell = &self._tshirt_size;
 		if cell.get().is_none() {
@@ -358,7 +352,6 @@ impl Item {
 	}
 
 	/// Tags.
-	#[allow(dead_code)]
 	pub fn tags(&self) -> Vec<String> {
 		self._build_tags()
 	}
@@ -372,7 +365,6 @@ impl Item {
 	}
 
 	/// Contexts.
-	#[allow(dead_code)]
 	pub fn contexts(&self) -> Vec<String> {
 		self._build_contexts()
 	}
@@ -386,7 +378,6 @@ impl Item {
 	}
 
 	/// Key-Value Tags.
-	#[allow(dead_code)]
 	pub fn kv(&self) -> HashMap<String, String> {
 		self._build_kv()
 	}
