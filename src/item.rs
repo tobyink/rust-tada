@@ -135,13 +135,13 @@ lazy_static! {
 	.unwrap();
 
 	/// Regular expression to match contexts indicating a small tshirt size.
-	static ref RE_SIZE_SMALL: Regex  = Regex::new("(?i)^X*S$").unwrap();
+	static ref RE_SMALL: Regex  = Regex::new("(?i)^X*S$").unwrap();
 
 	/// Regular expression to match contexts indicating a medium tshirt size.
-	static ref RE_SIZE_MEDIUM: Regex = Regex::new("(?i)^X*M$").unwrap();
+	static ref RE_MEDIUM: Regex = Regex::new("(?i)^X*M$").unwrap();
 
 	/// Regular expression to match contexts indicating a large tshirt size.
-	static ref RE_SIZE_LARGE: Regex  = Regex::new("(?i)^X*L$").unwrap();
+	static ref RE_LARGE: Regex  = Regex::new("(?i)^X*L$").unwrap();
 
 	/// Constant for today's date.
 	///
@@ -319,27 +319,18 @@ impl Item {
 	fn _build_tshirt_size(&self) -> Option<TshirtSize> {
 		let ctx = self.contexts();
 
-		let ctx_s: Vec<&String> = ctx
-			.iter()
-			.filter(|x| RE_SIZE_SMALL.is_match(x))
-			.collect();
-		if !ctx_s.is_empty() {
+		let mut tmp = ctx.iter().filter(|x| RE_SMALL.is_match(x));
+		if tmp.next().is_some() {
 			return Some(TshirtSize::Small);
 		}
 
-		let ctx_m: Vec<&String> = ctx
-			.iter()
-			.filter(|x| RE_SIZE_MEDIUM.is_match(x))
-			.collect();
-		if !ctx_m.is_empty() {
+		let mut tmp = ctx.iter().filter(|x| RE_MEDIUM.is_match(x));
+		if tmp.next().is_some() {
 			return Some(TshirtSize::Medium);
 		}
 
-		let ctx_l: Vec<&String> = ctx
-			.iter()
-			.filter(|x| RE_SIZE_LARGE.is_match(x))
-			.collect();
-		if !ctx_l.is_empty() {
+		let mut tmp = ctx.iter().filter(|x| RE_LARGE.is_match(x));
+		if tmp.next().is_some() {
 			return Some(TshirtSize::Large);
 		}
 
