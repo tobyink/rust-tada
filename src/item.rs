@@ -110,7 +110,7 @@ lazy_static! {
 	"##)
 	.unwrap();
 
-	static ref RE_KV: Regex = Regex::new(r##"([^\s:]+):([^\s:]+)"##).unwrap();
+	static ref RE_KV: Regex = Regex::new(r##"\b([^\s:]+):([^\s:]+)\b"##).unwrap();
 
 	/// Constant for today's date.
 	///
