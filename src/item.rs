@@ -101,16 +101,35 @@ lazy_static! {
 	/// Regular expression to capture the parts of a tada list line.
 	static ref RE_TADA_ITEM: Regex = Regex::new(r##"(?x)
 		^                               # start
-		( x \s+ )?                      # optional "x"
-		( [(] [A-Z] [)] \s+ )?          # optional priority letter
-		( \d{4} - \d{2} - \d{2} \s+ )?  # optional date
-		( \d{4} - \d{2} - \d{2} \s+ )?  # optional date
-		( .+ )                          # description
+		( x \s+ )?                      # capture: optional "x"
+		( [(] [A-Z] [)] \s+ )?          # capture: optional priority letter
+		( \d{4} - \d{2} - \d{2} \s+ )?  # capture: optional date
+		( \d{4} - \d{2} - \d{2} \s+ )?  # capture: optional date
+		( .+ )                          # capture: description
 		$                               # end
 	"##)
 	.unwrap();
 
-	static ref RE_KV: Regex = Regex::new(r##"\b([^\s:]+):([^\s:]+)\b"##).unwrap();
+	static ref RE_KV: Regex = Regex::new(r##"(?x)
+		([^\s:]+)                       # capture: key
+		:                               # colon
+		([^\s:]+)                       # capture: value
+	"##)
+	.unwrap();
+
+	static ref RE_TAG: Regex = Regex::new(r##"(?x)
+		(?:^|\s)                        # whitespace or start of string
+		[+]                             # plus sign
+		(\S+)                           # capture: tag
+	"##)
+	.unwrap();
+
+	static ref RE_CONTEXT: Regex = Regex::new(r##"(?x)
+		(?:^|\s)                        # whitespace or start of string
+		[@]                             # at sign
+		(\S+)                           # capture: context
+	"##)
+	.unwrap();
 
 	/// Constant for today's date.
 	///
@@ -302,7 +321,11 @@ impl Item {
 	}
 
 	fn _build_tags(&self) -> Vec<String> {
-		Vec::new()
+		let mut tags: Vec<String> = Vec::new();
+		for cap in RE_TAG.captures_iter(&self.description) {
+			tags.push(cap[1].to_string());
+		}
+		tags
 	}
 
 	/// Contexts.
@@ -312,7 +335,11 @@ impl Item {
 	}
 
 	fn _build_contexts(&self) -> Vec<String> {
-		Vec::new()
+		let mut tags: Vec<String> = Vec::new();
+		for cap in RE_CONTEXT.captures_iter(&self.description) {
+			tags.push(cap[1].to_string());
+		}
+		tags
 	}
 
 	/// Key-Value Tags.
@@ -418,5 +445,27 @@ mod tests {
 		let i = Item::parse("(A) foo bar due:1980-06-01");
 
 		assert_eq!(NaiveDate::from_ymd(1980, 6, 1), i.due_date().unwrap());
+	}
+
+	#[test]
+	fn test_tags() {
+		let i = Item::parse("(A) +Foo +foo bar+baz +bam");
+		let expected_tags = Vec::from([
+			"Foo".to_string(),
+			"foo".to_string(),
+			"bam".to_string(),
+		]);
+		assert_eq!(expected_tags, i.tags());
+	}
+
+	#[test]
+	fn test_contexts() {
+		let i = Item::parse("(A) @Foo @foo bar@baz @bam");
+		let expected_ctx = Vec::from([
+			"Foo".to_string(),
+			"foo".to_string(),
+			"bam".to_string(),
+		]);
+		assert_eq!(expected_ctx, i.contexts());
 	}
 }
