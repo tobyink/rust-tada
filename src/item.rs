@@ -110,6 +110,7 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	/// Regular expression to find key-value tags within a description.
 	static ref RE_KV: Regex = Regex::new(r##"(?x)
 		([^\s:]+)                       # capture: key
 		:                               # colon
@@ -117,6 +118,7 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	/// Regular expression to find tags within a description.
 	static ref RE_TAG: Regex = Regex::new(r##"(?x)
 		(?:^|\s)                        # whitespace or start of string
 		[+]                             # plus sign
@@ -124,6 +126,7 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	/// Regular expression to find contexts within a description.
 	static ref RE_CONTEXT: Regex = Regex::new(r##"(?x)
 		(?:^|\s)                        # whitespace or start of string
 		[@]                             # at sign
@@ -131,8 +134,13 @@ lazy_static! {
 	"##)
 	.unwrap();
 
+	/// Regular expression to match contexts indicating a small tshirt size.
 	static ref RE_SIZE_SMALL: Regex  = Regex::new("(?i)^X*S$").unwrap();
+
+	/// Regular expression to match contexts indicating a medium tshirt size.
 	static ref RE_SIZE_MEDIUM: Regex = Regex::new("(?i)^X*M$").unwrap();
+
+	/// Regular expression to match contexts indicating a large tshirt size.
 	static ref RE_SIZE_LARGE: Regex  = Regex::new("(?i)^X*L$").unwrap();
 
 	/// Constant for today's date.
@@ -249,8 +257,6 @@ impl Item {
 	}
 
 	/// Return the date when this task is due by.
-	///
-	/// Not implemented yet - needs tag support to work.
 	#[allow(dead_code)]
 	fn due_date(&self) -> Option<NaiveDate> {
 		let cell = &self._due_date;
@@ -268,8 +274,6 @@ impl Item {
 	}
 
 	/// Classify how urgent this task is.
-	//
-	// Not implemented fully - needs tag support to work.
 	#[allow(dead_code)]
 	fn urgency(&self) -> Option<Urgency> {
 		let cell = &self._urgency;
@@ -303,8 +307,6 @@ impl Item {
 	}
 
 	/// Return the size of this task.
-	///
-	/// Not implemented yet - needs tag support to work.
 	#[allow(dead_code)]
 	fn tshirt_size(&self) -> Option<TshirtSize> {
 		let cell = &self._tshirt_size;
