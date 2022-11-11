@@ -471,6 +471,33 @@ mod tests {
 	}
 
 	#[test]
+	fn test_urgency() {
+		let i = Item::parse("(A) foo bar due:1970-06-01");
+		assert_eq!(Urgency::Overdue, i.urgency().unwrap());
+
+		let i = Item::parse(&format!(
+			"(A) foo bar due:{}",
+			Utc::now().date_naive().format("%Y-%m-%d")
+		));
+		assert_eq!(Urgency::Today, i.urgency().unwrap());
+
+		let i = Item::parse(&format!(
+			"(A) foo bar due:{}",
+			(Utc::now().date_naive() + Duration::days(1)).format("%Y-%m-%d")
+		));
+		assert_eq!(Urgency::Soon, i.urgency().unwrap());
+
+		let i = Item::parse(&format!(
+			"(A) foo bar due:{}",
+			(Utc::now().date_naive() + Duration::days(18)).format("%Y-%m-%d")
+		));
+		assert_eq!(Urgency::NextMonth, i.urgency().unwrap());
+
+		let i = Item::parse("(A) foo bar due:3970-06-01");
+		assert_eq!(Urgency::Later, i.urgency().unwrap());
+	}
+
+	#[test]
 	fn test_tags() {
 		let i = Item::parse("(A) +Foo +foo bar+baz +bam");
 		let expected_tags = Vec::from([
