@@ -1,9 +1,19 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
+use console::Style;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::cell::Cell;
 use std::collections::HashMap;
 use std::fmt;
+use substring::Substring;
+
+pub struct ItemFormatConfig {
+	pub width: usize,
+	pub colour: bool,
+	pub with_creation_date: bool,
+	pub with_completion_date: bool,
+	pub with_newline: bool,
+}
 
 /// An item in a todo list.
 pub struct Item {
@@ -377,6 +387,97 @@ impl Item {
 			kv.insert(cap[1].to_string(), cap[2].to_string());
 		}
 		kv
+	}
+
+	pub fn write_to(
+		&self,
+		stream: &mut dyn std::io::Write,
+		cfg: &ItemFormatConfig,
+	) {
+		let mut r: String = String::new();
+
+		if self.completion {
+			r.push_str("x ");
+		} else {
+			r.push_str("  ");
+		}
+
+		if self.priority == '\0' {
+			r.push_str("    ");
+		} else {
+			let style = match self.importance() {
+				Some('A') => Style::new().red().bold(),
+				Some('B') => Style::new().yellow().bold(),
+				Some('C') => Style::new().green().bold(),
+				Some(_) => Style::new().bold(),
+				_ => Style::new(),
+			};
+			let paren = format!("({}) ", style.apply_to(self.priority));
+			r.push_str(&paren);
+		}
+
+		if cfg.with_completion_date {
+			if self.completion && self.completion_date.is_some() {
+				let date = self
+					.completion_date
+					.unwrap()
+					.format("%Y-%m-%d ")
+					.to_string();
+				r.push_str(&date);
+			} else {
+				r.push_str("           ");
+			}
+		}
+
+		if cfg.with_creation_date {
+			if self.creation_date.is_some() {
+				let date = self
+					.creation_date
+					.unwrap()
+					.format("%Y-%m-%d ")
+					.to_string();
+				r.push_str(&date);
+			} else {
+				r.push_str("           ");
+			}
+		}
+
+		let len = cfg.width - console::strip_ansi_codes(&r).len();
+		r.push_str(self.description.substring(0, len));
+
+		if self.completion {
+			if cfg.colour {
+				r = format!(
+					"{}",
+					Style::new()
+						.dim()
+						.apply_to(console::strip_ansi_codes(&r).to_string())
+				);
+			} else {
+				r = console::strip_ansi_codes(&r).to_string();
+			}
+		} else if !cfg.colour {
+			r = console::strip_ansi_codes(&r).to_string();
+		}
+
+		write!(stream, "{}", r).expect("panik");
+		if cfg.with_newline {
+			write!(stream, "\n").expect("panik");
+		}
+	}
+}
+
+impl ItemFormatConfig {
+	pub fn new() -> ItemFormatConfig {
+		let term = console::Term::stdout();
+		let (_height, width) = term.size();
+		ItemFormatConfig {
+			width: width.into(),
+			colour: false,
+			with_creation_date: false,
+			with_completion_date: false,
+			with_newline: true,
+		}
 	}
 }
 
