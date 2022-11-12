@@ -19,7 +19,7 @@ pub fn execute(args: &ArgMatches) {
 		.get_one::<String>("file")
 		.unwrap_or(&default);
 
-	let testfile = File::open(&filename);
+	let testfile = File::open(filename);
 	let l = List::new_from_file(testfile.unwrap());
 
 	let split = Item::split_by_urgency(l.items());
