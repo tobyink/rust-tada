@@ -507,6 +507,18 @@ impl ItemFormatConfig {
 	}
 }
 
+impl Default for Item {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
+impl Default for ItemFormatConfig {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
