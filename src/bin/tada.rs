@@ -1,8 +1,4 @@
-mod item;
-mod list;
-use crate::item::*;
-use crate::list::*;
-
+use tada::*;
 use std::fs::File;
 use std::io;
 use std::io::Write;
