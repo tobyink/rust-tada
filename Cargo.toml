@@ -1,7 +1,13 @@
 [package]
 name = "tada"
+description = "a todo list manager"
 version = "0.1.0"
+authors = [ "Toby Inkster <tobyink@cpan.org>" ]
 edition = "2021"
+repository = "https://github.com/tobyink/rust-tada"
+license = "MIT OR Apache-2.0 OR GPL-2.0-or-later"
+keywords = [ "todotxt", "todo", "task" ]
+categories = [ "command-line-utilities" ]
 
 [dependencies]
 regex = "0.2"
