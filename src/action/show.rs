@@ -4,23 +4,20 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 
+/// Options for the `show` subcommand.
 pub fn get_action() -> Action {
 	let name = String::from("show");
 	let mut command = Command::new("show").about("Show the full todo list");
 
-	command = Action::_add_file_options(command);
+	command = Action::_add_todotxt_file_options(command);
 
 	Action { name, command }
 }
 
+/// Execute the `show` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let default = String::from("example-todo.txt");
-	let filename = args
-		.get_one::<String>("file")
-		.unwrap_or(&default);
-
-	let testfile = File::open(filename);
-	let l = List::new_from_file(testfile.unwrap());
+	let filename = Action::determine_filename(FileType::TodoTxt, args);
+	let l = List::new_from_file(File::open(filename).unwrap());
 
 	let split = Item::split_by_urgency(l.items());
 	let mut out = io::stdout();
