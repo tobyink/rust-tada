@@ -17,6 +17,26 @@ You can use environment variables `TODO_FILE` and `DONE_FILE` to point
 to different files, or use command-line flags for the same. The `TODO_DIR`
 environment variable also exists and affects both files.
 
+`tada` usually categorizes tasks along three main vectors:
+
+* urgency - that is, as what calendar date will it be "too late" to do the task
+* importance - how vital is it that the task is done at all
+* tshirt size - is the task small, medium, or large?
+
+People often confuse urgency with importance. Watching a football match on TV
+might be urgent because the game starts in ten minutes, but it's probably not
+all that important. Filing your taxes might not be urgent, but as the
+consequences of not doing it may be dire, it's probably important.
+
+Tshirt size is indicated by marking the task with `@S`, `@M`, or `@L`. As a
+rough guide, tasks under an hour might be small, tasks under a day might be
+medium, and anything else might be large. But you know better than I how big
+your tasks normally are, so different thresholds may make sense for you. Tada
+doesn't make any assumptions about how big `@S`, `@M`, and `@L` are in terms
+or minutes, hours, or days; just that those three sizes exist. Tags like
+`@XS` and `@XXL` are allowed, but will be treated as synonyms for `@S` and
+`@L`.
+
 ```text
 A todo list manager
 
