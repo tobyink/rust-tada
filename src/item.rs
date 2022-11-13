@@ -57,7 +57,7 @@ pub static URGENCIES: [Urgency; 7] = [
 ];
 
 /// Three sizes are defined.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum TshirtSize {
 	Small,
 	Medium,
@@ -391,6 +391,18 @@ impl Item {
 		kv
 	}
 
+	/// Key used for smart sorting
+	pub fn smart_key(&self) -> (Urgency, char, TshirtSize) {
+		(
+			self.urgency().unwrap_or(Urgency::Soon),
+			self.importance().unwrap_or('D'),
+			self.tshirt_size().unwrap_or(TshirtSize::Medium),
+		)
+	}
+
+	/// Write this item to a stream, not in todo.txt format!
+	///
+	/// Allows for pretty formatting, etc.
 	pub fn write_to(
 		&self,
 		stream: &mut dyn std::io::Write,
@@ -405,13 +417,13 @@ impl Item {
 		}
 
 		if self.priority == '\0' {
-			r.push_str("    ");
+			r.push_str("(?) ");
 		} else {
 			let style = match self.importance() {
-				Some('A') => Style::new().red().bold(),
-				Some('B') => Style::new().yellow().bold(),
-				Some('C') => Style::new().green().bold(),
-				Some(_) => Style::new().bold(),
+				Some('A') => Style::new().red().bold().force_styling(true),
+				Some('B') => Style::new().yellow().bold().force_styling(true),
+				Some('C') => Style::new().green().bold().force_styling(true),
+				Some(_) => Style::new().bold().force_styling(true),
 				_ => Style::new(),
 			};
 			let paren = format!("({}) ", style.apply_to(self.priority));
@@ -426,6 +438,8 @@ impl Item {
 					.format("%Y-%m-%d ")
 					.to_string();
 				r.push_str(&date);
+			} else if self.completion {
+				r.push_str("????-??-?? ");
 			} else {
 				r.push_str("           ");
 			}
@@ -440,7 +454,7 @@ impl Item {
 					.to_string();
 				r.push_str(&date);
 			} else {
-				r.push_str("           ");
+				r.push_str("????-??-?? ");
 			}
 		}
 
@@ -453,6 +467,7 @@ impl Item {
 					"{}",
 					Style::new()
 						.dim()
+						.force_styling(true)
 						.apply_to(console::strip_ansi_codes(&r).to_string())
 				);
 			} else {
@@ -468,31 +483,9 @@ impl Item {
 			write!(stream, "{}", r).expect("panik");
 		}
 	}
-
-	pub fn preferred_sort(items: Vec<&Item>) -> Vec<&Item> {
-		let mut out = items.clone();
-		out.sort_by_cached_key(|i| {
-			(
-				i.urgency().unwrap_or(Urgency::Soon),
-				i.importance().unwrap_or('D'),
-				i.tshirt_size().unwrap_or(TshirtSize::Medium),
-			)
-		});
-		out
-	}
-
-	pub fn split_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>> {
-		let mut out: HashMap<Urgency, Vec<&Item>> = HashMap::new();
-		for i in items {
-			let list = out
-				.entry(i.urgency().unwrap_or(Urgency::Soon))
-				.or_insert_with(Vec::new);
-			list.push(i);
-		}
-		out
-	}
 }
 
+/// Config object for the `write_to` method.
 impl ItemFormatConfig {
 	pub fn new() -> ItemFormatConfig {
 		let term = console::Term::stdout();
