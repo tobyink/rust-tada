@@ -11,13 +11,15 @@ Early implementation stage.
 ## Usage
 
 The `tada` command operates on files called "todo.txt" and "done.txt"
-in your home directory by default.
+in your home directory by default. These should be formatted using the
+[todo.txt](https://github.com/todotxt/todo.txt) format; one task per line.
+Empty lines are allowed, and lines starting with "#" are ignored as comments.
 
 You can use environment variables `TODO_FILE` and `DONE_FILE` to point
 to different files, or use command-line flags for the same. The `TODO_DIR`
 environment variable also exists and affects both files.
 
-`tada` usually categorizes tasks along three main vectors:
+Tada usually categorizes tasks along three main vectors:
 
 * urgency - that is, as what calendar date will it be "too late" to do the task
 * importance - how vital is it that the task is done at all
