@@ -92,41 +92,36 @@ impl Action {
 	/// Uses environment variables `TODO_FILE`, `TODO_DIR`, and `DONE_FILE`
 	/// as fallbacks.
 	fn determine_filename(filetype: FileType, args: &ArgMatches) -> String {
-		// I do not like how deeply nested this function goes. I have
-		// been trying to avoid more than four levels of indentation.
-		// This function goes to eight!!!
 		match filetype {
-			FileType::TodoTxt => match args.get_one::<String>("file") {
-				Some(f) => f.to_string(),
-				None => match env::var("TODO_FILE") {
-					Ok(file) => file,
-					_ => match env::var("TODO_DIR") {
-						Ok(dir) => dir + "/todo.txt",
-						_ => match env::var("HOME") {
-							Ok(dir) => dir + "/todo.txt",
-							_ => {
-								panic!("Could not determine path to todo.txt!")
-							}
-						},
-					},
-				},
-			},
-			FileType::DoneTxt => match args.get_one::<String>("donefile") {
-				Some(f) => f.to_string(),
-				None => match env::var("DONE_FILE") {
-					Ok(file) => file,
-					_ => match env::var("TODO_DIR") {
-						Ok(dir) => dir + "/done.txt",
-						_ => match env::var("HOME") {
-							Ok(dir) => dir + "/done.txt",
-							_ => {
-								panic!("Could not determine path to done.txt!")
-							}
-						},
-					},
-				},
-			},
+			FileType::TodoTxt => Self::_determine_filename_for_todo_txt(args),
+			FileType::DoneTxt => Self::_determine_filename_for_done_txt(args),
 		}
+	}
+
+	fn _determine_filename_for_todo_txt(args: &ArgMatches) -> String {
+		if let Some(f) = args.get_one::<String>("file") {
+			return f.to_string();
+		};
+		if let Ok(f) = env::var("TODO_FILE") {
+			return f;
+		};
+		let dir = env::var("TODO_DIR").unwrap_or_else(|_| {
+			env::var("HOME").expect("Could not determine path to todo.txt!")
+		});
+		dir + "/todo.txt"
+	}
+
+	fn _determine_filename_for_done_txt(args: &ArgMatches) -> String {
+		if let Some(f) = args.get_one::<String>("donefile") {
+			return f.to_string();
+		};
+		if let Ok(f) = env::var("DONE_FILE") {
+			return f;
+		};
+		let dir = env::var("TODO_DIR").unwrap_or_else(|_| {
+			env::var("HOME").expect("Could not determine path to done.txt!")
+		});
+		dir + "/done.txt"
 	}
 }
 
