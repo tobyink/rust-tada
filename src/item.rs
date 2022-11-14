@@ -61,6 +61,19 @@ pub enum TshirtSize {
 	Large,
 }
 
+impl Clone for Item {
+	fn clone(&self) -> Self {
+		Item {
+			completion: self.completion,
+			priority: self.priority,
+			completion_date: self.completion_date.clone(),
+			creation_date: self.creation_date.clone(),
+			description: self.description.clone(),
+			..Item::new()
+		}
+	}
+}
+
 impl fmt::Debug for Item {
 	/// Debugging output; used for format!("{:?}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

@@ -1,7 +1,6 @@
 use crate::*;
 use clap::{Arg, ArgMatches, Command};
 use std::collections::HashMap;
-use std::fs::File;
 use std::io;
 use std::io::Write;
 
@@ -56,8 +55,8 @@ pub fn execute(args: &ArgMatches) {
 
 	let mut out = io::stdout();
 	let cfg = Action::build_output_config(args);
-	let filename = Action::determine_filename(FileType::TodoTxt, args);
-	let list = List::new_from_file(File::open(filename).unwrap());
+	let list =
+		List::from_url(Action::determine_filename(FileType::TodoTxt, args));
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_by_urgency(list.items());

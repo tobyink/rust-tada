@@ -1,8 +1,6 @@
 use crate::*;
 use clap::{Arg, ArgMatches, Command};
-use std::fs::OpenOptions;
 use std::io;
-use std::io::Write;
 
 /// Options for the `add` subcommand.
 pub fn get_action() -> Action {
@@ -35,17 +33,11 @@ pub fn execute(args: &ArgMatches) {
 		item.creation_date = Some(chrono::Utc::now().date_naive());
 	}
 
+	let line = Line::from_item(item);
 	let filename = Action::determine_filename(FileType::TodoTxt, args);
-	let mut file = OpenOptions::new()
-		.write(true)
-		.append(true)
-		.open(filename)
-		.unwrap();
-	if let Err(e) = writeln!(file, "{}", item) {
-		eprintln!("Couldn't write to file: {}", e);
-	} else {
-		let cfg = Action::build_output_config(args);
-		let mut out = io::stdout();
-		item.write_to(&mut out, &cfg);
-	}
+	List::append_lines_to_url(filename, Vec::from([&line]));
+
+	let cfg = Action::build_output_config(args);
+	let mut out = io::stdout();
+	line.item.unwrap().write_to(&mut out, &cfg);
 }
