@@ -45,11 +45,35 @@ A todo list manager
 Usage: tada <COMMAND>
 
 Commands:
+  add   Add an item to the todo list
   show  Show the full todo list
   help  Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help  Print help information
+```
+
+### tada add
+
+```text
+Add an item to the todo list
+
+Usage: tada add [OPTIONS] [task]
+
+Arguments:
+  [task]  Task text (may use todo.txt features)
+
+Options:
+  -f, --file <FILE>       the path to todo.txt
+      --no-date           Don't automatically add a creation date to the task
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -h, --help              Print help information
+
+After success, displays the added task.
 ```
 
 ### tada show
