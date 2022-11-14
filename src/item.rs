@@ -25,13 +25,9 @@ pub struct Item {
 	// Cell<Option<Option<T>>> seems to be the best pattern for
 	// implementing Moose-like lazy builders. Kind of an ugly
 	// type declaration though. :(
-	_importance: Cell<Option<Option<char>>>,
 	_due_date: Cell<Option<Option<NaiveDate>>>,
 	_urgency: Cell<Option<Option<Urgency>>>,
 	_tshirt_size: Cell<Option<Option<TshirtSize>>>,
-	//_tags: Cell<Option<Vec<String>>>,
-	//_contexts: Cell<Option<Vec<String>>>,
-	//_kv: Cell<Option<HashMap<String, String>>>,
 }
 
 /// Seven levels of urgency are defined.
@@ -206,13 +202,9 @@ impl Item {
 			completion_date: None,
 			creation_date: None,
 			description: String::new(),
-			_importance: Cell::new(None),
 			_due_date: Cell::new(None),
 			_urgency: Cell::new(None),
 			_tshirt_size: Cell::new(None),
-			//_tags: Cell::new(None),
-			//_contexts: Cell::new(None),
-			//_kv: Cell::new(None),
 		}
 	}
 
@@ -257,14 +249,6 @@ impl Item {
 	/// Basically the same as priority, except all letters after E
 	/// are treated as being the same as E. Returns None for \0.
 	pub fn importance(&self) -> Option<char> {
-		let cell = &self._importance;
-		if cell.get().is_none() {
-			cell.set(Some(self._build_importance()));
-		}
-		cell.get().unwrap()
-	}
-
-	fn _build_importance(&self) -> Option<char> {
 		let priority = self.priority;
 		match priority {
 			'\0' => None,
