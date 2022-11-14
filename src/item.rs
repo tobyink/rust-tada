@@ -17,11 +17,11 @@ pub struct ItemFormatConfig {
 
 /// An item in a todo list.
 pub struct Item {
-	pub completion: bool,
-	pub priority: char,
-	pub completion_date: Option<NaiveDate>,
-	pub creation_date: Option<NaiveDate>,
-	pub description: String,
+	completion: bool,
+	priority: char,
+	completion_date: Option<NaiveDate>,
+	creation_date: Option<NaiveDate>,
+	description: String,
 	_importance: FreezeBox<Option<char>>,
 	_due_date: FreezeBox<Option<NaiveDate>>,
 	_urgency: FreezeBox<Option<Urgency>>,
@@ -99,18 +99,12 @@ impl fmt::Display for Item {
 		}
 
 		if self.completion && self.completion_date.is_some() {
-			let date = self
-				.completion_date
-				.unwrap()
-				.format("%Y-%m-%d");
+			let date = self.completion_date.unwrap().format("%Y-%m-%d");
 			write!(f, "{} ", date)?;
 		}
 
 		if self.creation_date.is_some() {
-			let date = self
-				.creation_date
-				.unwrap()
-				.format("%Y-%m-%d");
+			let date = self.creation_date.unwrap().format("%Y-%m-%d");
 			write!(f, "{} ", date)?;
 		}
 
@@ -253,6 +247,84 @@ impl Item {
 			},
 			..blank
 		}
+	}
+
+	/// Whether the task is complete.
+	pub fn completion(&self) -> bool {
+		self.completion
+	}
+
+	/// Set indicator of whether the task is complete.
+	pub fn set_completion(&mut self, x: bool) {
+		self.completion = x;
+	}
+
+	/// Task priority/importance as given in a todo.txt file.
+	///
+	/// A is highest, then B and C. D should be considered normal. E is low priority.
+	/// Any uppercase letter is valid, but letters after E are not especially meaningful.
+	///
+	/// The importance() method is better.
+	pub fn priority(&self) -> char {
+		self.priority
+	}
+
+	/// Set task priority.
+	pub fn set_priority(&mut self, x: char) {
+		self.priority = x;
+	}
+
+	/// Completion date.
+	///
+	/// Often none.
+	pub fn completion_date(&self) -> Option<NaiveDate> {
+		self.completion_date
+	}
+
+	/// Set the completion date to a given date.
+	pub fn set_completion_date(&mut self, x: NaiveDate) {
+		self.completion_date = Some(x);
+	}
+
+	/// Set the completion date to None.
+	pub fn clear_completion_date(&mut self) {
+		self.completion_date = None;
+	}
+
+	/// Task creation date.
+	///
+	/// Often none.
+	pub fn creation_date(&self) -> Option<NaiveDate> {
+		self.creation_date
+	}
+
+	/// Set the task creation date to a given date.
+	pub fn set_creation_date(&mut self, x: NaiveDate) {
+		self.creation_date = Some(x);
+	}
+
+	/// Set the task creation date to None.
+	pub fn clear_creation_date(&mut self) {
+		self.creation_date = None;
+	}
+
+	/// Task description.
+	pub fn description(&self) -> String {
+		self.description.clone()
+	}
+
+	/// Set the task description.
+	///
+	/// Internally clears cached tags, etc.
+	pub fn set_description(&mut self, x: String) {
+		self._importance = FreezeBox::default();
+		self._due_date = FreezeBox::default();
+		self._urgency = FreezeBox::default();
+		self._tshirt_size = FreezeBox::default();
+		self._tags = FreezeBox::default();
+		self._contexts = FreezeBox::default();
+		self._kv = FreezeBox::default();
+		self.description = x;
 	}
 
 	/// Return the importance of this task.

@@ -29,8 +29,8 @@ pub fn execute(args: &ArgMatches) {
 	let mut item = Item::parse(input);
 
 	let no_date = *args.get_one::<bool>("no-date").unwrap();
-	if item.creation_date.is_none() && !no_date {
-		item.creation_date = Some(chrono::Utc::now().date_naive());
+	if item.creation_date().is_none() && !no_date {
+		item.set_creation_date(chrono::Utc::now().date_naive());
 	}
 
 	let line = Line::from_item(item);

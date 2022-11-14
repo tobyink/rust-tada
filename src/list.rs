@@ -190,7 +190,7 @@ mod tests {
 
 		let line = list.lines.get(1).unwrap();
 		assert_eq!(LineKind::Item, line.kind);
-		assert_eq!('A', line.item.as_ref().unwrap().priority);
+		assert_eq!('A', line.item.as_ref().unwrap().priority());
 
 		let line = list.lines.get(2).unwrap();
 		assert_eq!(LineKind::Blank, line.kind);
@@ -212,7 +212,7 @@ mod tests {
 		assert_eq!(1, items.len());
 
 		let item = items.get(0).unwrap();
-		assert_eq!('A', item.priority);
-		assert!(item.creation_date.is_some());
+		assert_eq!('A', item.priority());
+		assert!(item.creation_date().is_some());
 	}
 }

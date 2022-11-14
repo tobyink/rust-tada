@@ -132,7 +132,7 @@ fn sort_by<'a>(sortby: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
 			i.tshirt_size().unwrap_or(TshirtSize::Medium)
 		}),
 		"alphabetical" | "alphabet" | "alpha" => {
-			out.sort_by_cached_key(|i| i.description.to_lowercase())
+			out.sort_by_cached_key(|i| i.description().to_lowercase())
 		}
 		"due-date" | "duedate" | "due" => {
 			out.sort_by_cached_key(|i| i.due_date())
