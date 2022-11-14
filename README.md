@@ -27,8 +27,8 @@ Tada usually categorizes tasks along three main vectors:
 
 People often confuse urgency with importance. Watching a football match on TV
 might be urgent because the game starts in ten minutes, but it's probably not
-all that important. Filing your taxes might not be urgent, but as the
-consequences of not doing it may be dire, it's probably important.
+all that important. Filing your taxes might not be urgent, but because the
+consequences of not doing it are dire, it's important.
 
 Tshirt size is indicated by marking the task with `@S`, `@M`, or `@L`. As a
 rough guide, tasks under an hour might be small, tasks under a day might be
