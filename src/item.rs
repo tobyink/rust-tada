@@ -90,38 +90,31 @@ impl fmt::Debug for Item {
 impl fmt::Display for Item {
 	/// File-ready output; used for format!("{}")
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		let mut r: String = String::new();
-
 		if self.completion {
-			r.push_str("x ");
+			write!(f, "x ")?;
 		}
 
 		if self.priority != '\0' {
-			let paren = format!("({}) ", self.priority);
-			r.push_str(&paren);
+			write!(f, "({}) ", self.priority)?;
 		}
 
 		if self.completion && self.completion_date.is_some() {
 			let date = self
 				.completion_date
 				.unwrap()
-				.format("%Y-%m-%d ")
-				.to_string();
-			r.push_str(&date);
+				.format("%Y-%m-%d");
+			write!(f, "{} ", date)?;
 		}
 
 		if self.creation_date.is_some() {
 			let date = self
 				.creation_date
 				.unwrap()
-				.format("%Y-%m-%d ")
-				.to_string();
-			r.push_str(&date);
+				.format("%Y-%m-%d");
+			write!(f, "{} ", date)?;
 		}
 
-		r.push_str(&self.description);
-
-		write!(f, "{}", r)
+		write!(f, "{}", self.description)
 	}
 }
 
