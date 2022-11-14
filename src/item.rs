@@ -98,14 +98,14 @@ impl fmt::Display for Item {
 			write!(f, "({}) ", self.priority)?;
 		}
 
-		if self.completion && self.completion_date.is_some() {
-			let date = self.completion_date.unwrap().format("%Y-%m-%d");
-			write!(f, "{} ", date)?;
+		if self.completion {
+			if let Some(d) = self.completion_date {
+				write!(f, "{} ", d.format("%Y-%m-%d"))?;
+			}
 		}
 
-		if self.creation_date.is_some() {
-			let date = self.creation_date.unwrap().format("%Y-%m-%d");
-			write!(f, "{} ", date)?;
+		if let Some(d) = self.creation_date {
+			write!(f, "{} ", d.format("%Y-%m-%d"))?;
 		}
 
 		write!(f, "{}", self.description)
