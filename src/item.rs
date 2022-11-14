@@ -26,9 +26,9 @@ pub struct Item {
 	_due_date: FreezeBox<Option<NaiveDate>>,
 	_urgency: FreezeBox<Option<Urgency>>,
 	_tshirt_size: FreezeBox<Option<TshirtSize>>,
-	//_tags: Cell<Option<Vec<String>>>,
-	//_contexts: Cell<Option<Vec<String>>>,
-	//_kv: Cell<Option<HashMap<String, String>>>,
+	_tags: FreezeBox<Vec<String>>,
+	_contexts: FreezeBox<Vec<String>>,
+	_kv: FreezeBox<HashMap<String, String>>,
 }
 
 /// Seven levels of urgency are defined.
@@ -207,9 +207,9 @@ impl Item {
 			_due_date: FreezeBox::default(),
 			_urgency: FreezeBox::default(),
 			_tshirt_size: FreezeBox::default(),
-			//_tags: Cell::new(None),
-			//_contexts: Cell::new(None),
-			//_kv: Cell::new(None),
+			_tags: FreezeBox::default(),
+			_contexts: FreezeBox::default(),
+			_kv: FreezeBox::default(),
 		}
 	}
 
@@ -349,7 +349,11 @@ impl Item {
 	/// Tags.
 	#[allow(dead_code)]
 	pub fn tags(&self) -> Vec<String> {
-		self._build_tags()
+		if !self._tags.is_initialized() {
+			self._tags.lazy_init(self._build_tags());
+		}
+		// Need to return a copy
+		(*self._tags).to_vec()
 	}
 
 	fn _build_tags(&self) -> Vec<String> {
@@ -362,7 +366,11 @@ impl Item {
 
 	/// Contexts.
 	pub fn contexts(&self) -> Vec<String> {
-		self._build_contexts()
+		if !self._contexts.is_initialized() {
+			self._contexts.lazy_init(self._build_contexts());
+		}
+		// Need to return a copy
+		(*self._contexts).to_vec()
 	}
 
 	fn _build_contexts(&self) -> Vec<String> {
@@ -375,7 +383,15 @@ impl Item {
 
 	/// Key-Value Tags.
 	pub fn kv(&self) -> HashMap<String, String> {
-		self._build_kv()
+		if !self._kv.is_initialized() {
+			self._kv.lazy_init(self._build_kv());
+		}
+		// Need to return a copy
+		let mut kv_clone: HashMap<String, String> = HashMap::new();
+		for (k, v) in &*self._kv {
+			kv_clone.insert(k.clone(), v.clone());
+		}
+		kv_clone
 	}
 
 	fn _build_kv(&self) -> HashMap<String, String> {
@@ -587,6 +603,7 @@ mod tests {
 
 		assert_eq!('A', i.priority);
 		assert_eq!("foo bar abc:xyz def:123".to_string(), i.description);
+		assert_eq!(expected_kv, i.kv());
 		assert_eq!(expected_kv, i.kv());
 	}
 
