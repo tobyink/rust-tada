@@ -66,8 +66,8 @@ impl Clone for Item {
 		Item {
 			completion: self.completion,
 			priority: self.priority,
-			completion_date: self.completion_date.clone(),
-			creation_date: self.creation_date.clone(),
+			completion_date: self.completion_date,
+			creation_date: self.creation_date,
 			description: self.description.clone(),
 			..Item::new()
 		}
