@@ -81,8 +81,8 @@ impl Action {
 		cfg.width = *args
 			.get_one::<usize>("max-width")
 			.unwrap_or(&cfg.width);
-		if cfg.width < 30 {
-			panic!("max-width must be at least 30!");
+		if cfg.width < 36 {
+			panic!("max-width must be at least 36!");
 		}
 		cfg
 	}
