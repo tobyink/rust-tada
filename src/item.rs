@@ -1,11 +1,11 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use console::Style;
+use freezebox::FreezeBox;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
 use substring::Substring;
-use freezebox::FreezeBox;
 
 pub struct ItemFormatConfig {
 	pub width: usize,
@@ -255,7 +255,8 @@ impl Item {
 	/// are treated as being the same as E. Returns None for \0.
 	pub fn importance(&self) -> Option<char> {
 		if !self._importance.is_initialized() {
-			self._importance.lazy_init(self._build_importance());
+			self._importance
+				.lazy_init(self._build_importance());
 		}
 		*self._importance
 	}
@@ -318,7 +319,8 @@ impl Item {
 	/// Return the size of this task.
 	pub fn tshirt_size(&self) -> Option<TshirtSize> {
 		if !self._tshirt_size.is_initialized() {
-			self._tshirt_size.lazy_init(self._build_tshirt_size());
+			self._tshirt_size
+				.lazy_init(self._build_tshirt_size());
 		}
 		*self._tshirt_size
 	}
