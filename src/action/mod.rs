@@ -67,7 +67,7 @@ impl Action {
 
 	/// Given a set of options, turns them into an output config.
 	fn build_output_config(args: &ArgMatches) -> ItemFormatConfig {
-		let mut cfg = ItemFormatConfig::new();
+		let mut cfg = ItemFormatConfig::new_based_on_terminal();
 		cfg.colour = if *args.get_one::<bool>("no-colour").unwrap() {
 			false
 		} else if *args.get_one::<bool>("colour").unwrap() {

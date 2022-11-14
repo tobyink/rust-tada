@@ -576,16 +576,22 @@ impl Item {
 
 /// Config object for the `write_to` method.
 impl ItemFormatConfig {
-	pub fn new() -> ItemFormatConfig {
-		let term = console::Term::stdout();
-		let (_height, width) = term.size();
+	/// Constructor for item format config, given an output width
+	pub fn new (width: usize) -> ItemFormatConfig {
 		ItemFormatConfig {
-			width: width.into(),
+			width,
 			colour: false,
 			with_creation_date: false,
 			with_completion_date: false,
 			with_newline: true,
 		}
+	}
+	
+	/// Alternative constructor, which detects width from the terminal
+	pub fn new_based_on_terminal() -> ItemFormatConfig {
+		let term = console::Term::stdout();
+		let (_height, width) = term.size();
+		Self::new(width.into())
 	}
 }
 
@@ -597,7 +603,7 @@ impl Default for Item {
 
 impl Default for ItemFormatConfig {
 	fn default() -> Self {
-		Self::new()
+		Self::new_based_on_terminal()
 	}
 }
 
