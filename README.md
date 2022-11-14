@@ -21,7 +21,7 @@ environment variable also exists and affects both files.
 
 Tada usually categorizes tasks along three main vectors:
 
-* urgency - that is, as what calendar date will it be "too late" to do the task
+* urgency - that is, after what date will it be "too late" to do the task
 * importance - how vital is it that the task is done at all
 * tshirt size - is the task small, medium, or large?
 
