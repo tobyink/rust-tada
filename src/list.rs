@@ -207,7 +207,7 @@ mod tests {
 
 		let f2 = File::open(&file_path).unwrap();
 
-		let list = List::new_from_file(f2);
+		let list = List::from_file(f2);
 		let items = list.items();
 		assert_eq!(1, items.len());
 
