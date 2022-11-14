@@ -188,6 +188,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "freezebox"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db0fc7f3f77b057337efd052673ed6807d7a23b37fe23dd2c212125abfd6ce21"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -402,6 +408,7 @@ dependencies = [
  "chrono",
  "clap",
  "console",
+ "freezebox",
  "lazy_static",
  "regex",
  "substring",

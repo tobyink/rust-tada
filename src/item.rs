@@ -2,10 +2,10 @@ use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use console::Style;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::cell::Cell;
 use std::collections::HashMap;
 use std::fmt;
 use substring::Substring;
+use freezebox::FreezeBox;
 
 pub struct ItemFormatConfig {
 	pub width: usize,
@@ -22,12 +22,13 @@ pub struct Item {
 	pub completion_date: Option<NaiveDate>,
 	pub creation_date: Option<NaiveDate>,
 	pub description: String,
-	// Cell<Option<Option<T>>> seems to be the best pattern for
-	// implementing Moose-like lazy builders. Kind of an ugly
-	// type declaration though. :(
-	_due_date: Cell<Option<Option<NaiveDate>>>,
-	_urgency: Cell<Option<Option<Urgency>>>,
-	_tshirt_size: Cell<Option<Option<TshirtSize>>>,
+	_importance: FreezeBox<Option<char>>,
+	_due_date: FreezeBox<Option<NaiveDate>>,
+	_urgency: FreezeBox<Option<Urgency>>,
+	_tshirt_size: FreezeBox<Option<TshirtSize>>,
+	//_tags: Cell<Option<Vec<String>>>,
+	//_contexts: Cell<Option<Vec<String>>>,
+	//_kv: Cell<Option<HashMap<String, String>>>,
 }
 
 /// Seven levels of urgency are defined.
@@ -202,9 +203,13 @@ impl Item {
 			completion_date: None,
 			creation_date: None,
 			description: String::new(),
-			_due_date: Cell::new(None),
-			_urgency: Cell::new(None),
-			_tshirt_size: Cell::new(None),
+			_importance: FreezeBox::default(),
+			_due_date: FreezeBox::default(),
+			_urgency: FreezeBox::default(),
+			_tshirt_size: FreezeBox::default(),
+			//_tags: Cell::new(None),
+			//_contexts: Cell::new(None),
+			//_kv: Cell::new(None),
 		}
 	}
 
@@ -249,6 +254,13 @@ impl Item {
 	/// Basically the same as priority, except all letters after E
 	/// are treated as being the same as E. Returns None for \0.
 	pub fn importance(&self) -> Option<char> {
+		if !self._importance.is_initialized() {
+			self._importance.lazy_init(self._build_importance());
+		}
+		*self._importance
+	}
+
+	fn _build_importance(&self) -> Option<char> {
 		let priority = self.priority;
 		match priority {
 			'\0' => None,
@@ -259,11 +271,10 @@ impl Item {
 
 	/// Return the date when this task is due by.
 	pub fn due_date(&self) -> Option<NaiveDate> {
-		let cell = &self._due_date;
-		if cell.get().is_none() {
-			cell.set(Some(self._build_due_date()));
+		if !self._due_date.is_initialized() {
+			self._due_date.lazy_init(self._build_due_date());
 		}
-		cell.get().unwrap()
+		*self._due_date
 	}
 
 	fn _build_due_date(&self) -> Option<NaiveDate> {
@@ -275,11 +286,10 @@ impl Item {
 
 	/// Classify how urgent this task is.
 	pub fn urgency(&self) -> Option<Urgency> {
-		let cell = &self._urgency;
-		if cell.get().is_none() {
-			cell.set(Some(self._build_urgency()));
+		if !self._urgency.is_initialized() {
+			self._urgency.lazy_init(self._build_urgency());
 		}
-		cell.get().unwrap()
+		*self._urgency
 	}
 
 	fn _build_urgency(&self) -> Option<Urgency> {
@@ -307,11 +317,10 @@ impl Item {
 
 	/// Return the size of this task.
 	pub fn tshirt_size(&self) -> Option<TshirtSize> {
-		let cell = &self._tshirt_size;
-		if cell.get().is_none() {
-			cell.set(Some(self._build_tshirt_size()));
+		if !self._tshirt_size.is_initialized() {
+			self._tshirt_size.lazy_init(self._build_tshirt_size());
 		}
-		cell.get().unwrap()
+		*self._tshirt_size
 	}
 
 	fn _build_tshirt_size(&self) -> Option<TshirtSize> {
