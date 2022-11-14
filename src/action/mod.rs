@@ -22,7 +22,7 @@ impl Action {
 				.short('f')
 				.long("file")
 				.value_name("FILE")
-				.help("the path to todo.txt"),
+				.help("the path or URL for todo.txt"),
 		)
 	}
 

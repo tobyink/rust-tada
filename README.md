@@ -64,7 +64,7 @@ Arguments:
   [task]  Task text (may use todo.txt features)
 
 Options:
-  -f, --file <FILE>       the path to todo.txt
+  -f, --file <FILE>       the path or URL for todo.txt
       --no-date           Don't automatically add a creation date to the task
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
@@ -84,7 +84,7 @@ Show the full todo list
 Usage: tada show [OPTIONS]
 
 Options:
-  -f, --file <FILE>       the path to todo.txt
+  -f, --file <FILE>       the path or URL for todo.txt
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
