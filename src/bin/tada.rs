@@ -9,8 +9,8 @@ fn cli() -> Command {
 		.subcommand_required(true)
 		.term_width(80)
 		.allow_external_subcommands(true);
-	for action in actions().iter() {
-		cmd = cmd.subcommand(action.command.clone());
+	for action in actions() {
+		cmd = cmd.subcommand(action.command);
 	}
 	cmd
 }
