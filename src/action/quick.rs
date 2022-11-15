@@ -2,12 +2,12 @@ use crate::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
 
-/// Options for the `urgent` subcommand.
+/// Options for the `quick` subcommand.
 pub fn get_action() -> Action {
-	let name = String::from("urgent");
-	let mut command = Command::new("urgent")
-		.aliases(["u"])
-		.about("Show the most urgent tasks")
+	let name = String::from("quick");
+	let mut command = Command::new("quick")
+		.aliases(["q"])
+		.about("Show the smallest tasks")
 		.after_help("Ignores tasks which are marked as already complete.");
 
 	command = Action::_add_todotxt_file_options(command);
@@ -28,15 +28,15 @@ pub fn get_action() -> Action {
 				.short('s')
 				.long("sort")
 				.value_name("BY")
-				.help("sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default)"),
+				.help("sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'"),
 		);
 
 	Action { name, command }
 }
 
-/// Execute the `urgent` subcommand.
+/// Execute the `important` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let default_sort_by_type = String::from("due");
+	let default_sort_by_type = String::from("importance");
 	let sort_by_type = args
 		.get_one::<String>("sort")
 		.unwrap_or(&default_sort_by_type);
@@ -46,13 +46,13 @@ pub fn execute(args: &ArgMatches) {
 	let cfg = Action::build_output_config(args);
 	let list =
 		List::from_url(Action::determine_filename(FileType::TodoTxt, args));
-	let urgent = Action::sort_items_by("due", list.items())
+	let quick = Action::sort_items_by("size", list.items())
 		.into_iter()
 		.filter(|i| !i.completion())
 		.take(*max)
 		.collect();
 
-	for i in Action::sort_items_by(sort_by_type.as_str(), urgent).iter() {
+	for i in Action::sort_items_by(sort_by_type.as_str(), quick).iter() {
 		i.write_to(&mut out, &cfg);
 	}
 }
