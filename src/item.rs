@@ -442,6 +442,18 @@ impl Item {
 		tags
 	}
 
+	/// Boolean indicating whether a task has a particular tag.
+	pub fn has_tag(&self, tag: &str) -> bool {
+		let real_tag = match tag.chars().next() {
+			Some('+') => tag.get(1..).unwrap(),
+			_ => tag,
+		};
+		let real_tag = real_tag.to_lowercase();
+		self.tags()
+			.iter()
+			.any(|t| t.to_lowercase().as_str() == real_tag)
+	}
+
 	/// Contexts.
 	pub fn contexts(&self) -> Vec<String> {
 		if !self._contexts.is_initialized() {
@@ -457,6 +469,18 @@ impl Item {
 			tags.push(cap[1].to_string());
 		}
 		tags
+	}
+
+	/// Boolean indicating whether a task has a particular context.
+	pub fn has_context(&self, ctx: &str) -> bool {
+		let real_ctx = match ctx.chars().next() {
+			Some('@') => ctx.get(1..).unwrap(),
+			_ => ctx,
+		};
+		let real_ctx = real_ctx.to_lowercase();
+		self.contexts()
+			.iter()
+			.any(|c| c.to_lowercase().as_str() == real_ctx)
 	}
 
 	/// Key-Value Tags.
@@ -734,6 +758,9 @@ mod tests {
 			"bam".to_string(),
 		]);
 		assert_eq!(expected_tags, i.tags());
+		assert!(i.has_tag("Foo"));
+		assert!(i.has_tag("fOO"));
+		assert!(!i.has_tag("Fool"));
 	}
 
 	#[test]
@@ -745,6 +772,9 @@ mod tests {
 			"bam".to_string(),
 		]);
 		assert_eq!(expected_ctx, i.contexts());
+		assert!(i.has_context("Foo"));
+		assert!(i.has_context("fOO"));
+		assert!(!i.has_context("Fool"));
 	}
 
 	#[test]
