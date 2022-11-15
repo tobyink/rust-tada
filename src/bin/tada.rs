@@ -8,6 +8,7 @@ fn actions() -> Vec<Action> {
 		tada::action::add::get_action(),
 		tada::action::show::get_action(),
 		tada::action::urgent::get_action(),
+		tada::action::important::get_action(),
 	])
 }
 
@@ -29,6 +30,7 @@ fn main() {
 		Some(("add", args)) => tada::action::add::execute(args),
 		Some(("show", args)) => tada::action::show::execute(args),
 		Some(("urgent", args)) => tada::action::urgent::execute(args),
+		Some(("important", args)) => tada::action::important::execute(args),
 		_ => panic!("hmmm"),
 	}
 }

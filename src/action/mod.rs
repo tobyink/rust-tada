@@ -154,5 +154,6 @@ impl Action {
 }
 
 pub mod add;
+pub mod important;
 pub mod show;
 pub mod urgent;
