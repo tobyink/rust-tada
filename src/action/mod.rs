@@ -87,6 +87,34 @@ impl Action {
 		cfg
 	}
 
+	pub fn sort_items_by<'a>(
+		sortby: &'a str,
+		items: Vec<&'a Item>,
+	) -> Vec<&'a Item> {
+		let mut out = items.clone();
+		match sortby.to_lowercase().as_str() {
+			"urgency" | "urgent" | "urg" => {
+				out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
+			}
+			"importance" | "import" | "imp" => {
+				out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
+			}
+			"size" | "tshirt" => out.sort_by_cached_key(|i| {
+				i.tshirt_size().unwrap_or(TshirtSize::Medium)
+			}),
+			"alphabetical" | "alphabet" | "alpha" => {
+				out.sort_by_cached_key(|i| i.description().to_lowercase())
+			}
+			"due-date" | "duedate" | "due" => {
+				out.sort_by_cached_key(|i| i.due_date())
+			}
+			"original" | "orig" => (),
+			"smart" => out.sort_by_cached_key(|i| i.smart_key()),
+			_ => panic!("unknown sorting: '{}'", sortby),
+		};
+		out
+	}
+
 	/// Given a filetype and set of options, determines the exact file path.
 	///
 	/// Uses environment variables `TODO_FILE`, `TODO_DIR`, and `DONE_FILE`
@@ -127,3 +155,4 @@ impl Action {
 
 pub mod add;
 pub mod show;
+pub mod urgent;

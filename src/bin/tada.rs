@@ -7,6 +7,7 @@ fn actions() -> Vec<Action> {
 	Vec::from([
 		tada::action::add::get_action(),
 		tada::action::show::get_action(),
+		tada::action::urgent::get_action(),
 	])
 }
 
@@ -27,6 +28,7 @@ fn main() {
 	match matches.subcommand() {
 		Some(("add", args)) => tada::action::add::execute(args),
 		Some(("show", args)) => tada::action::show::execute(args),
+		Some(("urgent", args)) => tada::action::urgent::execute(args),
 		_ => panic!("hmmm"),
 	}
 }

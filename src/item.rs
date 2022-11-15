@@ -577,7 +577,7 @@ impl Item {
 /// Config object for the `write_to` method.
 impl ItemFormatConfig {
 	/// Constructor for item format config, given an output width
-	pub fn new (width: usize) -> ItemFormatConfig {
+	pub fn new(width: usize) -> ItemFormatConfig {
 		ItemFormatConfig {
 			width,
 			colour: false,
@@ -586,7 +586,7 @@ impl ItemFormatConfig {
 			with_newline: true,
 		}
 	}
-	
+
 	/// Alternative constructor, which detects width from the terminal
 	pub fn new_based_on_terminal() -> ItemFormatConfig {
 		let term = console::Term::stdout();

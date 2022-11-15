@@ -72,7 +72,10 @@ pub fn execute(args: &ArgMatches) {
 					Urgency::Later => "Later",
 				};
 				writeln!(&out, "# {}", label).expect("panik");
-				for i in sort_by(sort_by_type.as_str(), items.to_vec()).iter() {
+				for i in
+					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
+						.iter()
+				{
 					i.write_to(&mut out, &cfg);
 				}
 				writeln!(&out).expect("panik");
@@ -90,7 +93,10 @@ pub fn execute(args: &ArgMatches) {
 					_ => "Unimportant",
 				};
 				writeln!(&out, "# {}", label).expect("panik");
-				for i in sort_by(sort_by_type.as_str(), items.to_vec()).iter() {
+				for i in
+					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
+						.iter()
+				{
 					i.write_to(&mut out, &cfg);
 				}
 				writeln!(&out).expect("panik");
@@ -106,42 +112,22 @@ pub fn execute(args: &ArgMatches) {
 					TshirtSize::Large => "Large",
 				};
 				writeln!(&out, "# {}", label).expect("panik");
-				for i in sort_by(sort_by_type.as_str(), items.to_vec()).iter() {
+				for i in
+					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
+						.iter()
+				{
 					i.write_to(&mut out, &cfg);
 				}
 				writeln!(&out).expect("panik");
 			}
 		}
 	} else {
-		for i in sort_by(sort_by_type.as_str(), list.items()).iter() {
+		for i in
+			Action::sort_items_by(sort_by_type.as_str(), list.items()).iter()
+		{
 			i.write_to(&mut out, &cfg);
 		}
 	}
-}
-
-fn sort_by<'a>(sortby: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
-	let mut out = items.clone();
-	match sortby.to_lowercase().as_str() {
-		"urgency" | "urgent" | "urg" => {
-			out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
-		}
-		"importance" | "import" | "imp" => {
-			out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
-		}
-		"size" | "tshirt" => out.sort_by_cached_key(|i| {
-			i.tshirt_size().unwrap_or(TshirtSize::Medium)
-		}),
-		"alphabetical" | "alphabet" | "alpha" => {
-			out.sort_by_cached_key(|i| i.description().to_lowercase())
-		}
-		"due-date" | "duedate" | "due" => {
-			out.sort_by_cached_key(|i| i.due_date())
-		}
-		"original" | "orig" => (),
-		"smart" => out.sort_by_cached_key(|i| i.smart_key()),
-		_ => panic!("unknown sorting: '{}'", sortby),
-	};
-	out
 }
 
 pub fn group_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>> {
