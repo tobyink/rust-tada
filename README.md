@@ -46,6 +46,7 @@ Usage: tada <COMMAND>
 
 Commands:
   add        Add an item to the todo list
+  find       Search for a task
   show       Show the full todo list
   important  Show the most important tasks
   urgent     Show the most urgent tasks
@@ -78,6 +79,31 @@ Options:
   -h, --help              Print help information
 
 After success, displays the added task.
+```
+
+### tada find
+
+```text
+Search for a task
+
+Usage: tada find [OPTIONS] <search-term>...
+
+Arguments:
+  <search-term>...  a tag, context, or string
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
+  -h, --help              Print help information
+
+Multiple search terms may be provided, which will be combined with an 'AND' operator.
+
+Searches are case-insensitive.
 ```
 
 ### tada show
