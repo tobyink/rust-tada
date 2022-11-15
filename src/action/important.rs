@@ -6,6 +6,7 @@ use std::io;
 pub fn get_action() -> Action {
 	let name = String::from("important");
 	let mut command = Command::new("important")
+		.aliases(["i"])
 		.about("Show the most important tasks")
 		.after_help("Ignores tasks which are marked as already complete.");
 
