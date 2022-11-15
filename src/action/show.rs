@@ -25,6 +25,7 @@ pub fn get_action() -> Action {
 				.num_args(0)
 				.short('i')
 				.long("importance")
+				.aliases(["import", "imp", "important"])
 				.help("group by importance"),
 		)
 		.arg(
@@ -32,6 +33,7 @@ pub fn get_action() -> Action {
 				.num_args(0)
 				.short('u')
 				.long("urgency")
+				.aliases(["urgent", "urg"])
 				.help("group by urgency"),
 		)
 		.arg(
@@ -39,7 +41,7 @@ pub fn get_action() -> Action {
 				.num_args(0)
 				.short('z')
 				.long("size")
-				.aliases(["tshirt-size", "tshirt" ])
+				.aliases(["tshirt-size", "tshirt", "quick"])
 				.help("group by tshirt size"),
 		);
 

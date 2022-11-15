@@ -96,10 +96,10 @@ impl Action {
 			"urgency" | "urgent" | "urg" => {
 				out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
 			}
-			"importance" | "import" | "imp" => {
+			"importance" | "import" | "imp" | "important" => {
 				out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
 			}
-			"size" | "tshirt" => out.sort_by_cached_key(|i| {
+			"size" | "tshirt" | "quick" => out.sort_by_cached_key(|i| {
 				i.tshirt_size().unwrap_or(TshirtSize::Medium)
 			}),
 			"alphabetical" | "alphabet" | "alpha" => {
