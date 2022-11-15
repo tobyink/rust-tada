@@ -45,12 +45,16 @@ A todo list manager
 Usage: tada <COMMAND>
 
 Commands:
-  add   Add an item to the todo list
-  show  Show the full todo list
-  help  Print this message or the help of the given subcommand(s)
+  add        Add an item to the todo list
+  show       Show the full todo list
+  important  Show the most important tasks
+  urgent     Show the most urgent tasks
+  quick      Show the smallest tasks
+  help       Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help information
+  -h, --help     Print help information
+  -V, --version  Print version information
 ```
 
 ### tada add
@@ -95,6 +99,70 @@ Options:
   -u, --urgency           group by urgency
   -z, --size              group by tshirt size
   -h, --help              Print help information
+```
+
+### tada important
+
+
+```text
+Show the most important tasks
+
+Usage: tada important [OPTIONS]
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -n, --number <N>        maximum number to show (default: 3)
+  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
+  -h, --help              Print help information
+
+Ignores tasks which are marked as already complete.
+```
+
+### tada urgent
+
+```text
+Show the most urgent tasks
+
+Usage: tada urgent [OPTIONS]
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -n, --number <N>        maximum number to show (default: 3)
+  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default)
+  -h, --help              Print help information
+
+Ignores tasks which are marked as already complete.
+```
+
+### tada quick
+
+```text
+Show the smallest tasks
+
+Usage: tada quick [OPTIONS]
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -n, --number <N>        maximum number to show (default: 3)
+  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
+  -h, --help              Print help information
+
+Ignores tasks which are marked as already complete.
 ```
 
 ## Licence
