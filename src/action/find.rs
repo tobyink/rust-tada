@@ -49,10 +49,10 @@ pub fn execute(args: &ArgMatches) {
 
 	for term in args.get_many::<String>("search-term").unwrap() {
 		results = match term.chars().next() {
-			Some('@') => find_by_context(term, results),
-			Some('+') => find_by_tag(term, results),
-			Some('#') => find_by_line_number(term, results),
-			_ => find_by_string(term, results),
+			Some('@') => Action::find_by_context(term, results),
+			Some('+') => Action::find_by_tag(term, results),
+			Some('#') => Action::find_by_line_number(term, results),
+			_         => Action::find_by_string(term, results),
 		};
 	}
 
@@ -68,45 +68,3 @@ pub fn execute_shortcut(term: &str) {
 	execute(&matches);
 }
 
-pub fn find_by_context<'a>(
-	term: &'a str,
-	items: Vec<&'a Item>,
-) -> Vec<&'a Item> {
-	items
-		.into_iter()
-		.filter(|i| i.has_context(term))
-		.collect()
-}
-
-pub fn find_by_tag<'a>(term: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
-	items
-		.into_iter()
-		.filter(|i| i.has_tag(term))
-		.collect()
-}
-
-pub fn find_by_line_number<'a>(
-	term: &'a str,
-	items: Vec<&'a Item>,
-) -> Vec<&'a Item> {
-	let n: usize = term.get(1..).unwrap().parse().unwrap();
-	items
-		.into_iter()
-		.filter(|i| i.line_number() == n)
-		.collect()
-}
-
-pub fn find_by_string<'a>(
-	term: &'a str,
-	items: Vec<&'a Item>,
-) -> Vec<&'a Item> {
-	let lc_term = term.to_lowercase();
-	items
-		.into_iter()
-		.filter(|i| {
-			i.description()
-				.to_lowercase()
-				.contains(&lc_term)
-		})
-		.collect()
-}

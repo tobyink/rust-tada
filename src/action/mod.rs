@@ -133,6 +133,49 @@ impl Action {
 		out
 	}
 
+	pub fn find_by_context<'a>(
+		term: &'a str,
+		items: Vec<&'a Item>,
+	) -> Vec<&'a Item> {
+		items
+			.into_iter()
+			.filter(|i| i.has_context(term))
+			.collect()
+	}
+
+	pub fn find_by_tag<'a>(term: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
+		items
+			.into_iter()
+			.filter(|i| i.has_tag(term))
+			.collect()
+	}
+
+	pub fn find_by_line_number<'a>(
+		term: &'a str,
+		items: Vec<&'a Item>,
+	) -> Vec<&'a Item> {
+		let n: usize = term.get(1..).unwrap().parse().unwrap();
+		items
+			.into_iter()
+			.filter(|i| i.line_number() == n)
+			.collect()
+	}
+
+	pub fn find_by_string<'a>(
+		term: &'a str,
+		items: Vec<&'a Item>,
+	) -> Vec<&'a Item> {
+		let lc_term = term.to_lowercase();
+		items
+			.into_iter()
+			.filter(|i| {
+				i.description()
+					.to_lowercase()
+					.contains(&lc_term)
+			})
+			.collect()
+	}
+
 	/// Given a filetype and set of options, determines the exact file path.
 	///
 	/// Uses environment variables `TODO_FILE`, `TODO_DIR`, and `DONE_FILE`
