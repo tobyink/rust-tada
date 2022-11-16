@@ -197,7 +197,7 @@ mod tests {
 
 		let f2 = File::open(&file_path).unwrap();
 
-		let list = List::from_file(f2);
+		let list = List::from_file(f2).unwrap();
 		assert_eq!(3, list.lines.len());
 
 		let line = list.lines.get(0).unwrap();
@@ -223,7 +223,7 @@ mod tests {
 
 		let f2 = File::open(&file_path).unwrap();
 
-		let list = List::from_file(f2);
+		let list = List::from_file(f2).unwrap();
 		let items = list.items();
 		assert_eq!(1, items.len());
 
