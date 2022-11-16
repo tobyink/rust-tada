@@ -164,6 +164,7 @@ impl Action {
 
 pub mod add;
 pub mod archive;
+pub mod edit;
 pub mod find;
 pub mod important;
 pub mod quick;

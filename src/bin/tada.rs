@@ -6,6 +6,7 @@ use tada::Action;
 fn actions() -> Vec<Action> {
 	Vec::from([
 		tada::action::add::get_action(),
+		tada::action::edit::get_action(),
 		tada::action::find::get_action(),
 		tada::action::show::get_action(),
 		tada::action::important::get_action(),
@@ -37,6 +38,7 @@ fn main() {
 		Some(("quick", args)) => tada::action::quick::execute(args),
 		Some(("find", args)) => tada::action::find::execute(args),
 		Some(("archive", args)) => tada::action::archive::execute(args),
+		Some(("edit", args)) => tada::action::edit::execute(args),
 		Some((tag, _)) => match tag.chars().next() {
 			Some('@') | Some('+') => tada::action::find::execute_shortcut(tag),
 			_ => {
