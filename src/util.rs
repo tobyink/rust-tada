@@ -42,7 +42,10 @@ pub fn find_items_by_context<'a>(
 }
 
 /// Filter Vec<&Item> by a +tag.
-pub fn find_items_by_tag<'a>(term: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
+pub fn find_items_by_tag<'a>(
+	term: &'a str,
+	items: Vec<&'a Item>,
+) -> Vec<&'a Item> {
 	items
 		.into_iter()
 		.filter(|i| i.has_tag(term))
@@ -78,7 +81,9 @@ pub fn find_items_by_string<'a>(
 }
 
 /// Group a Vec<&Item> into categories based on task urgency.
-pub fn group_items_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>> {
+pub fn group_items_by_urgency(
+	items: Vec<&Item>,
+) -> HashMap<Urgency, Vec<&Item>> {
 	let mut out: HashMap<Urgency, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
@@ -90,7 +95,9 @@ pub fn group_items_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>>
 }
 
 /// Group a Vec<&Item> into categories based on task size.
-pub fn group_items_by_size(items: Vec<&Item>) -> HashMap<TshirtSize, Vec<&Item>> {
+pub fn group_items_by_size(
+	items: Vec<&Item>,
+) -> HashMap<TshirtSize, Vec<&Item>> {
 	let mut out: HashMap<TshirtSize, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
@@ -102,7 +109,9 @@ pub fn group_items_by_size(items: Vec<&Item>) -> HashMap<TshirtSize, Vec<&Item>>
 }
 
 /// Group a Vec<&Item> into categories based on task improtance.
-pub fn group_items_by_importance(items: Vec<&Item>) -> HashMap<char, Vec<&Item>> {
+pub fn group_items_by_importance(
+	items: Vec<&Item>,
+) -> HashMap<char, Vec<&Item>> {
 	let mut out: HashMap<char, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
