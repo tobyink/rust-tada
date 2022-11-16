@@ -155,9 +155,9 @@ impl List {
 		let url = Self::_handle_url(u);
 
 		// XXX: If the URL is a local file path, shortcut this using a simple file append.
-		let mut list = Self::from_url(url.to_string()).expect(
-			format!("Could not open list {} to append to", url).as_str(),
-		);
+		let mut list = Self::from_url(url.to_string()).unwrap_or_else(|_| {
+			panic!("Could not open list {} to append to", url)
+		});
 		for l in lines {
 			list.lines.push(l.clone());
 		}
@@ -170,6 +170,12 @@ impl List {
 		iter.filter(|l| l.kind == LineKind::Item)
 			.map(|l| l.item.as_ref().unwrap())
 			.collect()
+	}
+}
+
+impl Default for List {
+	fn default() -> Self {
+		Self::new()
 	}
 }
 

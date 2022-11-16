@@ -42,6 +42,7 @@ pub fn execute(args: &ArgMatches) {
 			}
 		}
 	}
+
 	List::append_lines_to_url(done_filename, append_done.iter().collect());
 
 	let mut list = List::new();
