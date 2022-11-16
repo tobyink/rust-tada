@@ -21,6 +21,7 @@ pub fn execute(args: &ArgMatches) {
 	let mut new_todo: Vec<Line> = Vec::new();
 	let mut append_done: Vec<Line> = Vec::new();
 
+	let mut moved = 0;
 	let todo = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 	for line in todo.lines {
@@ -35,6 +36,7 @@ pub fn execute(args: &ArgMatches) {
 						text: line.text.clone(),
 						item: Some(item.clone()),
 					};
+					moved += 1;
 					append_done.push(new)
 				} else {
 					new_todo.push(line)
@@ -43,9 +45,18 @@ pub fn execute(args: &ArgMatches) {
 		}
 	}
 
-	List::append_lines_to_url(done_filename, append_done.iter().collect());
+	if moved == 0 {
+		println!("No complete tasks found in {}", todo_filename);
+	} else {
+		List::append_lines_to_url(
+			done_filename.clone(),
+			append_done.iter().collect(),
+		);
 
-	let mut list = List::new();
-	list.lines = new_todo;
-	list.to_url(todo_filename);
+		let mut list = List::new();
+		list.lines = new_todo;
+		list.to_url(todo_filename);
+
+		println!("Moved {} tasks to {}", moved, done_filename);
+	}
 }
