@@ -46,11 +46,13 @@ Usage: tada <COMMAND>
 
 Commands:
   add        Add an item to the todo list
+  edit       Open your todo list in your editor
   find       Search for a task
   show       Show the full todo list
   important  Show the most important tasks
   urgent     Show the most urgent tasks
   quick      Show the smallest tasks
+  archive    Move completed items from todo.txt to done.txt
   help       Print this message or the help of the given subcommand(s)
 
 Options:
@@ -79,6 +81,19 @@ Options:
   -h, --help              Print help information
 
 After success, displays the added task.
+```
+### tada edit
+
+```text
+Open your todo list in your editor
+
+Usage: tada edit [OPTIONS]
+
+Options:
+  -f, --file <FILE>  the path or URL for todo.txt
+  -h, --help         Print help information
+
+Ensure the EDITOR environent variable is set.
 ```
 
 ### tada find
@@ -189,6 +204,19 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete.
+```
+
+### tada archive
+
+```text
+Move completed items from todo.txt to done.txt
+
+Usage: tada archive [OPTIONS]
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --done-file <FILE>  the path or URL for done.txt
+  -h, --help              Print help information
 ```
 
 ## Licence
