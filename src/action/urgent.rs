@@ -45,7 +45,8 @@ pub fn execute(args: &ArgMatches) {
 	let mut out = io::stdout();
 	let cfg = Action::build_output_config(args);
 	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args));
+		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
+			.expect("Could not read todo list");
 	let urgent = Action::sort_items_by("due", list.items())
 		.into_iter()
 		.filter(|i| !i.completion())

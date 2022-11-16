@@ -2,8 +2,8 @@ use crate::item::*;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs::File;
-use std::io::Write;
-use std::io::{BufRead, BufReader};
+use std::io;
+use std::io::{BufRead, BufReader, Write};
 use url::Url;
 
 /// A line type — item, comment, or blank
@@ -64,12 +64,19 @@ impl Line {
 }
 
 impl List {
+	pub fn new() -> List {
+		List {
+			path: None,
+			lines: Vec::new(),
+		}
+	}
+
 	fn _handle_url(u: String) -> Url {
 		Url::parse(&u).unwrap_or_else(|_| Url::from_file_path(u).unwrap())
 	}
 
 	/// Parse a todo list from a URL.
-	pub fn from_url(u: String) -> List {
+	pub fn from_url(u: String) -> Result<List, io::Error> {
 		let url = Self::_handle_url(u);
 		if url.scheme() == "file" {
 			Self::from_filename(
@@ -85,24 +92,22 @@ impl List {
 	}
 
 	/// Parse a todo list from a filename.
-	pub fn from_filename(path: String) -> List {
-		let file = match File::open(&path) {
-			Err(why) => panic!("Couldn't open file {}: {}", path, why),
-			Ok(file) => file,
-		};
-		let mut list = Self::from_file(file);
+	pub fn from_filename(path: String) -> Result<List, io::Error> {
+		let file = File::open(&path)?;
+		let mut list = Self::from_file(file)?;
 		list.path = Some(path);
-		list
+		Ok(list)
 	}
 
 	/// Parse a todo list from an open file.
-	pub fn from_file(f: File) -> List {
+	pub fn from_file(f: File) -> Result<List, io::Error> {
 		let io = BufReader::new(f);
 		let lines = io
 			.lines()
 			.map(|l| Line::from_string(l.unwrap()))
 			.collect();
-		List { path: None, lines }
+		let list = List { path: None, lines };
+		Ok(list)
 	}
 
 	// Save a todo list to a URL.
@@ -146,13 +151,15 @@ impl List {
 	}
 
 	/// Appends some lines to a todo list, given its filename.
-	pub fn append_lines_to_url(url: String, lines: Vec<&Line>) {
+	pub fn append_lines_to_url(u: String, lines: Vec<&Line>) {
+		let url = Self::_handle_url(u);
+
 		// XXX: If the URL is a local file path, shortcut this using a simple file append.
-		let mut list = Self::from_url(url.clone());
+		let mut list = Self::from_url(url.to_string()).unwrap_or_else(|_| List::new());
 		for l in lines {
 			list.lines.push(l.clone());
 		}
-		list.to_url(url);
+		list.to_url(url.to_string());
 	}
 
 	/// Get a Vec of Item objects from an already-parsed file.

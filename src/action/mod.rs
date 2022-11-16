@@ -26,6 +26,15 @@ impl Action {
 		)
 	}
 
+	fn _add_donetxt_file_options(cmd: Command) -> Command {
+		cmd.arg(
+			Arg::new("done-file")
+				.long("done-file")
+				.value_name("FILE")
+				.help("the path or URL for done.txt"),
+		)
+	}
+
 	fn _add_output_options(cmd: Command) -> Command {
 		cmd.arg(
 			Arg::new("max-width")
@@ -140,7 +149,7 @@ impl Action {
 	}
 
 	fn _determine_filename_for_done_txt(args: &ArgMatches) -> String {
-		if let Some(f) = args.get_one::<String>("donefile") {
+		if let Some(f) = args.get_one::<String>("done-file") {
 			return f.to_string();
 		};
 		if let Ok(f) = env::var("DONE_FILE") {
@@ -154,6 +163,7 @@ impl Action {
 }
 
 pub mod add;
+pub mod archive;
 pub mod find;
 pub mod important;
 pub mod quick;

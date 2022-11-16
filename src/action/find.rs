@@ -42,7 +42,8 @@ pub fn execute(args: &ArgMatches) {
 	let mut out = io::stdout();
 	let cfg = Action::build_output_config(args);
 	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args));
+		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
+			.expect("Could not read todo list");
 	let mut results = list.items();
 
 	for term in args.get_many::<String>("search-term").unwrap() {

@@ -58,7 +58,8 @@ pub fn execute(args: &ArgMatches) {
 	let mut out = io::stdout();
 	let cfg = Action::build_output_config(args);
 	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args));
+		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
+			.expect("Could not read todo list");
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_by_urgency(list.items());

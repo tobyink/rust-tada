@@ -11,6 +11,7 @@ fn actions() -> Vec<Action> {
 		tada::action::important::get_action(),
 		tada::action::urgent::get_action(),
 		tada::action::quick::get_action(),
+		tada::action::archive::get_action(),
 	])
 }
 
@@ -35,6 +36,7 @@ fn main() {
 		Some(("urgent", args)) => tada::action::urgent::execute(args),
 		Some(("quick", args)) => tada::action::quick::execute(args),
 		Some(("find", args)) => tada::action::find::execute(args),
+		Some(("archive", args)) => tada::action::archive::execute(args),
 		Some((tag, _)) => match tag.chars().next() {
 			Some('@') | Some('+') => tada::action::find::execute_shortcut(tag),
 			_ => {
