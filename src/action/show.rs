@@ -65,7 +65,7 @@ pub fn execute(args: &ArgMatches) {
 	cfg.line_number_digits = list.lines.len().to_string().len();
 
 	if *args.get_one::<bool>("urgency").unwrap() {
-		let split = group_by_urgency(list.items());
+		let split = group_items_by_urgency(list.items());
 		for u in URGENCIES.iter() {
 			if let Some(items) = split.get(u) {
 				let label = match u {
@@ -87,7 +87,7 @@ pub fn execute(args: &ArgMatches) {
 			}
 		}
 	} else if *args.get_one::<bool>("importance").unwrap() {
-		let split = group_by_importance(list.items());
+		let split = group_items_by_importance(list.items());
 		for u in ['A', 'B', 'C', 'D', 'E'] {
 			if let Some(items) = split.get(&u) {
 				let label = match u {
@@ -107,7 +107,7 @@ pub fn execute(args: &ArgMatches) {
 			}
 		}
 	} else if *args.get_one::<bool>("size").unwrap() {
-		let split = group_by_size(list.items());
+		let split = group_items_by_size(list.items());
 		for u in [TshirtSize::Small, TshirtSize::Medium, TshirtSize::Large] {
 			if let Some(items) = split.get(&u) {
 				let label = match u {

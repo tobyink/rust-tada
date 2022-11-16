@@ -51,10 +51,10 @@ pub fn execute(args: &ArgMatches) {
 
 	for term in args.get_many::<String>("search-term").unwrap() {
 		results = match term.chars().next() {
-			Some('@') => find_by_context(term, results),
-			Some('+') => find_by_tag(term, results),
-			Some('#') => find_by_line_number(term, results),
-			_ => find_by_string(term, results),
+			Some('@') => find_items_by_context(term, results),
+			Some('+') => find_items_by_tag(term, results),
+			Some('#') => find_items_by_line_number(term, results),
+			_ => find_items_by_string(term, results),
 		};
 	}
 
