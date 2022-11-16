@@ -155,7 +155,9 @@ impl List {
 		let url = Self::_handle_url(u);
 
 		// XXX: If the URL is a local file path, shortcut this using a simple file append.
-		let mut list = Self::from_url(url.to_string()).unwrap_or_else(|_| List::new());
+		let mut list = Self::from_url(url.to_string()).expect(
+			format!("Could not open list {} to append to", url).as_str(),
+		);
 		for l in lines {
 			list.lines.push(l.clone());
 		}
