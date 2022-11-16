@@ -25,6 +25,7 @@ pub fn execute(args: &ArgMatches) {
 	child.wait().unwrap();
 }
 
+/// Figure out the editor to use based on the environment.
 pub fn editor() -> Result<String, env::VarError> {
 	match env::var("EDITOR") {
 		Ok(result) => return Ok(result),
