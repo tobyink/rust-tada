@@ -146,12 +146,13 @@ impl List {
 	}
 
 	/// Appends some lines to a todo list, given its filename.
-	pub fn append_lines_to_url(path: String, lines: Vec<&Line>) {
-		let mut list = Self::from_url(path.clone());
+	pub fn append_lines_to_url(url: String, lines: Vec<&Line>) {
+		// XXX: If the URL is a local file path, shortcut this using a simple file append.
+		let mut list = Self::from_url(url.clone());
 		for l in lines {
 			list.lines.push(l.clone());
 		}
-		list.to_url(path);
+		list.to_url(url);
 	}
 
 	/// Get a Vec of Item objects from an already-parsed file.
