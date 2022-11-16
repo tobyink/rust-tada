@@ -1,4 +1,5 @@
-use crate::*;
+use crate::action::{Action, FileType};
+use crate::list::{Line, LineKind, List};
 use clap::{ArgMatches, Command};
 
 /// Options for the `archive` subcommand.

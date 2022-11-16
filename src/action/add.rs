@@ -1,4 +1,6 @@
-use crate::*;
+use crate::action::{Action, FileType};
+use crate::item::Item;
+use crate::list::{Line, List};
 use clap::{Arg, ArgMatches, Command};
 use std::io;
 

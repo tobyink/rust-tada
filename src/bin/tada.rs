@@ -1,6 +1,6 @@
 use clap::Command;
 use std::process;
-use tada::Action;
+use tada::action::Action;
 
 /// Get a list of valid subcommands.
 fn actions() -> Vec<Action> {

@@ -1,4 +1,4 @@
-use crate::*;
+use crate::action::{Action, FileType};
 use clap::{ArgMatches, Command};
 use std::env;
 use std::process::Command as SysCommand;

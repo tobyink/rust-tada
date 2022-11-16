@@ -1,4 +1,4 @@
-use crate::*;
+use crate::item::{Item, TshirtSize, Urgency};
 use std::collections::HashMap;
 
 /// Sort Vec<&Item> in a variety of ways.
