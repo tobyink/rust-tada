@@ -76,6 +76,7 @@ Options:
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -h, --help              Print help information
@@ -104,13 +105,14 @@ Search for a task
 Usage: tada find [OPTIONS] <search-term>...
 
 Arguments:
-  <search-term>...  a tag, context, or string
+  <search-term>...  a tag, context, line number, or string
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
@@ -133,6 +135,7 @@ Options:
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -s, --sort <BY>         sort by 'smart' (default), 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig'
@@ -155,6 +158,7 @@ Options:
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -n, --number <N>        maximum number to show (default: 3)
@@ -176,6 +180,7 @@ Options:
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -n, --number <N>        maximum number to show (default: 3)
@@ -197,6 +202,7 @@ Options:
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -n, --number <N>        maximum number to show (default: 3)

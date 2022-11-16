@@ -12,11 +12,14 @@ pub struct ItemFormatConfig {
 	pub colour: bool,
 	pub with_creation_date: bool,
 	pub with_completion_date: bool,
+	pub with_line_numbers: bool,
 	pub with_newline: bool,
+	pub line_number_digits: usize,
 }
 
 /// An item in a todo list.
 pub struct Item {
+	line_number: usize,
 	completion: bool,
 	priority: char,
 	completion_date: Option<NaiveDate>,
@@ -64,6 +67,7 @@ pub enum TshirtSize {
 impl Clone for Item {
 	fn clone(&self) -> Self {
 		Item {
+			line_number: self.line_number,
 			completion: self.completion,
 			priority: self.priority,
 			completion_date: self.completion_date,
@@ -198,6 +202,7 @@ lazy_static! {
 impl Item {
 	pub fn new() -> Item {
 		Item {
+			line_number: 0,
 			completion: false,
 			priority: '\0',
 			completion_date: None,
@@ -257,6 +262,16 @@ impl Item {
 	/// Set indicator of whether the task is complete.
 	pub fn set_completion(&mut self, x: bool) {
 		self.completion = x;
+	}
+
+	/// Line number indicator (sometimes zero).
+	pub fn line_number(&self) -> usize {
+		self.line_number
+	}
+
+	/// Set line number indicator for the task.
+	pub fn set_line_number(&mut self, x: usize) {
+		self.line_number = x;
 	}
 
 	/// Task priority/importance as given in a todo.txt file.
@@ -571,6 +586,17 @@ impl Item {
 			}
 		}
 
+		if cfg.with_line_numbers {
+			r.push_str(
+				format!(
+					"#{:0width$} ",
+					self.line_number(),
+					width = cfg.line_number_digits
+				)
+				.as_str(),
+			)
+		}
+
 		let len = cfg.width - console::strip_ansi_codes(&r).len();
 		r.push_str(self.description.substring(0, len));
 
@@ -607,7 +633,9 @@ impl ItemFormatConfig {
 			colour: false,
 			with_creation_date: false,
 			with_completion_date: false,
+			with_line_numbers: false,
 			with_newline: true,
+			line_number_digits: 2,
 		}
 	}
 

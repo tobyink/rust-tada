@@ -43,10 +43,13 @@ pub fn execute(args: &ArgMatches) {
 	let max = args.get_one::<usize>("number").unwrap_or(&3);
 
 	let mut out = io::stdout();
-	let cfg = Action::build_output_config(args);
 	let list =
 		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
 			.expect("Could not read todo list");
+
+	let mut cfg = Action::build_output_config(args);
+	cfg.line_number_digits = list.lines.len().to_string().len();
+
 	let quick = Action::sort_items_by("size", list.items())
 		.into_iter()
 		.filter(|i| !i.completion())

@@ -56,10 +56,11 @@ pub fn execute(args: &ArgMatches) {
 		.unwrap_or(&default_sort_by_type);
 
 	let mut out = io::stdout();
-	let cfg = Action::build_output_config(args);
 	let list =
 		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
 			.expect("Could not read todo list");
+	let mut cfg = Action::build_output_config(args);
+	cfg.line_number_digits = list.lines.len().to_string().len();
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_by_urgency(list.items());

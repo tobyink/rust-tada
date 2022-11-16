@@ -40,7 +40,9 @@ fn main() {
 		Some(("archive", args)) => tada::action::archive::execute(args),
 		Some(("edit", args)) => tada::action::edit::execute(args),
 		Some((tag, _)) => match tag.chars().next() {
-			Some('@') | Some('+') => tada::action::find::execute_shortcut(tag),
+			Some('@') | Some('+') | Some('#') => {
+				tada::action::find::execute_shortcut(tag)
+			}
 			_ => {
 				cmd.print_help().unwrap();
 				process::exit(1);

@@ -59,6 +59,14 @@ impl Action {
 				.help("plain output"),
 		)
 		.arg(
+			Arg::new("show-lines")
+				.num_args(0)
+				.short('L')
+				.long("show-lines")
+				.aliases(["show-lines", "lines"])
+				.help("show line numbers for tasks"),
+		)
+		.arg(
 			Arg::new("show-created")
 				.num_args(0)
 				.long("show-created")
@@ -87,11 +95,12 @@ impl Action {
 		cfg.with_creation_date = *args.get_one::<bool>("show-created").unwrap();
 		cfg.with_completion_date =
 			*args.get_one::<bool>("show-finished").unwrap();
+		cfg.with_line_numbers = *args.get_one::<bool>("show-lines").unwrap();
 		cfg.width = *args
 			.get_one::<usize>("max-width")
 			.unwrap_or(&cfg.width);
-		if cfg.width < 36 {
-			panic!("max-width must be at least 36!");
+		if cfg.width < 48 {
+			panic!("max-width must be at least 48!");
 		}
 		cfg
 	}
@@ -117,7 +126,7 @@ impl Action {
 			"due-date" | "duedate" | "due" => {
 				out.sort_by_cached_key(|i| i.due_date())
 			}
-			"original" | "orig" => (),
+			"original" | "orig" => out.sort_by_cached_key(|i| i.line_number()),
 			"smart" => out.sort_by_cached_key(|i| i.smart_key()),
 			_ => panic!("unknown sorting: '{}'", sortby),
 		};

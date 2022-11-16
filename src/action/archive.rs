@@ -35,6 +35,7 @@ pub fn execute(args: &ArgMatches) {
 						kind: LineKind::Item,
 						text: line.text.clone(),
 						item: Some(item.clone()),
+						num: 0,
 					};
 					moved += 1;
 					append_done.push(new)

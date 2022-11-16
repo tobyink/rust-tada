@@ -18,7 +18,7 @@ pub fn get_action() -> Action {
 			Arg::new("search-term")
 				.action(ArgAction::Append)
 				.required(true)
-				.help("a tag, context, or string"),
+				.help("a tag, context, line number, or string"),
 		)
 		.arg(
 			Arg::new("sort")
@@ -40,16 +40,18 @@ pub fn execute(args: &ArgMatches) {
 		.unwrap_or(&default_sort_by_type);
 
 	let mut out = io::stdout();
-	let cfg = Action::build_output_config(args);
 	let list =
 		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
 			.expect("Could not read todo list");
 	let mut results = list.items();
+	let mut cfg = Action::build_output_config(args);
+	cfg.line_number_digits = list.lines.len().to_string().len();
 
 	for term in args.get_many::<String>("search-term").unwrap() {
 		results = match term.chars().next() {
 			Some('@') => find_by_context(term, results),
 			Some('+') => find_by_tag(term, results),
+			Some('#') => find_by_line_number(term, results),
 			_ => find_by_string(term, results),
 		};
 	}
@@ -80,6 +82,17 @@ pub fn find_by_tag<'a>(term: &'a str, items: Vec<&'a Item>) -> Vec<&'a Item> {
 	items
 		.into_iter()
 		.filter(|i| i.has_tag(term))
+		.collect()
+}
+
+pub fn find_by_line_number<'a>(
+	term: &'a str,
+	items: Vec<&'a Item>,
+) -> Vec<&'a Item> {
+	let n: usize = term.get(1..).unwrap().parse().unwrap();
+	items
+		.into_iter()
+		.filter(|i| i.line_number() == n)
 		.collect()
 }
 

@@ -20,6 +20,7 @@ pub struct Line {
 	pub kind: LineKind,
 	pub text: String,
 	pub item: Option<Item>,
+	pub num: usize,
 }
 
 /// A todo list.
@@ -38,18 +39,34 @@ lazy_static! {
 
 impl Line {
 	/// Create a Line struct by parsing a string.
-	pub fn from_string(text: String) -> Line {
+	pub fn from_string(text: String, num: usize) -> Line {
 		let item = None;
 		if RE_LINE_BLANK.is_match(&text) {
 			let kind = LineKind::Blank;
-			Line { text, kind, item }
+			Line {
+				text,
+				kind,
+				item,
+				num,
+			}
 		} else if RE_LINE_COMMENT.is_match(&text) {
 			let kind = LineKind::Comment;
-			Line { text, kind, item }
+			Line {
+				text,
+				kind,
+				item,
+				num,
+			}
 		} else {
 			let kind = LineKind::Item;
-			let item = Some(Item::parse(&text));
-			Line { text, kind, item }
+			let mut item = Item::parse(&text);
+			item.set_line_number(num);
+			Line {
+				text,
+				kind,
+				item: Some(item),
+				num,
+			}
 		}
 	}
 
@@ -59,6 +76,7 @@ impl Line {
 			kind: LineKind::Item,
 			text: format!("{}", item),
 			item: Some(item),
+			num: 0,
 		}
 	}
 }
@@ -101,10 +119,14 @@ impl List {
 
 	/// Parse a todo list from an open file.
 	pub fn from_file(f: File) -> Result<List, io::Error> {
+		let mut count = 0;
 		let io = BufReader::new(f);
 		let lines = io
 			.lines()
-			.map(|l| Line::from_string(l.unwrap()))
+			.map(|l| {
+				count += 1;
+				Line::from_string(l.unwrap(), count)
+			})
 			.collect();
 		let list = List { path: None, lines };
 		Ok(list)
