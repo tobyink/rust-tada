@@ -1,3 +1,4 @@
+use crate::util::*;
 use crate::*;
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::io;
@@ -49,14 +50,14 @@ pub fn execute(args: &ArgMatches) {
 
 	for term in args.get_many::<String>("search-term").unwrap() {
 		results = match term.chars().next() {
-			Some('@') => Action::find_by_context(term, results),
-			Some('+') => Action::find_by_tag(term, results),
-			Some('#') => Action::find_by_line_number(term, results),
-			_         => Action::find_by_string(term, results),
+			Some('@') => find_by_context(term, results),
+			Some('+') => find_by_tag(term, results),
+			Some('#') => find_by_line_number(term, results),
+			_ => find_by_string(term, results),
 		};
 	}
 
-	for i in Action::sort_items_by(sort_by_type.as_str(), results).iter() {
+	for i in sort_items_by(sort_by_type.as_str(), results).iter() {
 		i.write_to(&mut out, &cfg);
 	}
 }
@@ -67,4 +68,3 @@ pub fn execute_shortcut(term: &str) {
 	let matches = cmd.get_matches_from(vec!["find", term]);
 	execute(&matches);
 }
-

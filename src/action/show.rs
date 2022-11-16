@@ -1,6 +1,6 @@
+use crate::util::*;
 use crate::*;
 use clap::{Arg, ArgMatches, Command};
-use std::collections::HashMap;
 use std::io;
 use std::io::Write;
 
@@ -77,8 +77,7 @@ pub fn execute(args: &ArgMatches) {
 				};
 				writeln!(&out, "# {}", label).expect("panik");
 				for i in
-					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
-						.iter()
+					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					i.write_to(&mut out, &cfg);
 				}
@@ -98,8 +97,7 @@ pub fn execute(args: &ArgMatches) {
 				};
 				writeln!(&out, "# {}", label).expect("panik");
 				for i in
-					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
-						.iter()
+					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					i.write_to(&mut out, &cfg);
 				}
@@ -117,8 +115,7 @@ pub fn execute(args: &ArgMatches) {
 				};
 				writeln!(&out, "# {}", label).expect("panik");
 				for i in
-					Action::sort_items_by(sort_by_type.as_str(), items.to_vec())
-						.iter()
+					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					i.write_to(&mut out, &cfg);
 				}
@@ -126,43 +123,8 @@ pub fn execute(args: &ArgMatches) {
 			}
 		}
 	} else {
-		for i in
-			Action::sort_items_by(sort_by_type.as_str(), list.items()).iter()
-		{
+		for i in sort_items_by(sort_by_type.as_str(), list.items()).iter() {
 			i.write_to(&mut out, &cfg);
 		}
 	}
-}
-
-pub fn group_by_urgency(items: Vec<&Item>) -> HashMap<Urgency, Vec<&Item>> {
-	let mut out: HashMap<Urgency, Vec<&Item>> = HashMap::new();
-	for i in items {
-		let list = out
-			.entry(i.urgency().unwrap_or(Urgency::Soon))
-			.or_insert_with(Vec::new);
-		list.push(i);
-	}
-	out
-}
-
-pub fn group_by_size(items: Vec<&Item>) -> HashMap<TshirtSize, Vec<&Item>> {
-	let mut out: HashMap<TshirtSize, Vec<&Item>> = HashMap::new();
-	for i in items {
-		let list = out
-			.entry(i.tshirt_size().unwrap_or(TshirtSize::Medium))
-			.or_insert_with(Vec::new);
-		list.push(i);
-	}
-	out
-}
-
-pub fn group_by_importance(items: Vec<&Item>) -> HashMap<char, Vec<&Item>> {
-	let mut out: HashMap<char, Vec<&Item>> = HashMap::new();
-	for i in items {
-		let list = out
-			.entry(i.importance().unwrap_or('D'))
-			.or_insert_with(Vec::new);
-		list.push(i);
-	}
-	out
 }

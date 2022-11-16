@@ -1,3 +1,4 @@
+use crate::util::*;
 use crate::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
@@ -50,13 +51,13 @@ pub fn execute(args: &ArgMatches) {
 	let mut cfg = Action::build_output_config(args);
 	cfg.line_number_digits = list.lines.len().to_string().len();
 
-	let quick = Action::sort_items_by("size", list.items())
+	let quick = sort_items_by("size", list.items())
 		.into_iter()
 		.filter(|i| !i.completion())
 		.take(*max)
 		.collect();
 
-	for i in Action::sort_items_by(sort_by_type.as_str(), quick).iter() {
+	for i in sort_items_by(sort_by_type.as_str(), quick).iter() {
 		i.write_to(&mut out, &cfg);
 	}
 }
