@@ -8,7 +8,7 @@ use std::io;
 pub fn get_action() -> Action {
 	let name = String::from("add");
 	let mut command = Command::new("add")
-		.about("Add an item to the todo list")
+		.about("Add a task to the todo list")
 		.after_help("After success, displays the added task.")
 		.arg(Arg::new("task").help("Task text (may use todo.txt features)"));
 

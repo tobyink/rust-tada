@@ -6,7 +6,7 @@ use clap::{ArgMatches, Command};
 pub fn get_action() -> Action {
 	let name = String::from("archive");
 	let mut command = Command::new("archive")
-		.about("Move completed items from todo.txt to done.txt");
+		.about("Move completed tasks from todo.txt to done.txt");
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_donetxt_file_options(command);
