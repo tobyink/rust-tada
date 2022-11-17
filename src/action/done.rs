@@ -1,14 +1,15 @@
 use crate::action::{Action, FileType};
 use crate::item::{Item, ItemFormatConfig};
-use crate::list::{Line, LineKind, List};
+use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use promptly::prompt_default;
 use std::io;
 
-/// Options for the `remove` subcommand.
+/// Options for the `done` subcommand.
 pub fn get_action() -> Action {
-	let name = String::from("remove");
-	let mut command = Command::new("remove").about("Remove a task or tasks");
+	let name = String::from("done");
+	let mut command =
+		Command::new("done").about("Mark a task or tasks as done");
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);
@@ -18,6 +19,13 @@ pub fn get_action() -> Action {
 				.action(ArgAction::Append)
 				.required(true)
 				.help("a tag, context, line number, or string"),
+		)
+		.arg(
+			Arg::new("no-date")
+				.num_args(0)
+				.long("no-date")
+				.aliases(["nodate"])
+				.help("Don't automatically add a completion date to the task"),
 		)
 		.arg(
 			Arg::new("yes")
@@ -37,7 +45,7 @@ pub fn get_action() -> Action {
 	Action { name, command }
 }
 
-/// Execute the `remove` subcommand.
+/// Execute the `done` subcommand.
 pub fn execute(args: &ArgMatches) {
 	let todo_filename = Action::determine_filename(FileType::TodoTxt, args);
 	let list = List::from_url(todo_filename.clone())
@@ -59,16 +67,19 @@ pub fn execute(args: &ArgMatches) {
 		'?'
 	};
 
+	let include_date = !*args.get_one::<bool>("no-date").unwrap();
+
 	let mut count = 0;
 	for line in list.lines {
 		match line.kind {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if Action::item_matches_terms(&item, &terms)
-					&& check_if_delete(&item, opt, &mut io::stdout(), &cfg)
+					&& (!item.completion())
+					&& check_if_complete(&item, opt, &mut io::stdout(), &cfg)
 				{
 					count += 1;
-					new_list.lines.push(Line::new_blank());
+					new_list.lines.push(line.but_done(include_date));
 				} else {
 					new_list.lines.push(line);
 				}
@@ -79,14 +90,14 @@ pub fn execute(args: &ArgMatches) {
 
 	if count > 0 {
 		new_list.to_url(todo_filename);
-		println!("Removed {} tasks!", count);
+		println!("Marked {} tasks complete!", count);
 	} else {
 		println!("No actions taken.");
 	}
 }
 
-/// Asks whether to delete an item, and prints out the response before returning a bool.
-pub fn check_if_delete(
+/// Asks whether to mark an item as complete, and prints out the response before returning a bool.
+pub fn check_if_complete(
 	item: &Item,
 	opt: char,
 	out: &mut std::io::Stdout,
@@ -95,21 +106,21 @@ pub fn check_if_delete(
 	item.write_to(out, cfg);
 
 	if opt == 'Y' {
-		println!("Removing\n");
+		println!("Marking finished\n");
 		return true;
 	}
 
 	if opt == 'N' {
-		println!("Keeping\n");
+		println!("Skipping\n");
 		return false;
 	}
 
-	let response = prompt_default("Remove?", true).unwrap();
+	let response = prompt_default("Mark finished?", true).unwrap();
 	if response {
-		println!("Removing\n");
+		println!("Marking finished\n");
 		return true;
 	}
 
-	println!("Keeping\n");
+	println!("Skipping\n");
 	false
 }

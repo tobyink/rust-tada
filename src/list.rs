@@ -88,6 +88,17 @@ impl Line {
 			num: 0,
 		}
 	}
+
+	/// Create a version of this line but representing a completed task.
+	pub fn but_done(&self, include_date: bool) -> Line {
+		match self.kind {
+			LineKind::Item => {
+				let item = self.clone().item.unwrap();
+				Line::from_item(item.but_done(include_date))
+			}
+			_ => self.clone(),
+		}
+	}
 }
 
 impl List {

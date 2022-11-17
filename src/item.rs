@@ -254,6 +254,19 @@ impl Item {
 		}
 	}
 
+	/// Create a version of this item but representing a completed task.
+	pub fn but_done(&self, include_date: bool) -> Item {
+		let mut i = self.clone();
+		i.set_completion(true);
+		if include_date {
+			i.set_completion_date(*DATE_TODAY);
+			if i.creation_date().is_none() {
+				i.set_creation_date(*DATE_TODAY);
+			}
+		}
+		i
+	}
+
 	/// Whether the task is complete.
 	pub fn completion(&self) -> bool {
 		self.completion

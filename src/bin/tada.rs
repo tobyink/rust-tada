@@ -8,6 +8,7 @@ fn actions() -> Vec<Action> {
 		tada::action::add::get_action(),
 		tada::action::remove::get_action(),
 		tada::action::edit::get_action(),
+		tada::action::done::get_action(),
 		tada::action::find::get_action(),
 		tada::action::show::get_action(),
 		tada::action::important::get_action(),
@@ -33,14 +34,15 @@ fn main() {
 	let matches = cmd.clone().get_matches();
 	match matches.subcommand() {
 		Some(("add", args)) => tada::action::add::execute(args),
+		Some(("archive", args)) => tada::action::archive::execute(args),
+		Some(("done", args)) => tada::action::done::execute(args),
+		Some(("edit", args)) => tada::action::edit::execute(args),
+		Some(("find", args)) => tada::action::find::execute(args),
+		Some(("important", args)) => tada::action::important::execute(args),
+		Some(("quick", args)) => tada::action::quick::execute(args),
 		Some(("remove", args)) => tada::action::remove::execute(args),
 		Some(("show", args)) => tada::action::show::execute(args),
-		Some(("important", args)) => tada::action::important::execute(args),
 		Some(("urgent", args)) => tada::action::urgent::execute(args),
-		Some(("quick", args)) => tada::action::quick::execute(args),
-		Some(("find", args)) => tada::action::find::execute(args),
-		Some(("archive", args)) => tada::action::archive::execute(args),
-		Some(("edit", args)) => tada::action::edit::execute(args),
 		Some((tag, _)) => match tag.chars().next() {
 			Some('@') | Some('+') | Some('#') => {
 				tada::action::find::execute_shortcut(tag)

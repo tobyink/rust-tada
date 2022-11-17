@@ -1,4 +1,4 @@
-use crate::item::ItemFormatConfig;
+use crate::item::{Item, ItemFormatConfig};
 use clap::{Arg, ArgMatches, Command};
 use std::env;
 
@@ -141,10 +141,46 @@ impl Action {
 		});
 		dir + "/done.txt"
 	}
+
+	/// Given an item and a list of terms from the command line, checks whether the item matches at least one term.
+	pub fn item_matches_terms(item: &Item, terms: &Vec<&String>) -> bool {
+		for term in terms {
+			match term.chars().next() {
+				Some('@') => {
+					if item.has_context(term) {
+						return true;
+					}
+				}
+				Some('+') => {
+					if item.has_tag(term) {
+						return true;
+					}
+				}
+				Some('#') => {
+					let n: usize = term.get(1..).unwrap().parse().unwrap();
+					if item.line_number() == n {
+						return true;
+					}
+				}
+				_ => {
+					let lc_term = term.to_lowercase();
+					if item
+						.description()
+						.to_lowercase()
+						.contains(&lc_term)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		false
+	}
 }
 
 pub mod add;
 pub mod archive;
+pub mod done;
 pub mod edit;
 pub mod find;
 pub mod important;
