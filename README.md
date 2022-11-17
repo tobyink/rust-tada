@@ -45,14 +45,17 @@ A todo list manager
 Usage: tada <COMMAND>
 
 Commands:
-  add        Add an item to the todo list
+  add        Add a task to the todo list
+  remove     Remove a task or tasks
   edit       Open your todo list in your editor
+  done       Mark a task or tasks as done
   find       Search for a task
   show       Show the full todo list
   important  Show the most important tasks
   urgent     Show the most urgent tasks
   quick      Show the smallest tasks
-  archive    Move completed items from todo.txt to done.txt
+  archive    Move completed tasks from todo.txt to done.txt
+  tidy       Remove blank lines and comments from a todo list
   help       Print this message or the help of the given subcommand(s)
 
 Options:
@@ -83,6 +86,30 @@ Options:
 
 After success, displays the added task.
 ```
+
+### tada remove
+
+```text
+Remove a task or tasks
+
+Usage: tada remove [OPTIONS] <search-term>...
+
+Arguments:
+  <search-term>...  a tag, context, line number, or string
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -y, --yes               assume 'yes' to prompts
+  -n, --no                assume 'no' to prompts
+  -h, --help              Print help information
+```
+
 ### tada edit
 
 ```text
@@ -95,6 +122,30 @@ Options:
   -h, --help         Print help information
 
 Ensure the EDITOR environent variable is set.
+```
+
+### tada done
+
+```text
+Mark a task or tasks as done
+
+Usage: tada done [OPTIONS] <search-term>...
+
+Arguments:
+  <search-term>...  a tag, context, line number, or string
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+      --no-date           Don't automatically add a completion date to the task
+  -y, --yes               assume 'yes' to prompts
+  -n, --no                assume 'no' to prompts
+  -h, --help              Print help information
 ```
 
 ### tada find
@@ -215,7 +266,7 @@ Ignores tasks which are marked as already complete.
 ### tada archive
 
 ```text
-Move completed items from todo.txt to done.txt
+Move completed tasks from todo.txt to done.txt
 
 Usage: tada archive [OPTIONS]
 
@@ -223,6 +274,21 @@ Options:
   -f, --file <FILE>       the path or URL for todo.txt
       --done-file <FILE>  the path or URL for done.txt
   -h, --help              Print help information
+```
+
+### tada tidy
+
+```text
+Remove blank lines and comments from a todo list
+
+Usage: tada tidy [OPTIONS]
+
+Options:
+  -f, --file <FILE>  the path or URL for todo.txt
+  -s, --sort <BY>    sort by 'smart', 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig' (default)
+  -h, --help         Print help information
+
+This is the only command which will renumber tasks in your todo list.
 ```
 
 ## Licence
