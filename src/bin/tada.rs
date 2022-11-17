@@ -6,6 +6,7 @@ use tada::action::Action;
 fn actions() -> Vec<Action> {
 	Vec::from([
 		tada::action::add::get_action(),
+		tada::action::remove::get_action(),
 		tada::action::edit::get_action(),
 		tada::action::find::get_action(),
 		tada::action::show::get_action(),
@@ -32,6 +33,7 @@ fn main() {
 	let matches = cmd.clone().get_matches();
 	match matches.subcommand() {
 		Some(("add", args)) => tada::action::add::execute(args),
+		Some(("remove", args)) => tada::action::remove::execute(args),
 		Some(("show", args)) => tada::action::show::execute(args),
 		Some(("important", args)) => tada::action::important::execute(args),
 		Some(("urgent", args)) => tada::action::urgent::execute(args),

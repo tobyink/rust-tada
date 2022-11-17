@@ -149,5 +149,6 @@ pub mod edit;
 pub mod find;
 pub mod important;
 pub mod quick;
+pub mod remove;
 pub mod show;
 pub mod urgent;
