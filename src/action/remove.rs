@@ -67,14 +67,8 @@ pub fn execute(args: &ArgMatches) {
 				if item_matches_terms(&item, &terms)
 					&& check_if_delete(&item, opt, &mut io::stdout(), &cfg)
 				{
-					let blank = Line {
-						kind: LineKind::Blank,
-						text: String::new(),
-						item: None,
-						num: 0,
-					};
 					count += 1;
-					new_list.lines.push(blank);
+					new_list.lines.push(Line::new_blank());
 				} else {
 					new_list.lines.push(line);
 				}

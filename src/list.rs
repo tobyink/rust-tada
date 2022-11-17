@@ -38,6 +38,15 @@ lazy_static! {
 }
 
 impl Line {
+	pub fn new_blank() -> Line {
+		Line {
+			kind: LineKind::Blank,
+			text: String::new(),
+			item: None,
+			num: 0,
+		}
+	}
+	
 	/// Create a Line struct by parsing a string.
 	pub fn from_string(text: String, num: usize) -> Line {
 		let item = None;
@@ -192,6 +201,12 @@ impl List {
 		iter.filter(|l| l.kind == LineKind::Item)
 			.map(|l| l.item.as_ref().unwrap())
 			.collect()
+	}
+}
+
+impl Default for Line {
+	fn default() -> Self {
+		Self::new_blank()
 	}
 }
 
