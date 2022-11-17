@@ -39,7 +39,8 @@ pub fn execute(args: &ArgMatches) {
 						num: 0,
 					};
 					moved += 1;
-					append_done.push(new)
+					append_done.push(new);
+					new_todo.push(Line::new_blank())
 				} else {
 					new_todo.push(line)
 				}
