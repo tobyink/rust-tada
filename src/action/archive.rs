@@ -25,7 +25,7 @@ pub fn execute(args: &ArgMatches) {
 	let mut moved = 0;
 	let todo = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
-	for line in todo.lines {
+	for line in todo.lines.clone() {
 		match line.kind {
 			LineKind::Blank => new_todo.push(line),
 			LineKind::Comment => new_todo.push(line),
@@ -50,6 +50,7 @@ pub fn execute(args: &ArgMatches) {
 
 	if moved == 0 {
 		println!("No complete tasks found in {}", todo_filename);
+		Action::maybe_warnings(&todo);
 	} else {
 		List::append_lines_to_url(
 			done_filename.clone(),
@@ -61,5 +62,6 @@ pub fn execute(args: &ArgMatches) {
 		list.to_url(todo_filename);
 
 		println!("Moved {} tasks to {}", moved, done_filename);
+		Action::maybe_warnings(&list);
 	}
 }

@@ -1,4 +1,5 @@
 use crate::item::{Item, ItemFormatConfig};
+use crate::list::{LineKind, List};
 use clap::{Arg, ArgMatches, Command};
 use std::env;
 
@@ -105,6 +106,41 @@ impl Action {
 		cfg
 	}
 
+	fn maybe_warnings(list: &List) {
+		let mut done_blank = false;
+
+		let count_finished = list
+			.lines
+			.iter()
+			.filter(|l| {
+				l.kind == LineKind::Item && l.item.clone().unwrap().completion()
+			})
+			.count();
+		if count_finished > 4 {
+			if !done_blank {
+				println!();
+				done_blank = true;
+			}
+			println!(
+				"There are {} finished tasks. Consider running `tada archive`.",
+				count_finished
+			);
+		}
+
+		let count_blank = list
+			.lines
+			.iter()
+			.filter(|l| l.kind != LineKind::Item)
+			.count();
+		if count_blank > 4 {
+			if !done_blank {
+				println!();
+				// done_blank = true;
+			}
+			println!("There are {} blank/comment lines. Consider running `tada tidy`.", count_blank);
+		}
+	}
+
 	/// Given a filetype and set of options, determines the exact file path.
 	///
 	/// Uses environment variables `TODO_FILE`, `TODO_DIR`, and `DONE_FILE`
@@ -187,4 +223,5 @@ pub mod important;
 pub mod quick;
 pub mod remove;
 pub mod show;
+pub mod tidy;
 pub mod urgent;

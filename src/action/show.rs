@@ -129,4 +129,6 @@ pub fn execute(args: &ArgMatches) {
 			i.write_to(&mut out, &cfg);
 		}
 	}
+
+	Action::maybe_warnings(&list);
 }

@@ -94,6 +94,8 @@ pub fn execute(args: &ArgMatches) {
 	} else {
 		println!("No actions taken.");
 	}
+
+	Action::maybe_warnings(&new_list);
 }
 
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.

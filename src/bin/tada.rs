@@ -15,6 +15,7 @@ fn actions() -> Vec<Action> {
 		tada::action::urgent::get_action(),
 		tada::action::quick::get_action(),
 		tada::action::archive::get_action(),
+		tada::action::tidy::get_action(),
 	])
 }
 
@@ -42,6 +43,7 @@ fn main() {
 		Some(("quick", args)) => tada::action::quick::execute(args),
 		Some(("remove", args)) => tada::action::remove::execute(args),
 		Some(("show", args)) => tada::action::show::execute(args),
+		Some(("tidy", args)) => tada::action::tidy::execute(args),
 		Some(("urgent", args)) => tada::action::urgent::execute(args),
 		Some((tag, _)) => match tag.chars().next() {
 			Some('@') | Some('+') | Some('#') => {
