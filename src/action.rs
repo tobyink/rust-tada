@@ -116,7 +116,7 @@ impl Action {
 				l.kind == LineKind::Item && l.item.clone().unwrap().completion()
 			})
 			.count();
-		if count_finished > 4 {
+		if count_finished > 9 {
 			if !done_blank {
 				println!();
 				done_blank = true;
@@ -132,7 +132,7 @@ impl Action {
 			.iter()
 			.filter(|l| l.kind != LineKind::Item)
 			.count();
-		if count_blank > 4 {
+		if count_blank > 9 {
 			if !done_blank {
 				println!();
 				// done_blank = true;
