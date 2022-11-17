@@ -46,7 +46,7 @@ impl Line {
 			num: 0,
 		}
 	}
-	
+
 	/// Create a Line struct by parsing a string.
 	pub fn from_string(text: String, num: usize) -> Line {
 		let item = None;
