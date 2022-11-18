@@ -161,7 +161,7 @@ impl Action {
 
 	pub fn _file_exists(path: &str) -> bool {
 		match fs::metadata(path) {
-			Ok(f)  => f.is_file(),
+			Ok(f) => f.is_file(),
 			Err(_) => false,
 		}
 	}
@@ -169,16 +169,21 @@ impl Action {
 	fn _determine_filename_for_todo_txt(args: &ArgMatches) -> String {
 		let local_only = *args.get_one::<bool>("local").unwrap_or(&false);
 		if local_only {
-			let names = ["todo.txt", "TODO", "TODO.TXT", "ToDo", "ToDo.txt", "todo"];
+			let names =
+				["todo.txt", "TODO", "TODO.TXT", "ToDo", "ToDo.txt", "todo"];
 			for n in names {
-				let qname = env::current_dir().unwrap().into_os_string().into_string().unwrap() + "/" + n;
+				let qname = env::current_dir()
+					.unwrap()
+					.into_os_string()
+					.into_string()
+					.unwrap() + "/" + n;
 				if Self::_file_exists(&qname) {
 					return qname;
 				}
 			}
 			panic!("Could not find a file called todo.txt or TODO in the current directory!")
 		}
-		
+
 		if let Some(f) = args.get_one::<String>("file") {
 			return f.to_string();
 		};
@@ -194,16 +199,21 @@ impl Action {
 	fn _determine_filename_for_done_txt(args: &ArgMatches) -> String {
 		let local_only = *args.get_one::<bool>("local").unwrap_or(&false);
 		if local_only {
-			let names = ["done.txt", "DONE", "DONE.TXT", "Done", "Done.txt", "done"];
+			let names =
+				["done.txt", "DONE", "DONE.TXT", "Done", "Done.txt", "done"];
 			for n in names {
-				let qname = env::current_dir().unwrap().into_os_string().into_string().unwrap() + "/" + n;
+				let qname = env::current_dir()
+					.unwrap()
+					.into_os_string()
+					.into_string()
+					.unwrap() + "/" + n;
 				if Self::_file_exists(&qname) {
 					return qname;
 				}
 			}
 			panic!("Could not find a file called done.txt or DONE in the current directory!")
 		}
-		
+
 		if let Some(f) = args.get_one::<String>("done-file") {
 			return f.to_string();
 		};
