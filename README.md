@@ -56,6 +56,7 @@ Commands:
   quick      Show the smallest tasks
   archive    Move completed tasks from todo.txt to done.txt
   tidy       Remove blank lines and comments from a todo list
+  zen        Automatically reschedule overdue tasks
   help       Print this message or the help of the given subcommand(s)
 
 Options:
@@ -289,6 +290,21 @@ Options:
   -h, --help         Print help information
 
 This is the only command which will renumber tasks in your todo list.
+```
+
+### tada zen
+
+```text
+Automatically reschedule overdue tasks
+
+Usage: tada zen [OPTIONS]
+
+Options:
+  -f, --file <FILE>  the path or URL for todo.txt
+  -h, --help         Print help information
+
+Zen will reschedule any overdue tasks on your todo list. It does not consult you
+to ask for a new due date, but guesses when a sensible due date might be.
 ```
 
 ## Licence

@@ -225,3 +225,4 @@ pub mod remove;
 pub mod show;
 pub mod tidy;
 pub mod urgent;
+pub mod zen;

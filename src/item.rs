@@ -267,6 +267,28 @@ impl Item {
 		i
 	}
 
+	pub fn zen(&self) -> Item {
+		if self.urgency() == Some(Urgency::Overdue) {
+			let mut new = self.clone();
+			let important = matches!(new.importance(), Some('A') | Some('B'));
+			let small = matches!(new.tshirt_size(), Some(TshirtSize::Small));
+			let new_date = if important && small {
+				*DATE_SOON
+			} else if important || small {
+				*DATE_NEXT_WEEKEND
+			} else {
+				*DATE_NEXT_MONTH
+			};
+			let old_date = new.due_date().unwrap();
+			new.set_description(new.description().replace(
+				&format!("due:{}", old_date.format("%Y-%m-%d")),
+				&format!("due:{}", new_date.format("%Y-%m-%d")),
+			));
+			return new;
+		}
+		self.clone()
+	}
+
 	/// Whether the task is complete.
 	pub fn completion(&self) -> bool {
 		self.completion
