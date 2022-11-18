@@ -28,7 +28,13 @@ Tada usually categorizes tasks along three main vectors:
 People often confuse urgency with importance. Watching a football match on TV
 might be urgent because the game starts in ten minutes, but it's probably not
 all that important. Filing your taxes might not be urgent, but because the
-consequences of not doing it are dire, it's important.
+consequences of not doing it are dire, it's important. Importance is indicated
+by setting a priority capital `(A)` to `(E)`. (Letters after `E` are allowed,
+but will be treated as essentially equivalent.)
+
+Due dates are indicated by including `due:YYYY-MM-DD` in the task description,
+and urgency will be calculated based on how soon the due date is, or if it is
+overdue.
 
 Tshirt size is indicated by marking the task with `@S`, `@M`, or `@L`. As a
 rough guide, tasks under an hour might be small, tasks under a day might be
@@ -318,6 +324,11 @@ Options:
 Zen will reschedule any overdue tasks on your todo list. It does not consult you
 to ask for a new due date, but guesses when a sensible due date might be.
 ```
+
+Exactly how zen works is subject to change, but it will aim to reschedule
+tasks which are both small *and* important to be done first, then tasks which
+are either small *or* important, and finally larger and less important tasks.
+It will only reschedule tasks which are already overdue and not finished.
 
 ## Licence
 
