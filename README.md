@@ -76,6 +76,7 @@ Arguments:
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --no-date           Don't automatically add a creation date to the task
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
@@ -100,6 +101,7 @@ Arguments:
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -120,6 +122,7 @@ Usage: tada edit [OPTIONS]
 
 Options:
   -f, --file <FILE>  the path or URL for todo.txt
+  -l, --local        look for files in local directory only
   -h, --help         Print help information
 
 Ensure the EDITOR environent variable is set.
@@ -137,6 +140,7 @@ Arguments:
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -161,6 +165,7 @@ Arguments:
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -184,6 +189,7 @@ Usage: tada show [OPTIONS]
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -207,6 +213,7 @@ Usage: tada important [OPTIONS]
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -229,6 +236,7 @@ Usage: tada urgent [OPTIONS]
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -251,6 +259,7 @@ Usage: tada quick [OPTIONS]
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -273,6 +282,7 @@ Usage: tada archive [OPTIONS]
 
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
       --done-file <FILE>  the path or URL for done.txt
   -h, --help              Print help information
 ```
@@ -286,6 +296,7 @@ Usage: tada tidy [OPTIONS]
 
 Options:
   -f, --file <FILE>  the path or URL for todo.txt
+  -l, --local        look for files in local directory only
   -s, --sort <BY>    sort by 'smart', 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig' (default)
   -h, --help         Print help information
 
@@ -301,6 +312,7 @@ Usage: tada zen [OPTIONS]
 
 Options:
   -f, --file <FILE>  the path or URL for todo.txt
+  -l, --local        look for files in local directory only
   -h, --help         Print help information
 
 Zen will reschedule any overdue tasks on your todo list. It does not consult you
