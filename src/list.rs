@@ -129,7 +129,7 @@ impl List {
 			"sftp" => {
 				let mut host = String::from(url.host_str().unwrap());
 				let username = String::from(url.username());
-				if username.len() > 0 {
+				if !username.is_empty() {
 					host = username + "@" + &host;
 				}
 				if let Some(password) = url.port() {
@@ -224,10 +224,10 @@ impl List {
 						.into_string()
 						.unwrap(),
 				);
-			},
+			}
 			"http" | "https" => {
 				self.to_http(url);
-			},
+			}
 			_ => panic!("non-file URL"),
 		}
 	}
@@ -266,7 +266,7 @@ impl List {
 		println!("{:?}", request);
 		let response = request.body(self.serialize()).send().unwrap();
 		println!("{:?}", response);
-		if ! response.status().is_success() {
+		if !response.status().is_success() {
 			panic!("HTTP response: {}", response.status());
 		}
 	}
