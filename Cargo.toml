@@ -21,3 +21,4 @@ freezebox = "0.2.3"
 url = "2.3.1"
 promptly = "0.3.1"
 rand = "0.8.5"
+reqwest = { version = "0.11.13", features = ["blocking"] }

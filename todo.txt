@@ -1,4 +1,4 @@
-(A) 2022-11-18 add support for https/http URLs as todo lists
+x (A) 2022-11-18 add support for https/http URLs as todo lists
 (A) 2022-11-18 add support for todo lists over SSH; might be tricky as there is no ssh URL scheme
 (B) 2022-11-18 release 0.1.0
 (A) 2022-11-19 Increase test coverage.

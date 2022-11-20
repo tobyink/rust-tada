@@ -330,6 +330,17 @@ tasks which are both small *and* important to be done first, then tasks which
 are either small *or* important, and finally larger and less important tasks.
 It will only reschedule tasks which are already overdue and not finished.
 
+### Protocol Support
+
+It is possible to set `TADA_FILE` or the `--file` option to an HTTP or HTTPS
+URL. It performs `GET` requests to read the file and `PUT` to write to it.
+
+The `TADA_HTTP_USER_AGENT`, `TADA_HTTP_AUTHORIZATION`, and `TADA_HTTP_FROM`
+environment variables may be used to perform some very rudimentary
+authentication if the server at the other end of the request is set up
+right. See [php-tada-server](https://github.com/tobyink/php-tada-server)
+for an example.
+
 ## Licence
 
 This project is triple licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0), the [MIT License](http://opensource.org/licenses/MIT), and the [GNU General Public License, version 2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).

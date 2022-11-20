@@ -1,9 +1,10 @@
 use crate::item::Item;
 use lazy_static::lazy_static;
 use regex::Regex;
+use reqwest::blocking::Client;
+use std::env;
 use std::fs::File;
-use std::io;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Error, Write};
 use url::Url;
 
 /// A line type — item, comment, or blank
@@ -114,23 +115,39 @@ impl List {
 	}
 
 	/// Parse a todo list from a URL.
-	pub fn from_url(u: String) -> Result<List, io::Error> {
+	pub fn from_url(u: String) -> Result<List, Error> {
 		let url = Self::_handle_url(u);
-		if url.scheme() == "file" {
-			Self::from_filename(
+		match url.scheme() {
+			"file" => Self::from_filename(
 				url.to_file_path()
 					.unwrap()
 					.into_os_string()
 					.into_string()
 					.unwrap(),
-			)
-		} else {
-			panic!("non-file URL")
+			),
+			"http" | "https" => Self::from_http(url),
+			"sftp" => {
+				let mut host = String::from(url.host_str().unwrap());
+				let username = String::from(url.username());
+				if username.len() > 0 {
+					host = username + "@" + &host;
+				}
+				if let Some(password) = url.port() {
+					host = "ssh://".to_owned()
+						+ &host + ":" + &password.to_string();
+				}
+				let mut path = String::from(url.path());
+				if path.starts_with("/~/") {
+					path = String::from(path.get(3..).unwrap());
+				}
+				List::from_sftp(host, path)
+			}
+			_ => panic!("non-file URL: {:?}", url),
 		}
 	}
 
 	/// Parse a todo list from a filename.
-	pub fn from_filename(path: String) -> Result<List, io::Error> {
+	pub fn from_filename(path: String) -> Result<List, Error> {
 		let file = File::open(&path)?;
 		let mut list = Self::from_file(file)?;
 		list.path = Some(path);
@@ -138,7 +155,7 @@ impl List {
 	}
 
 	/// Parse a todo list from an open file.
-	pub fn from_file(f: File) -> Result<List, io::Error> {
+	pub fn from_file(f: File) -> Result<List, Error> {
 		let mut count = 0;
 		let io = BufReader::new(f);
 		let lines = io
@@ -152,19 +169,66 @@ impl List {
 		Ok(list)
 	}
 
+	/// Parse a todo list from a string.
+	pub fn from_string(s: String) -> Result<List, Error> {
+		let mut count = 0;
+		let lines = s
+			.lines()
+			.map(|l| {
+				count += 1;
+				Line::from_string(l.to_string(), count)
+			})
+			.collect();
+		let list = List { path: None, lines };
+		Ok(list)
+	}
+
+	/// Read a todo list over HTTP.
+	pub fn from_http(url: Url) -> Result<List, Error> {
+		let client = Client::new();
+		let mut request = client.get(url);
+		if let Ok(x) = env::var("TADA_HTTP_USER_AGENT") {
+			request = request.header(reqwest::header::USER_AGENT, x);
+		}
+		if let Ok(x) = env::var("TADA_HTTP_AUTHORIZATION") {
+			request = request.header(reqwest::header::AUTHORIZATION, x.clone());
+			request = request.header("X-Tada-Authorization", x);
+		}
+		if let Ok(x) = env::var("TADA_HTTP_FROM") {
+			request = request.header(reqwest::header::FROM, x);
+		}
+		let response = request.send().unwrap();
+		if response.status().is_success() {
+			return Self::from_string(response.text().unwrap());
+		}
+		Err(Error::new(
+			std::io::ErrorKind::Other,
+			format!("HTTP response: {}", response.status()),
+		))
+	}
+
+	/// Read a todo list over SFTP (not implemented yet).
+	pub fn from_sftp(_host: String, _path: String) -> Result<List, Error> {
+		panic!("SFTP not implemented yet")
+	}
+
 	// Save a todo list to a URL.
 	pub fn to_url(&self, u: String) {
 		let url = Self::_handle_url(u);
-		if url.scheme() == "file" {
-			self.to_filename(
-				url.to_file_path()
-					.unwrap()
-					.into_os_string()
-					.into_string()
-					.unwrap(),
-			);
-		} else {
-			panic!("non-file URL");
+		match url.scheme() {
+			"file" => {
+				self.to_filename(
+					url.to_file_path()
+						.unwrap()
+						.into_os_string()
+						.into_string()
+						.unwrap(),
+				);
+			},
+			"http" | "https" => {
+				self.to_http(url);
+			},
+			_ => panic!("non-file URL"),
 		}
 	}
 
@@ -182,6 +246,29 @@ impl List {
 		if let Err(why) = f.write_all(self.serialize().as_bytes()) {
 			panic!("Couldn't write to file: {}", why);
 		};
+	}
+
+	/// Save a todo list using an HTTP PUT request.
+	pub fn to_http(&self, url: Url) {
+		let client = Client::new();
+		let mut request = client.put(url);
+		if let Ok(x) = env::var("TADA_HTTP_USER_AGENT") {
+			request = request.header(reqwest::header::USER_AGENT, x);
+		}
+		if let Ok(x) = env::var("TADA_HTTP_AUTHORIZATION") {
+			request = request.header(reqwest::header::AUTHORIZATION, x.clone());
+			request = request.header("X-Tada-Authorization", x);
+		}
+		if let Ok(x) = env::var("TADA_HTTP_FROM") {
+			request = request.header(reqwest::header::FROM, x);
+		}
+		request = request.header(reqwest::header::CONTENT_TYPE, "text/plain");
+		println!("{:?}", request);
+		let response = request.body(self.serialize()).send().unwrap();
+		println!("{:?}", response);
+		if ! response.status().is_success() {
+			panic!("HTTP response: {}", response.status());
+		}
 	}
 
 	/// Serialize a todo list as a string.
