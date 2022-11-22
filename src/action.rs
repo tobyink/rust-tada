@@ -13,6 +13,7 @@ pub struct Action {
 pub enum FileType {
 	TodoTxt,
 	DoneTxt,
+	Config,
 }
 
 /// Utility functions for subcommands
@@ -152,10 +153,11 @@ impl Action {
 	///
 	/// Uses environment variables `TODO_FILE`, `TODO_DIR`, and `DONE_FILE`
 	/// as fallbacks.
-	fn determine_filename(filetype: FileType, args: &ArgMatches) -> String {
+	pub fn determine_filename(filetype: FileType, args: &ArgMatches) -> String {
 		match filetype {
 			FileType::TodoTxt => Self::_determine_filename_for_todo_txt(args),
 			FileType::DoneTxt => Self::_determine_filename_for_done_txt(args),
+			FileType::Config => Self::_determine_filename_for_config(args),
 		}
 	}
 
@@ -224,6 +226,18 @@ impl Action {
 			env::var("HOME").expect("Could not determine path to done.txt!")
 		});
 		dir + "/done.txt"
+	}
+
+	fn _determine_filename_for_config(args: &ArgMatches) -> String {
+		if let Some(f) = args.get_one::<String>("config-file") {
+			return f.to_string();
+		};
+		if let Ok(f) = env::var("TADA_CONFIG") {
+			return f;
+		};
+		let dir =
+			env::var("HOME").expect("Could not determine path to tada.toml!");
+		dir + "~/.config/tada.toml"
 	}
 
 	/// Given an item and a list of terms from the command line, checks whether the item matches at least one term.

@@ -1,22 +1,23 @@
 use clap::Command;
 use std::process;
+use tada::action;
 use tada::action::Action;
 
 /// Get a list of valid subcommands.
 fn actions() -> Vec<Action> {
 	Vec::from([
-		tada::action::add::get_action(),
-		tada::action::remove::get_action(),
-		tada::action::edit::get_action(),
-		tada::action::done::get_action(),
-		tada::action::find::get_action(),
-		tada::action::show::get_action(),
-		tada::action::important::get_action(),
-		tada::action::urgent::get_action(),
-		tada::action::quick::get_action(),
-		tada::action::archive::get_action(),
-		tada::action::tidy::get_action(),
-		tada::action::zen::get_action(),
+		action::add::get_action(),
+		action::remove::get_action(),
+		action::edit::get_action(),
+		action::done::get_action(),
+		action::find::get_action(),
+		action::show::get_action(),
+		action::important::get_action(),
+		action::urgent::get_action(),
+		action::quick::get_action(),
+		action::archive::get_action(),
+		action::tidy::get_action(),
+		action::zen::get_action(),
 	])
 }
 
@@ -34,31 +35,35 @@ fn main() {
 	}
 
 	let matches = cmd.clone().get_matches();
-	match matches.subcommand() {
-		Some(("add", args)) => tada::action::add::execute(args),
-		Some(("archive", args)) => tada::action::archive::execute(args),
-		Some(("done", args)) => tada::action::done::execute(args),
-		Some(("edit", args)) => tada::action::edit::execute(args),
-		Some(("find", args)) => tada::action::find::execute(args),
-		Some(("important", args)) => tada::action::important::execute(args),
-		Some(("quick", args)) => tada::action::quick::execute(args),
-		Some(("remove", args)) => tada::action::remove::execute(args),
-		Some(("show", args)) => tada::action::show::execute(args),
-		Some(("tidy", args)) => tada::action::tidy::execute(args),
-		Some(("urgent", args)) => tada::action::urgent::execute(args),
-		Some(("zen", args)) => tada::action::zen::execute(args),
-		Some((tag, _)) => match tag.chars().next() {
+	let subcommand = match matches.subcommand() {
+		Some(s) => s,
+		None => {
+			cmd.print_help().unwrap();
+			process::exit(1);
+		}
+	};
+
+	match subcommand {
+		("add", args) => action::add::execute(args),
+		("archive", args) => action::archive::execute(args),
+		("done", args) => action::done::execute(args),
+		("edit", args) => action::edit::execute(args),
+		("find", args) => action::find::execute(args),
+		("important", args) => action::important::execute(args),
+		("quick", args) => action::quick::execute(args),
+		("remove", args) => action::remove::execute(args),
+		("show", args) => action::show::execute(args),
+		("tidy", args) => action::tidy::execute(args),
+		("urgent", args) => action::urgent::execute(args),
+		("zen", args) => action::zen::execute(args),
+		(tag, _) => match tag.chars().next() {
 			Some('@') | Some('+') | Some('#') => {
-				tada::action::find::execute_shortcut(tag)
+				action::find::execute_shortcut(tag)
 			}
 			_ => {
 				cmd.print_help().unwrap();
 				process::exit(1);
 			}
 		},
-		None => {
-			cmd.print_help().unwrap();
-			process::exit(1);
-		}
 	}
 }
