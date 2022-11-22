@@ -10,7 +10,7 @@ keywords = [ "todotxt", "todo", "task" ]
 categories = [ "command-line-utilities" ]
 
 [dependencies]
-regex = "0.2"
+regex = "1.7"
 chrono = "0.4"
 tempfile = "3.3.0"
 lazy_static = "1.4.0"
