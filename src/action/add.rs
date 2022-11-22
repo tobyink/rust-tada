@@ -13,13 +13,21 @@ pub fn get_action() -> Action {
 		.arg(Arg::new("task").help("Task text (may use todo.txt features)"));
 
 	command = Action::_add_todotxt_file_options(command);
-	command = command.arg(
-		Arg::new("no-date")
-			.num_args(0)
-			.long("no-date")
-			.aliases(["nodate"])
-			.help("Don't automatically add a creation date to the task"),
-	);
+	command = command
+		.arg(
+			Arg::new("no-date")
+				.num_args(0)
+				.long("no-date")
+				.aliases(["nodate"])
+				.help("Don't automatically add a creation date to the task"),
+		)
+		.arg(
+			Arg::new("no-fixup")
+				.num_args(0)
+				.long("no-fixup")
+				.aliases(["nofixup"])
+				.help("Don't try to fix task syntax"),
+		);
 	command = Action::_add_output_options(command);
 
 	Action { name, command }
@@ -29,7 +37,11 @@ pub fn get_action() -> Action {
 pub fn execute(args: &ArgMatches) {
 	let input = args.get_one::<String>("task").unwrap();
 	let mut item = Item::parse(input);
-	item = item.fixup(true);
+
+	let no_fixup = *args.get_one::<bool>("no-fixup").unwrap();
+	if !no_fixup {
+		item = item.fixup(true);
+	}
 
 	let no_date = *args.get_one::<bool>("no-date").unwrap();
 	if item.creation_date().is_none() && !no_date {
