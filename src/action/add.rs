@@ -29,6 +29,7 @@ pub fn get_action() -> Action {
 pub fn execute(args: &ArgMatches) {
 	let input = args.get_one::<String>("task").unwrap();
 	let mut item = Item::parse(input);
+	item = item.fixup(true);
 
 	let no_date = *args.get_one::<bool>("no-date").unwrap();
 	if item.creation_date().is_none() && !no_date {

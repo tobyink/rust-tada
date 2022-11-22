@@ -1,5 +1,6 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use console::Style;
+use date_time_parser::DateParser as NaturalDateParser;
 use freezebox::FreezeBox;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -195,7 +196,8 @@ lazy_static! {
 			_ => NaiveDate::from_ymd_opt(date.year(), date.month() + 2, 1),
 		}
 		.unwrap()
-		.pred()
+		.pred_opt()
+		.unwrap()
 	};
 }
 
@@ -287,6 +289,50 @@ impl Item {
 			return new;
 		}
 		self.clone()
+	}
+
+	pub fn fixup(&self, warnings: bool) -> Item {
+		let maybe_warn = |w| {
+			if warnings {
+				eprintln!("{}", w);
+			}
+		};
+		let mut new = self.clone();
+
+		if new.priority() == '\0' {
+			maybe_warn(String::from("Hint: a task can be given an importance be prefixing it with a parenthesized capital letter, like `(A)`."));
+		}
+
+		match new.kv().get("due") {
+			Some(given_date) => {
+				if NaiveDate::parse_from_str(given_date, "%Y-%m-%d").is_err() {
+					let processed_date = given_date.replace('_', " ");
+					if let Some(naive_date) = NaturalDateParser::parse(&processed_date) {
+						new.set_description(new.description().replace(
+							&format!("due:{}", given_date),
+							&format!("due:{}", naive_date.format("%Y-%m-%d")),
+						));
+						maybe_warn(format!("Notice: due date `{}` changed to `{}`.", given_date, naive_date.format("%Y-%m-%d")));
+					}
+					else {
+						maybe_warn(format!("Notice: due date `{}` should be in YYYY-MM-DD format.", given_date));
+					}
+				}
+			},
+			None => maybe_warn(String::from("Hint: a task can be given a due date by including `due:YYYY-MM-DD`.")),
+		}
+
+		if new.tshirt_size().is_none() {
+			maybe_warn(String::from("Hint: a task can be given a size by including `@S`, `@M`, or `@L`."));
+		}
+
+		if new.description().len() > 120 {
+			maybe_warn(String::from("Hint: long descriptions can make a task list slower to skim read."));
+		} else if new.description().len() < 30 {
+			maybe_warn(String::from("Hint: short descriptions can make it hard to remember what a task means!"));
+		}
+
+		new
 	}
 
 	/// Whether the task is complete.
