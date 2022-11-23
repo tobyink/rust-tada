@@ -2,6 +2,7 @@ x (A) 2022-11-18 add support for https/http URLs as todo lists
 (A) 2022-11-18 add support for todo lists over SSH; might be tricky as there is no ssh URL scheme
 (B) 2022-11-18 release 0.1.0
 (A) 2022-11-19 Increase test coverage.
-2022-11-19 Many actions should be split out into a command-line handler (i.e. execute) + business logic pair.
+(C) 2022-11-19 Many actions should be split out into a command-line handler (i.e. execute) + business logic pair.
 (A) 2022-11-22 The --file option and environment variables do not seem to be able to handle relative paths. This needs fixing.
 (C) 2022-11-22 Add `-T`/`-S`/`-W`/`-M` flags for `tada add`, to make the task due today/soon/next week/next month
+(C) 2022-11-23 `tada upgrade [search-term]` and `tada downgrade [search-term]` to bump/reduce importance.
