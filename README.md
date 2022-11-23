@@ -70,6 +70,13 @@ Options:
   -V, --version  Print version information
 ```
 
+The shortcuts `tada i`, `tada u`, and `tada q` can be used to show important,
+urgent, and quick tasks.
+
+The shortcuts `tada +project`, `tada @context`, and `tada #linenumber`
+can be used as shortcuts for finding projects by project, context, and
+line number.
+
 ### tada add
 
 ```text
