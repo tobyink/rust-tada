@@ -534,7 +534,7 @@ impl Item {
 
 	/// Set task urgency.
 	pub fn set_urgency(&mut self, urg: Urgency) {
-		let d = match urg {
+		let mut d = match urg {
 			Urgency::Overdue => DATE_TODAY.pred_opt().unwrap(),
 			Urgency::Today => *DATE_TODAY,
 			Urgency::Soon => *DATE_SOON,
@@ -543,6 +543,17 @@ impl Item {
 			Urgency::NextMonth => *DATE_NEXT_MONTH,
 			Urgency::Later => *DATE_TODAY + Duration::days(183), // about 6 months
 		};
+		// Work and school tasks should be rescheduled from Saturday/Sunday.
+		if urg > Urgency::Today
+			&& (self.has_context("work") || self.has_context("school"))
+		{
+			d = match format!("{}", d.format("%u")).as_str() {
+				"6" => d.pred_opt().unwrap(),
+				"7" => d.pred_opt().unwrap().pred_opt().unwrap(),
+				_ => d,
+			};
+		}
+
 		let formatted = d.format("%Y-%m-%d");
 
 		match self.kv().get("due") {

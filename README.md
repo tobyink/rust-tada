@@ -355,6 +355,25 @@ authentication if the server at the other end of the request is set up
 right. See [php-tada-server](https://github.com/tobyink/php-tada-server)
 for an example.
 
+### File Format
+
+As mentioned above, todo files are expected to be in the
+[todo.txt](https://github.com/todotxt/todo.txt) format. Lines consisting
+of just whitespace are ignored. Lines beginning with `#` are treated as
+comments and ignored.
+
+`tada` recognizes the following special tags in descriptions:
+
+#### Context Tags
+
+- The `@S`, `@M`, and `@L` contexts are used to indicate whether a task is small, medium, or large.
+- If a task has context `@work` or `@school`, it will avoid being automatically rescheduled onto Saturdays or Sundays.
+
+#### Key-Value Tags
+
+- `due:YYYY-MM-DD` sets a due date for a task.
+- `start:YYYY-MM-DD` sets a start date for a task.
+
 ## Licence
 
 This project is triple licensed under the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0), the [MIT License](http://opensource.org/licenses/MIT), and the [GNU General Public License, version 2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
