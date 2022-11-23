@@ -277,18 +277,14 @@ impl Item {
 			let mut new = self.clone();
 			let important = matches!(new.importance(), Some('A') | Some('B'));
 			let small = matches!(new.tshirt_size(), Some(TshirtSize::Small));
-			let new_date = if important && small {
-				*DATE_SOON
+			let new_urgency = if important && small {
+				Urgency::Soon
 			} else if important || small {
-				*DATE_NEXT_WEEKEND
+				Urgency::NextWeek
 			} else {
-				*DATE_NEXT_MONTH
+				Urgency::NextMonth
 			};
-			let old_date = new.due_date().unwrap();
-			new.set_description(new.description().replace(
-				&format!("due:{}", old_date.format("%Y-%m-%d")),
-				&format!("due:{}", new_date.format("%Y-%m-%d")),
-			));
+			new.set_urgency(new_urgency);
 			return new;
 		}
 		self.clone()
