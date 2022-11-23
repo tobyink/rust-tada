@@ -34,7 +34,9 @@ but will be treated as essentially equivalent.)
 
 Due dates are indicated by including `due:YYYY-MM-DD` in the task description,
 and urgency will be calculated based on how soon the due date is, or if it is
-overdue.
+overdue. It is also possible to set start dates on tasks using
+`start:YYYY-MM-DD`. Tasks will be shown greyed out until that date.
+(All dates are just dates, not datetimes.)
 
 Tshirt size is indicated by marking the task with `@S`, `@M`, or `@L`. As a
 rough guide, tasks under an hour might be small, tasks under a day might be

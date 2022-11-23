@@ -8,7 +8,9 @@ use std::io;
 /// Options for the `remove` subcommand.
 pub fn get_action() -> Action {
 	let name = String::from("remove");
-	let mut command = Command::new("remove").about("Remove a task or tasks");
+	let mut command = Command::new("remove")
+		.aliases(["rm"])
+		.about("Remove a task or tasks");
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);

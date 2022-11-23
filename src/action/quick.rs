@@ -10,7 +10,10 @@ pub fn get_action() -> Action {
 	let mut command = Command::new("quick")
 		.aliases(["q"])
 		.about("Show the smallest tasks")
-		.after_help("Ignores tasks which are marked as already complete.");
+		.after_help(
+			"Ignores tasks which are marked as already complete or \
+			have a start date in the future.",
+		);
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);
@@ -54,7 +57,7 @@ pub fn execute(args: &ArgMatches) {
 
 	let quick = sort_items_by("size", list.items())
 		.into_iter()
-		.filter(|i| !i.completion())
+		.filter(|i| i.is_startable() && !i.completion())
 		.take(*max)
 		.collect();
 

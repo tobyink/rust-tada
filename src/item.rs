@@ -28,6 +28,7 @@ pub struct Item {
 	description: String,
 	_importance: FreezeBox<Option<char>>,
 	_due_date: FreezeBox<Option<NaiveDate>>,
+	_start_date: FreezeBox<Option<NaiveDate>>,
 	_urgency: FreezeBox<Option<Urgency>>,
 	_tshirt_size: FreezeBox<Option<TshirtSize>>,
 	_tags: FreezeBox<Vec<String>>,
@@ -212,6 +213,7 @@ impl Item {
 			description: String::new(),
 			_importance: FreezeBox::default(),
 			_due_date: FreezeBox::default(),
+			_start_date: FreezeBox::default(),
 			_urgency: FreezeBox::default(),
 			_tshirt_size: FreezeBox::default(),
 			_tags: FreezeBox::default(),
@@ -303,23 +305,39 @@ impl Item {
 			maybe_warn(String::from("Hint: a task can be given an importance be prefixing it with a parenthesized capital letter, like `(A)`."));
 		}
 
-		match new.kv().get("due") {
-			Some(given_date) => {
-				if NaiveDate::parse_from_str(given_date, "%Y-%m-%d").is_err() {
-					let processed_date = given_date.replace('_', " ");
-					if let Some(naive_date) = NaturalDateParser::parse(&processed_date) {
-						new.set_description(new.description().replace(
-							&format!("due:{}", given_date),
-							&format!("due:{}", naive_date.format("%Y-%m-%d")),
-						));
-						maybe_warn(format!("Notice: due date `{}` changed to `{}`.", given_date, naive_date.format("%Y-%m-%d")));
-					}
-					else {
-						maybe_warn(format!("Notice: due date `{}` should be in YYYY-MM-DD format.", given_date));
+		for slot in ["due", "start"] {
+			match new.kv().get(slot) {
+				Some(given_date) => {
+					if NaiveDate::parse_from_str(given_date, "%Y-%m-%d")
+						.is_err()
+					{
+						let processed_date = given_date.replace('_', " ");
+						if let Some(naive_date) =
+							NaturalDateParser::parse(&processed_date)
+						{
+							new.set_description(new.description().replace(
+								&format!("{slot}:{}", given_date),
+								&format!(
+									"{slot}:{}",
+									naive_date.format("%Y-%m-%d")
+								),
+							));
+							maybe_warn(format!(
+								"Notice: {slot} date `{}` changed to `{}`.",
+								given_date,
+								naive_date.format("%Y-%m-%d")
+							));
+						} else {
+							maybe_warn(format!("Notice: {slot} date `{}` should be in YYYY-MM-DD format.", given_date));
+						}
 					}
 				}
-			},
-			None => maybe_warn(String::from("Hint: a task can be given a due date by including `due:YYYY-MM-DD`.")),
+				None => {
+					if slot == "due" {
+						maybe_warn(String::from("Hint: a task can be given a {slot} date by including `{slot}:YYYY-MM-DD`."));
+					}
+				}
+			}
 		}
 
 		if new.tshirt_size().is_none() {
@@ -456,6 +474,29 @@ impl Item {
 		match self.kv().get("due") {
 			Some(dd) => NaiveDate::parse_from_str(dd, "%Y-%m-%d").ok(),
 			None => None,
+		}
+	}
+
+	/// Return the date when this task may be started.
+	pub fn start_date(&self) -> Option<NaiveDate> {
+		if !self._start_date.is_initialized() {
+			self._start_date
+				.lazy_init(self._build_start_date());
+		}
+		*self._start_date
+	}
+
+	fn _build_start_date(&self) -> Option<NaiveDate> {
+		match self.kv().get("start") {
+			Some(dd) => NaiveDate::parse_from_str(dd, "%Y-%m-%d").ok(),
+			None => None,
+		}
+	}
+
+	pub fn is_startable(&self) -> bool {
+		match self.start_date() {
+			Some(day) => day <= *DATE_TODAY,
+			None => true,
 		}
 	}
 
@@ -681,7 +722,7 @@ impl Item {
 		let len = cfg.width - console::strip_ansi_codes(&r).len();
 		r.push_str(self.description.substring(0, len));
 
-		if self.completion {
+		if self.completion || !self.is_startable() {
 			if cfg.colour {
 				r = format!(
 					"{}",
