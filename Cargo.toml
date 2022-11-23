@@ -6,8 +6,15 @@ authors = [ "Toby Inkster <tobyink@cpan.org>" ]
 edition = "2021"
 repository = "https://github.com/tobyink/rust-tada"
 license = "MIT OR Apache-2.0 OR GPL-2.0-or-later"
+readme = "README.md"
 keywords = [ "todotxt", "todo", "task" ]
 categories = [ "command-line-utilities" ]
+
+[package.metadata.deb]
+assets = [
+	[ "README.md",    "usr/share/doc/tada/README",    "644" ],
+	[ "changelog.md", "usr/share/doc/tada/changelog", "644" ],
+]
 
 [dependencies]
 regex = "1.7"
