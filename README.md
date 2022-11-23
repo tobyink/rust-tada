@@ -375,6 +375,16 @@ tasks which are both small *and* important to be done first, then tasks which
 are either small *or* important, and finally larger and less important tasks.
 It will only reschedule tasks which are already overdue and not finished.
 
+### Recurring Tasks
+
+`tada` does not have any explicit support for recurring tasks. However it
+should be simple to set up a cron job to add tasks to your list on schedule.
+For example, to add an urgent task to your todo list every Friday morning:
+
+```text
+1  0  *  *  5  tada add --today 'Take out the trash @home'
+```
+
 ### Protocol Support
 
 It is possible to set `TADA_FILE` or the `--file` option to an HTTP or HTTPS
