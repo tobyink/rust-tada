@@ -1,6 +1,6 @@
 x (A) 2022-11-18 add support for https/http URLs as todo lists
 (A) 2022-11-18 add support for todo lists over SSH; might be tricky as there is no ssh URL scheme
-(B) 2022-11-18 release 0.1.0
+x (B) 2022-11-23 2022-11-18 release 0.1.0
 (A) 2022-11-19 Increase test coverage.
 (C) 2022-11-19 Many actions should be split out into a command-line handler (i.e. execute) + business logic pair.
 x (A) 2022-11-23 2022-11-22 The --file option and environment variables do not seem to be able to handle relative paths. This needs fixing.
