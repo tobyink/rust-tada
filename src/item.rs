@@ -271,6 +271,7 @@ impl Item {
 		i
 	}
 
+	/// Provide zen-like calm by rescheduling an overdue task.
 	pub fn zen(&self) -> Item {
 		if self.urgency() == Some(Urgency::Overdue) {
 			let mut new = self.clone();
@@ -293,6 +294,7 @@ impl Item {
 		self.clone()
 	}
 
+	/// Performs a bunch of small fixes on the item syntax.
 	pub fn fixup(&self, warnings: bool) -> Item {
 		let maybe_warn = |w| {
 			if warnings {
@@ -316,25 +318,27 @@ impl Item {
 							NaturalDateParser::parse(&processed_date)
 						{
 							new.set_description(new.description().replace(
-								&format!("{slot}:{}", given_date),
+								&format!("{}:{}", slot, given_date),
 								&format!(
-									"{slot}:{}",
+									"{}:{}",
+									slot,
 									naive_date.format("%Y-%m-%d")
 								),
 							));
 							maybe_warn(format!(
-								"Notice: {slot} date `{}` changed to `{}`.",
+								"Notice: {} date `{}` changed to `{}`.",
+								slot,
 								given_date,
 								naive_date.format("%Y-%m-%d")
 							));
 						} else {
-							maybe_warn(format!("Notice: {slot} date `{}` should be in YYYY-MM-DD format.", given_date));
+							maybe_warn(format!("Notice: {} date `{}` should be in YYYY-MM-DD format.", slot, given_date));
 						}
 					}
 				}
 				None => {
 					if slot == "due" {
-						maybe_warn(String::from("Hint: a task can be given a {slot} date by including `{slot}:YYYY-MM-DD`."));
+						maybe_warn(format!("Hint: a task can be given a {} date by including `{}:YYYY-MM-DD`.", slot, slot));
 					}
 				}
 			}
@@ -493,6 +497,7 @@ impl Item {
 		}
 	}
 
+	/// A task is startable if it doesn't have a start date which is in the future.
 	pub fn is_startable(&self) -> bool {
 		match self.start_date() {
 			Some(day) => day <= *DATE_TODAY,
@@ -528,6 +533,33 @@ impl Item {
 			Some(Urgency::NextMonth)
 		} else {
 			Some(Urgency::Later)
+		}
+	}
+
+	/// Set task urgency.
+	pub fn set_urgency(&mut self, urg: Urgency) {
+		let d = match urg {
+			Urgency::Overdue => DATE_TODAY.pred_opt().unwrap(),
+			Urgency::Today => *DATE_TODAY,
+			Urgency::Soon => *DATE_SOON,
+			Urgency::ThisWeek => *DATE_WEEKEND,
+			Urgency::NextWeek => *DATE_NEXT_WEEKEND,
+			Urgency::NextMonth => *DATE_NEXT_MONTH,
+			Urgency::Later => *DATE_TODAY + Duration::days(183), // about 6 months
+		};
+		let formatted = d.format("%Y-%m-%d");
+
+		match self.kv().get("due") {
+			Some(str) => {
+				self.set_description(self.description().replace(
+					&format!("due:{str}"),
+					&format!("due:{formatted}"),
+				))
+			}
+			None => self.set_description(format!(
+				"{} due:{formatted}",
+				self.description()
+			)),
 		}
 	}
 

@@ -93,6 +93,11 @@ Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
       --no-date           Don't automatically add a creation date to the task
+      --no-fixup          Don't try to fix task syntax
+  -T, --today             Include a due date of today
+  -S, --soon              Include a due date of overmorrow
+  -W, --next-week         Include a due date the end of next week
+  -M, --next-month        Include a due date the end of next month
       --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
@@ -239,7 +244,7 @@ Options:
   -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
   -h, --help              Print help information
 
-Ignores tasks which are marked as already complete.
+Ignores tasks which are marked as already complete or have a start date in the future.
 ```
 
 ### tada urgent
@@ -262,7 +267,7 @@ Options:
   -s, --sort <BY>         sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default)
   -h, --help              Print help information
 
-Ignores tasks which are marked as already complete.
+Ignores tasks which are marked as already complete or have a start date in the future.
 ```
 
 ### tada quick
@@ -285,7 +290,7 @@ Options:
   -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
   -h, --help              Print help information
 
-Ignores tasks which are marked as already complete.
+Ignores tasks which are marked as already complete or have a start date in the future.
 ```
 
 ### tada archive
