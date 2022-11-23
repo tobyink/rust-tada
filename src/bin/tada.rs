@@ -25,7 +25,7 @@ fn actions() -> Vec<Action> {
 /// Main body of the `tada` command.
 fn main() {
 	let mut cmd = Command::new("tada")
-		.version("0.1.0")
+		.version("0.2.0")
 		.about("A todo list manager")
 		.subcommand_required(true)
 		.term_width(80)

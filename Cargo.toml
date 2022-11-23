@@ -1,7 +1,7 @@
 [package]
 name = "tada"
 description = "a todo list manager"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Toby Inkster <tobyink@cpan.org>" ]
 edition = "2021"
 repository = "https://github.com/tobyink/rust-tada"
