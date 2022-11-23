@@ -3,9 +3,11 @@ x (A) 2022-11-18 add support for https/http URLs as todo lists
 (B) 2022-11-18 release 0.1.0
 (A) 2022-11-19 Increase test coverage.
 (C) 2022-11-19 Many actions should be split out into a command-line handler (i.e. execute) + business logic pair.
-(A) 2022-11-22 The --file option and environment variables do not seem to be able to handle relative paths. This needs fixing.
+x (A) 2022-11-23 2022-11-22 The --file option and environment variables do not seem to be able to handle relative paths. This needs fixing.
 x (C) 2022-11-22 Add `-T`/`-S`/`-W`/`-M` flags for `tada add`, to make the task due today/soon/next week/next month
 (C) 2022-11-23 `tada set [search-term]` with `--importance A`, `--size M`, `-T`/`-S`/`-W`/`-M`, etc.
 (C) 2022-11-23 `tada pull [search-term]` to pull tasks forward to Urgency::Today or another urgency using `-T`/`-S`/`-W`/`-M`.
 (E) 2022-11-23 `tada push [search-term]` to push tasks back to Urgency::NextWeek or another urgency using `-T`/`-S`/`-W`/`-M`.
 x (C) 2022-11-23 2022-11-23 Support `start:YYYY-MM-DD` in todo items.
+(B) 2022-11-23 Make zen use set_urgency
+(B) 2022-11-23 Update set_urgency to avoid scheduling things for weekends if a task is tagged @work/@school

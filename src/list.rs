@@ -1,10 +1,12 @@
 use crate::item::Item;
 use lazy_static::lazy_static;
+use path_absolutize::*;
 use regex::Regex;
 use reqwest::blocking::Client;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, Write};
+use std::path::Path;
 use url::Url;
 
 /// A line type — item, comment, or blank
@@ -111,7 +113,11 @@ impl List {
 	}
 
 	fn _handle_url(u: String) -> Url {
-		Url::parse(&u).unwrap_or_else(|_| Url::from_file_path(u).unwrap())
+		Url::parse(&u).unwrap_or_else(|_| {
+			let p = Path::new(&u);
+			Url::from_file_path(p.absolutize().unwrap().to_str().unwrap())
+				.unwrap()
+		})
 	}
 
 	/// Parse a todo list from a URL.
