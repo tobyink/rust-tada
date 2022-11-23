@@ -56,6 +56,7 @@ Commands:
   add        Add a task to the todo list
   remove     Remove a task or tasks
   edit       Open your todo list in your editor
+  pull       Reschedule a task or tasks to be done today (or another date)
   done       Mark a task or tasks as done
   find       Search for a task
   show       Show the full todo list
@@ -146,6 +147,36 @@ Options:
   -h, --help         Print help information
 
 Ensure the EDITOR environent variable is set.
+```
+
+### tada pull
+
+```text
+Reschedule a task or tasks to be done today (or another date)
+
+Usage: tada pull [OPTIONS] <search-term>...
+
+Arguments:
+  <search-term>...  a tag, context, line number, or string
+
+Options:
+  -f, --file <FILE>       the path or URL for todo.txt
+  -l, --local             look for files in local directory only
+      --max-width <COLS>  maximum width of terminal output
+      --colour            coloured output
+      --no-colour         plain output
+  -L, --show-lines        show line numbers for tasks
+      --show-created      show 'created' dates for tasks
+      --show-finished     show 'finished' dates for tasks
+  -T, --today             Set a due date of today (default)
+  -S, --soon              Set a due date of overmorrow
+  -W, --next-week         Set a due date the end of next week
+  -M, --next-month        Set a due date the end of next month
+  -y, --yes               assume 'yes' to prompts
+  -n, --no                assume 'no' to prompts
+  -h, --help              Print help information
+
+If a task has a start date, that will be set to today.
 ```
 
 ### tada done

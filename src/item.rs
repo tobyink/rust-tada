@@ -290,6 +290,21 @@ impl Item {
 		self.clone()
 	}
 
+	/// Pull a task forward to being done with a new urgency, also clearing any start date.
+	pub fn but_pull(&self, new_urgency: Urgency) -> Item {
+		let mut new = self.clone();
+		new.set_urgency(new_urgency);
+
+		let re = Regex::new(r"start:(?:[^\s:]+)").unwrap();
+		let new_start = format!("start:{}", DATE_TODAY.format("%Y-%m-%d"));
+		new.set_description(format!(
+			"{}",
+			re.replace(&new.description, new_start)
+		));
+
+		new
+	}
+
 	/// Performs a bunch of small fixes on the item syntax.
 	pub fn fixup(&self, warnings: bool) -> Item {
 		let maybe_warn = |w| {

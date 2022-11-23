@@ -282,6 +282,7 @@ pub mod done;
 pub mod edit;
 pub mod find;
 pub mod important;
+pub mod pull;
 pub mod quick;
 pub mod remove;
 pub mod show;

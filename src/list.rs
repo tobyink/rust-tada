@@ -1,4 +1,4 @@
-use crate::item::Item;
+use crate::item::{Item, Urgency};
 use lazy_static::lazy_static;
 use path_absolutize::*;
 use regex::Regex;
@@ -98,6 +98,17 @@ impl Line {
 			LineKind::Item => {
 				let item = self.clone().item.unwrap();
 				Line::from_item(item.but_done(include_date))
+			}
+			_ => self.clone(),
+		}
+	}
+
+	/// Create a version of this line but representing a pulled task.
+	pub fn but_pull(&self, new_urgency: Urgency) -> Line {
+		match self.kind {
+			LineKind::Item => {
+				let item = self.clone().item.unwrap();
+				Line::from_item(item.but_pull(new_urgency))
 			}
 			_ => self.clone(),
 		}
