@@ -95,6 +95,7 @@ Options:
   -l, --local             look for files in local directory only
       --no-date           Don't automatically add a creation date to the task
       --no-fixup          Don't try to fix task syntax
+      --quiet             Quieter output
   -T, --today             Include a due date of today
   -S, --soon              Include a due date of overmorrow
   -W, --next-week         Include a due date the end of next week

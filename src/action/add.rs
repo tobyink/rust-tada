@@ -29,6 +29,12 @@ pub fn get_action() -> Action {
 				.help("Don't try to fix task syntax"),
 		)
 		.arg(
+			Arg::new("quiet")
+				.num_args(0)
+				.long("quiet")
+				.help("Quieter output"),
+		)
+		.arg(
 			Arg::new("today")
 				.num_args(0)
 				.short('T')
@@ -64,36 +70,183 @@ pub fn get_action() -> Action {
 	Action { name, command }
 }
 
+/// Config object for the `add` action.
+pub struct AddActionConfig {
+	pub no_date: bool,
+	pub no_fixup: bool,
+	pub urgency: Option<Urgency>,
+	pub quiet: bool,
+}
+
+impl Default for AddActionConfig {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
+impl AddActionConfig {
+	/// Constructor.
+	pub fn new() -> Self {
+		Self {
+			no_date: false,
+			no_fixup: false,
+			urgency: None,
+			quiet: false,
+		}
+	}
+
+	/// Create an AddActionConfig from an appropriate ArgMatches.
+	pub fn from_argmatches(args: &ArgMatches) -> Self {
+		let no_date = *args.get_one::<bool>("no-date").unwrap();
+		let no_fixup = *args.get_one::<bool>("no-fixup").unwrap();
+		let urgency = if *args.get_one::<bool>("today").unwrap() {
+			Some(Urgency::Today)
+		} else if *args.get_one::<bool>("soon").unwrap() {
+			Some(Urgency::Soon)
+		} else if *args.get_one::<bool>("next-week").unwrap() {
+			Some(Urgency::NextWeek)
+		} else if *args.get_one::<bool>("next-month").unwrap() {
+			Some(Urgency::NextMonth)
+		} else {
+			None
+		};
+		let quiet = *args.get_one::<bool>("quiet").unwrap();
+		Self {
+			no_date,
+			no_fixup,
+			urgency,
+			quiet,
+		}
+	}
+}
+
 /// Execute the `add` subcommand.
+#[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
+	let cfg = AddActionConfig::from_argmatches(args);
 	let input = args.get_one::<String>("task").unwrap();
+	let new_line = process_line(input, &cfg);
+
+	if !cfg.quiet {
+		let cfg = Action::build_output_config(args);
+		let mut out = io::stdout();
+		new_line
+			.item
+			.as_ref()
+			.unwrap()
+			.write_to(&mut out, &cfg);
+	}
+
+	let filename = Action::determine_filename(FileType::TodoTxt, args);
+	List::append_lines_to_url(filename, Vec::from([&new_line]));
+}
+
+pub fn process_line(input: &str, cfg: &AddActionConfig) -> Line {
 	let mut item = Item::parse(input);
 
-	let no_date = *args.get_one::<bool>("no-date").unwrap();
-	if item.creation_date().is_none() && !no_date {
+	if item.creation_date().is_none() && !cfg.no_date {
 		item.set_creation_date(chrono::Utc::now().date_naive());
 	}
 
-	if *args.get_one::<bool>("today").unwrap() {
-		item.set_urgency(Urgency::Today);
-	} else if *args.get_one::<bool>("soon").unwrap() {
-		item.set_urgency(Urgency::Soon);
-	} else if *args.get_one::<bool>("next-week").unwrap() {
-		item.set_urgency(Urgency::NextWeek);
-	} else if *args.get_one::<bool>("next-month").unwrap() {
-		item.set_urgency(Urgency::NextMonth);
+	if let Some(u) = cfg.urgency {
+		item.set_urgency(u);
 	}
 
-	let no_fixup = *args.get_one::<bool>("no-fixup").unwrap();
-	if !no_fixup {
-		item = item.fixup(true);
+	if !cfg.no_fixup {
+		item = item.fixup(!cfg.quiet);
 	}
 
-	let line = Line::from_item(item);
-	let filename = Action::determine_filename(FileType::TodoTxt, args);
-	List::append_lines_to_url(filename, Vec::from([&line]));
+	Line::from_item(item)
+}
 
-	let cfg = Action::build_output_config(args);
-	let mut out = io::stdout();
-	line.item.unwrap().write_to(&mut out, &cfg);
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::list::LineKind;
+
+	#[test]
+	fn test_add_action_config() {
+		let matches = get_action()
+			.command
+			.get_matches_from(vec!["add"]);
+		let cfg = AddActionConfig::from_argmatches(&matches);
+		assert_eq!(false, cfg.no_date);
+		assert_eq!(false, cfg.no_fixup);
+		assert_eq!(None, cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
+		let matches = get_action().command.get_matches_from(vec![
+			"add",
+			"-T",
+			"--no-date",
+		]);
+		let cfg = AddActionConfig::from_argmatches(&matches);
+		assert_eq!(true, cfg.no_date);
+		assert_eq!(false, cfg.no_fixup);
+		assert_eq!(Some(Urgency::Today), cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
+		let matches = get_action().command.get_matches_from(vec![
+			"add",
+			"-S",
+			"--no-fixup",
+		]);
+		let cfg = AddActionConfig::from_argmatches(&matches);
+		assert_eq!(false, cfg.no_date);
+		assert_eq!(true, cfg.no_fixup);
+		assert_eq!(Some(Urgency::Soon), cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
+		let matches = get_action()
+			.command
+			.get_matches_from(vec!["add", "-W"]);
+		let cfg = AddActionConfig::from_argmatches(&matches);
+		assert_eq!(false, cfg.no_date);
+		assert_eq!(false, cfg.no_fixup);
+		assert_eq!(Some(Urgency::NextWeek), cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
+		let matches = get_action().command.get_matches_from(vec![
+			"add",
+			"--no-fixup",
+			"-M",
+			"--no-date",
+			"--quiet",
+		]);
+		let cfg = AddActionConfig::from_argmatches(&matches);
+		assert_eq!(true, cfg.no_date);
+		assert_eq!(true, cfg.no_fixup);
+		assert_eq!(Some(Urgency::NextMonth), cfg.urgency);
+		assert_eq!(true, cfg.quiet);
+	}
+
+	#[test]
+	pub fn test_process_line() {
+		let cfg = AddActionConfig {
+			no_date: true,
+			no_fixup: true,
+			urgency: None,
+			quiet: true,
+		};
+		let line = process_line(&String::from("ABC start:today"), &cfg);
+		assert_eq!(LineKind::Item, line.kind);
+		let item = line.item.unwrap();
+		assert_eq!("ABC start:today", item.description());
+		assert_eq!(None, item.creation_date());
+		assert_eq!("today", item.kv().get("start").unwrap());
+
+		let cfg = AddActionConfig {
+			no_date: false,
+			no_fixup: false,
+			urgency: Some(Urgency::Today),
+			quiet: true,
+		};
+		let line = process_line(&String::from("ABC start:today"), &cfg);
+		assert_eq!(LineKind::Item, line.kind);
+		let item = line.item.unwrap();
+		assert!(item.creation_date().is_some());
+		assert_eq!(item.creation_date(), item.start_date());
+		assert_eq!(item.creation_date(), item.due_date());
+		assert_ne!("today", item.kv().get("start").unwrap());
+	}
 }
