@@ -869,8 +869,8 @@ mod tests {
 		let i = Item {
 			completion: true,
 			priority: 'B',
-			completion_date: Some(NaiveDate::from_ymd(2010, 1, 1)),
-			creation_date: Some(NaiveDate::from_ymd(2000, 12, 31)),
+			completion_date: Some(NaiveDate::from_ymd_opt(2010, 1, 1).unwrap()),
+			creation_date: Some(NaiveDate::from_ymd_opt(2000, 12, 31).unwrap()),
 			description: "foo bar baz".to_string(),
 			..b
 		};
@@ -885,8 +885,14 @@ mod tests {
 
 		assert_eq!(true, i.completion);
 		assert_eq!('B', i.priority);
-		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.completion_date.unwrap());
-		assert_eq!(NaiveDate::from_ymd(2000, 12, 31), i.creation_date.unwrap());
+		assert_eq!(
+			NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
+			i.completion_date.unwrap()
+		);
+		assert_eq!(
+			NaiveDate::from_ymd_opt(2000, 12, 31).unwrap(),
+			i.creation_date.unwrap()
+		);
 		assert_eq!("foo bar baz".to_string(), i.description);
 		assert!(i.urgency().is_none());
 		assert_eq!('B', i.importance().unwrap());
@@ -901,7 +907,10 @@ mod tests {
 		assert!(!i.completion);
 		assert_eq!('\0', i.priority);
 		assert!(i.completion_date.is_none());
-		assert_eq!(NaiveDate::from_ymd(2010, 1, 1), i.creation_date.unwrap());
+		assert_eq!(
+			NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
+			i.creation_date.unwrap()
+		);
 		assert_eq!("(A) foo bar baz".to_string(), i.description);
 	}
 
@@ -923,7 +932,10 @@ mod tests {
 	fn test_due_date() {
 		let i = Item::parse("(A) foo bar due:1980-06-01");
 
-		assert_eq!(NaiveDate::from_ymd(1980, 6, 1), i.due_date().unwrap());
+		assert_eq!(
+			NaiveDate::from_ymd_opt(1980, 6, 1).unwrap(),
+			i.due_date().unwrap()
+		);
 	}
 
 	#[test]
