@@ -1,6 +1,6 @@
 use crate::item::{Item, ItemFormatConfig};
 use crate::list::{LineKind, List};
-use clap::{Arg, ArgMatches, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command};
 use promptly::prompt_default;
 use std::{env, fs};
 
@@ -92,6 +92,15 @@ impl Action {
 				.long("done-file")
 				.value_name("FILE")
 				.help("the path or URL for done.txt"),
+		)
+	}
+
+	fn _add_search_terms_option(cmd: Command) -> Command {
+		cmd.arg(
+			Arg::new("search-term")
+				.action(ArgAction::Append)
+				.required(true)
+				.help("a tag, context, line number, or string"),
 		)
 	}
 
@@ -227,6 +236,10 @@ impl Action {
 			FileType::DoneTxt => Self::_determine_filename_for_done_txt(args),
 			FileType::Config => Self::_determine_filename_for_config(args),
 		}
+	}
+
+	pub fn determine_search_terms(args: &ArgMatches) -> Vec<&String> {
+		args.get_many::<String>("search-term").unwrap().collect()
 	}
 
 	pub fn _file_exists(path: &str) -> bool {

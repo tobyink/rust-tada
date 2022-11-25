@@ -1,7 +1,7 @@
 use crate::action::{Action, FileType};
 use crate::list::List;
 use crate::util::*;
-use clap::{Arg, ArgAction, ArgMatches, Command};
+use clap::{Arg, ArgMatches, Command};
 use std::io;
 
 /// Options for the `find` subcommand.
@@ -15,13 +15,8 @@ pub fn get_action() -> Action {
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);
+	command = Action::_add_search_terms_option(command);
 	command = command
-		.arg(
-			Arg::new("search-term")
-				.action(ArgAction::Append)
-				.required(true)
-				.help("a tag, context, line number, or string"),
-		)
 		.arg(
 			Arg::new("sort")
 				.num_args(1)
@@ -49,7 +44,7 @@ pub fn execute(args: &ArgMatches) {
 	let mut cfg = Action::build_output_config(args);
 	cfg.line_number_digits = list.lines.len().to_string().len();
 
-	for term in args.get_many::<String>("search-term").unwrap() {
+	for term in Action::determine_search_terms(args) {
 		results = match term.chars().next() {
 			Some('@') => find_items_by_context(term, results),
 			Some('+') => find_items_by_tag(term, results),

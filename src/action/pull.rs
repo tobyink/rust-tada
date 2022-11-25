@@ -1,7 +1,7 @@
 use crate::action::{Action, ConfirmationStatus, FileType};
 use crate::item::{Item, ItemFormatConfig, Urgency};
 use crate::list::{LineKind, List};
-use clap::{Arg, ArgAction, ArgMatches, Command};
+use clap::{Arg, ArgMatches, Command};
 use std::io;
 
 /// Options for the `pull` subcommand.
@@ -13,13 +13,8 @@ pub fn get_action() -> Action {
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);
+	command = Action::_add_search_terms_option(command);
 	command = command
-		.arg(
-			Arg::new("search-term")
-				.action(ArgAction::Append)
-				.required(true)
-				.help("a tag, context, line number, or string"),
-		)
 		.arg(
 			Arg::new("today")
 				.num_args(0)
@@ -64,10 +59,7 @@ pub fn execute(args: &ArgMatches) {
 	let mut cfg = Action::build_output_config(args);
 	cfg.line_number_digits = list.lines.len().to_string().len();
 
-	let terms: Vec<&String> = args
-		.get_many::<String>("search-term")
-		.unwrap()
-		.collect();
+	let terms = Action::determine_search_terms(args);
 	let mut new_list = List::new();
 
 	let confirmation = ConfirmationStatus::from_argmatches(args);
