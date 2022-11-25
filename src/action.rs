@@ -1,6 +1,7 @@
 use crate::item::{Item, ItemFormatConfig};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgMatches, Command};
+use promptly::prompt_default;
 use std::{env, fs};
 
 /// Handy structure for holding subcommand info
@@ -10,10 +11,60 @@ pub struct Action {
 }
 
 /// A type of file
+#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
 pub enum FileType {
 	TodoTxt,
 	DoneTxt,
 	Config,
+}
+
+/// Whether the user has confirmed an action on an item.
+#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
+pub enum ConfirmationStatus {
+	Yes,
+	No,
+	Ask,
+}
+
+impl ConfirmationStatus {
+	/// Initialize from ArgMatches.
+	pub fn from_argmatches(args: &ArgMatches) -> Self {
+		if *args.get_one::<bool>("no").unwrap() {
+			Self::No
+		} else if *args.get_one::<bool>("yes").unwrap() {
+			Self::Yes
+		} else {
+			Self::Ask
+		}
+	}
+
+	/// Possibly prompt a user for confirmation.
+	pub fn check(
+		&self,
+		prompt_phrase: &str,
+		yes_phrase: &str,
+		no_phrase: &str,
+	) -> bool {
+		match self {
+			ConfirmationStatus::Yes => {
+				println!("{}\n", yes_phrase);
+				true
+			}
+			ConfirmationStatus::No => {
+				println!("{}\n", no_phrase);
+				false
+			}
+			ConfirmationStatus::Ask => {
+				let response = prompt_default(prompt_phrase, true).unwrap();
+				if response {
+					println!("{}\n", yes_phrase);
+				} else {
+					println!("{}\n", no_phrase);
+				}
+				response
+			}
+		}
+	}
 }
 
 /// Utility functions for subcommands
@@ -88,6 +139,23 @@ impl Action {
 				.long("show-finished")
 				.aliases(["showfinished", "finished"])
 				.help("show 'finished' dates for tasks"),
+		)
+	}
+
+	fn _add_prompt_options(cmd: Command) -> Command {
+		cmd.arg(
+			Arg::new("yes")
+				.num_args(0)
+				.short('y')
+				.long("yes")
+				.help("assume 'yes' to prompts"),
+		)
+		.arg(
+			Arg::new("no")
+				.num_args(0)
+				.short('n')
+				.long("no")
+				.help("assume 'no' to prompts"),
 		)
 	}
 

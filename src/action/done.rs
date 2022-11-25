@@ -1,8 +1,7 @@
-use crate::action::{Action, FileType};
+use crate::action::{Action, ConfirmationStatus, FileType};
 use crate::item::{Item, ItemFormatConfig};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
-use promptly::prompt_default;
 use std::io;
 
 /// Options for the `done` subcommand.
@@ -26,21 +25,8 @@ pub fn get_action() -> Action {
 				.long("no-date")
 				.aliases(["nodate"])
 				.help("Don't automatically add a completion date to the task"),
-		)
-		.arg(
-			Arg::new("yes")
-				.num_args(0)
-				.short('y')
-				.long("yes")
-				.help("assume 'yes' to prompts"),
-		)
-		.arg(
-			Arg::new("no")
-				.num_args(0)
-				.short('n')
-				.long("no")
-				.help("assume 'no' to prompts"),
 		);
+	command = Action::_add_prompt_options(command);
 
 	Action { name, command }
 }
@@ -59,14 +45,7 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 	let mut new_list = List::new();
 
-	let opt = if *args.get_one::<bool>("no").unwrap() {
-		'N'
-	} else if *args.get_one::<bool>("yes").unwrap() {
-		'Y'
-	} else {
-		'?'
-	};
-
+	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let include_date = !*args.get_one::<bool>("no-date").unwrap();
 
 	let mut count = 0;
@@ -76,8 +55,12 @@ pub fn execute(args: &ArgMatches) {
 				let item = line.item.clone().unwrap();
 				if Action::item_matches_terms(&item, &terms)
 					&& (!item.completion())
-					&& check_if_complete(&item, opt, &mut io::stdout(), &cfg)
-				{
+					&& check_if_complete(
+						&item,
+						&mut io::stdout(),
+						&cfg,
+						confirmation,
+					) {
 					count += 1;
 					new_list.lines.push(line.but_done(include_date));
 				} else {
@@ -101,28 +84,10 @@ pub fn execute(args: &ArgMatches) {
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.
 pub fn check_if_complete(
 	item: &Item,
-	opt: char,
 	out: &mut std::io::Stdout,
 	cfg: &ItemFormatConfig,
+	status: ConfirmationStatus,
 ) -> bool {
 	item.write_to(out, cfg);
-
-	if opt == 'Y' {
-		println!("Marking finished\n");
-		return true;
-	}
-
-	if opt == 'N' {
-		println!("Skipping\n");
-		return false;
-	}
-
-	let response = prompt_default("Mark finished?", true).unwrap();
-	if response {
-		println!("Marking finished\n");
-		return true;
-	}
-
-	println!("Skipping\n");
-	false
+	status.check("Mark finished?", "Marking finished", "Skipping")
 }

@@ -1,8 +1,7 @@
-use crate::action::{Action, FileType};
+use crate::action::{Action, ConfirmationStatus, FileType};
 use crate::item::{Item, ItemFormatConfig, Urgency};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
-use promptly::prompt_default;
 use std::io;
 
 /// Options for the `pull` subcommand.
@@ -51,21 +50,8 @@ pub fn get_action() -> Action {
 				.long("next-month")
 				.aliases(["nextmonth"])
 				.help("Set a due date the end of next month"),
-		)
-		.arg(
-			Arg::new("yes")
-				.num_args(0)
-				.short('y')
-				.long("yes")
-				.help("assume 'yes' to prompts"),
-		)
-		.arg(
-			Arg::new("no")
-				.num_args(0)
-				.short('n')
-				.long("no")
-				.help("assume 'no' to prompts"),
 		);
+	command = Action::_add_prompt_options(command);
 
 	Action { name, command }
 }
@@ -84,14 +70,7 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 	let mut new_list = List::new();
 
-	let opt = if *args.get_one::<bool>("no").unwrap() {
-		'N'
-	} else if *args.get_one::<bool>("yes").unwrap() {
-		'Y'
-	} else {
-		'?'
-	};
-
+	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let urgency = if *args.get_one::<bool>("today").unwrap() {
 		Urgency::Today
 	} else if *args.get_one::<bool>("soon").unwrap() {
@@ -111,8 +90,12 @@ pub fn execute(args: &ArgMatches) {
 				let item = line.item.clone().unwrap();
 				if Action::item_matches_terms(&item, &terms)
 					&& (!item.completion())
-					&& check_if_pull(&item, opt, &mut io::stdout(), &cfg)
-				{
+					&& check_if_pull(
+						&item,
+						&mut io::stdout(),
+						&cfg,
+						confirmation,
+					) {
 					count += 1;
 					new_list.lines.push(line.but_pull(urgency));
 				} else {
@@ -133,28 +116,10 @@ pub fn execute(args: &ArgMatches) {
 /// Asks whether to pull an item, and prints out the response before returning a bool.
 pub fn check_if_pull(
 	item: &Item,
-	opt: char,
 	out: &mut std::io::Stdout,
 	cfg: &ItemFormatConfig,
+	status: ConfirmationStatus,
 ) -> bool {
 	item.write_to(out, cfg);
-
-	if opt == 'Y' {
-		println!("Rescheduling\n");
-		return true;
-	}
-
-	if opt == 'N' {
-		println!("Skipping\n");
-		return false;
-	}
-
-	let response = prompt_default("Reschedule?", true).unwrap();
-	if response {
-		println!("Rescheduling\n");
-		return true;
-	}
-
-	println!("Skipping\n");
-	false
+	status.check("Reschedule?", "Rescheduling", "Skipping")
 }

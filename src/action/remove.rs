@@ -1,8 +1,7 @@
-use crate::action::{Action, FileType};
+use crate::action::{Action, ConfirmationStatus, FileType};
 use crate::item::{Item, ItemFormatConfig};
 use crate::list::{Line, LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
-use promptly::prompt_default;
 use std::io;
 
 /// Options for the `remove` subcommand.
@@ -14,27 +13,13 @@ pub fn get_action() -> Action {
 
 	command = Action::_add_todotxt_file_options(command);
 	command = Action::_add_output_options(command);
-	command = command
-		.arg(
-			Arg::new("search-term")
-				.action(ArgAction::Append)
-				.required(true)
-				.help("a tag, context, line number, or string"),
-		)
-		.arg(
-			Arg::new("yes")
-				.num_args(0)
-				.short('y')
-				.long("yes")
-				.help("assume 'yes' to prompts"),
-		)
-		.arg(
-			Arg::new("no")
-				.num_args(0)
-				.short('n')
-				.long("no")
-				.help("assume 'no' to prompts"),
-		);
+	command = command.arg(
+		Arg::new("search-term")
+			.action(ArgAction::Append)
+			.required(true)
+			.help("a tag, context, line number, or string"),
+	);
+	command = Action::_add_prompt_options(command);
 
 	Action { name, command }
 }
@@ -53,13 +38,7 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 	let mut new_list = List::new();
 
-	let opt = if *args.get_one::<bool>("no").unwrap() {
-		'N'
-	} else if *args.get_one::<bool>("yes").unwrap() {
-		'Y'
-	} else {
-		'?'
-	};
+	let confirmation = ConfirmationStatus::from_argmatches(args);
 
 	let mut count = 0;
 	for line in list.lines {
@@ -67,8 +46,12 @@ pub fn execute(args: &ArgMatches) {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if Action::item_matches_terms(&item, &terms)
-					&& check_if_delete(&item, opt, &mut io::stdout(), &cfg)
-				{
+					&& check_if_delete(
+						&item,
+						&mut io::stdout(),
+						&cfg,
+						confirmation,
+					) {
 					count += 1;
 					new_list.lines.push(Line::new_blank());
 				} else {
@@ -90,28 +73,10 @@ pub fn execute(args: &ArgMatches) {
 /// Asks whether to delete an item, and prints out the response before returning a bool.
 pub fn check_if_delete(
 	item: &Item,
-	opt: char,
 	out: &mut std::io::Stdout,
 	cfg: &ItemFormatConfig,
+	status: ConfirmationStatus,
 ) -> bool {
 	item.write_to(out, cfg);
-
-	if opt == 'Y' {
-		println!("Removing\n");
-		return true;
-	}
-
-	if opt == 'N' {
-		println!("Keeping\n");
-		return false;
-	}
-
-	let response = prompt_default("Remove?", true).unwrap();
-	if response {
-		println!("Removing\n");
-		return true;
-	}
-
-	println!("Keeping\n");
-	false
+	status.check("Remove?", "Removing", "Keeping")
 }
