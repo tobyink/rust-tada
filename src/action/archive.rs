@@ -220,4 +220,53 @@ mod tests {
 			expected_done
 		));
 	}
+
+	#[test]
+	pub fn test_run_archive_but_nothing_done() {
+		let initial_todo: Vec<Line> = Vec::from([
+			Line::from_string(String::from(""), 0),
+			Line::from_string(String::from("# Bar"), 0),
+			Line::from_string(String::from(""), 0),
+			Line::from_string(String::from("Z Baz"), 0),
+		]);
+
+		let expected_moved = 0;
+		let expected_todo = Vec::from([
+			Line::from_string(String::from(""), 0),
+			Line::from_string(String::from("# Bar"), 0),
+			Line::from_string(String::from(""), 0),
+			Line::from_string(String::from("Z Baz"), 0),
+		]);
+
+		let dir = tempdir().unwrap();
+
+		let todo_filename = dir
+			.path()
+			.join("todo-X88.txt")
+			.as_path()
+			.display()
+			.to_string();
+		{
+			let mut l = List::new();
+			l.lines = initial_todo;
+			l.to_filename(todo_filename.clone());
+		}
+
+		let done_filename = dir
+			.path()
+			.join("done-X88.txt")
+			.as_path()
+			.display()
+			.to_string();
+
+		let (moved, result) = run_archive(&todo_filename, &done_filename);
+		assert_eq!(expected_moved, moved);
+		assert!(_eq_vecline(result.lines, expected_todo.clone()));
+		assert!(_eq_vecline(
+			List::from_filename(todo_filename.clone())
+				.unwrap()
+				.lines,
+			expected_todo
+		));
+	}
 }
