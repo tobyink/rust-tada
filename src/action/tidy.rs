@@ -1,4 +1,4 @@
-use crate::action::{Action, FileType};
+use crate::action::*;
 use crate::list::{Line, List};
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
@@ -9,7 +9,7 @@ pub fn get_action() -> Action {
 	let mut command = Command::new("tidy").about("Remove blank lines and comments from a todo list")
 		.after_help("This is the only command which will renumber tasks in your todo list.");
 
-	command = Action::_add_todotxt_file_options(command);
+	command = FileType::TodoTxt.add_args(command);
 	command = command
 		.arg(
 			Arg::new("sort")
@@ -30,7 +30,7 @@ pub fn execute(args: &ArgMatches) {
 		.get_one::<String>("sort")
 		.unwrap_or(&default_sort_by_type);
 
-	let todo_filename = Action::determine_filename(FileType::TodoTxt, args);
+	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 

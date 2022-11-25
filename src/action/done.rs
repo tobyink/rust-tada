@@ -1,5 +1,5 @@
-use crate::action::{Action, ConfirmationStatus, FileType};
-use crate::item::{Item, ItemFormatConfig};
+use crate::action::*;
+use crate::item::Item;
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgMatches, Command};
 use std::io;
@@ -10,31 +10,30 @@ pub fn get_action() -> Action {
 	let mut command =
 		Command::new("done").about("Mark a task or tasks as done");
 
-	command = Action::_add_todotxt_file_options(command);
-	command = Action::_add_output_options(command);
-	command = Action::_add_search_terms_option(command);
-	command = command
-		.arg(
-			Arg::new("no-date")
-				.num_args(0)
-				.long("no-date")
-				.aliases(["nodate"])
-				.help("Don't automatically add a completion date to the task"),
-		);
-	command = Action::_add_prompt_options(command);
+	command = FileType::TodoTxt.add_args(command);
+	command = ItemFormatter::add_args(command);
+	command = SearchTerms::add_args(command);
+	command = command.arg(
+		Arg::new("no-date")
+			.num_args(0)
+			.long("no-date")
+			.aliases(["nodate"])
+			.help("Don't automatically add a completion date to the task"),
+	);
+	command = ConfirmationStatus::add_args(command);
 
 	Action { name, command }
 }
 
 /// Execute the `done` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let todo_filename = Action::determine_filename(FileType::TodoTxt, args);
+	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
-	let mut cfg = Action::build_output_config(args);
-	cfg.line_number_digits = list.lines.len().to_string().len();
+	let mut formatter = ItemFormatter::from_argmatches(args);
+	formatter.line_number_digits = list.lines.len().to_string().len();
 
-	let terms = Action::determine_search_terms(args);
+	let search_terms = SearchTerms::from_argmatches(args);
 	let mut new_list = List::new();
 
 	let confirmation = ConfirmationStatus::from_argmatches(args);
@@ -45,12 +44,12 @@ pub fn execute(args: &ArgMatches) {
 		match line.kind {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
-				if Action::item_matches_terms(&item, &terms)
+				if search_terms.item_matches(&item)
 					&& (!item.completion())
 					&& check_if_complete(
 						&item,
+						&formatter,
 						&mut io::stdout(),
-						&cfg,
 						confirmation,
 					) {
 					count += 1;
@@ -70,16 +69,16 @@ pub fn execute(args: &ArgMatches) {
 		println!("No actions taken.");
 	}
 
-	Action::maybe_warnings(&new_list);
+	maybe_housekeeping_warnings(&new_list);
 }
 
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.
 pub fn check_if_complete(
 	item: &Item,
+	formatter: &ItemFormatter,
 	out: &mut std::io::Stdout,
-	cfg: &ItemFormatConfig,
 	status: ConfirmationStatus,
 ) -> bool {
-	item.write_to(out, cfg);
+	formatter.write_item_to(item, out);
 	status.check("Mark finished?", "Marking finished", "Skipping")
 }

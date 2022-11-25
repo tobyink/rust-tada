@@ -1,5 +1,5 @@
-use crate::action::{Action, FileType};
-use crate::list::{Line, LineKind, List};
+use crate::action::*;
+use crate::list::Line;
 use clap::{ArgMatches, Command};
 use rand::seq::SliceRandom;
 
@@ -11,13 +11,13 @@ pub fn get_action() -> Action {
 			"Zen will reschedule any overdue tasks on your todo list. It does not consult you\n\
 			to ask for a new due date, but guesses when a sensible due date might be."
 		);
-	command = Action::_add_todotxt_file_options(command);
+	command = FileType::TodoTxt.add_args(command);
 	Action { name, command }
 }
 
 /// Execute the `zen` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let todo_filename = Action::determine_filename(FileType::TodoTxt, args);
+	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 	let mut new_list = List::new();

@@ -1,4 +1,4 @@
-use crate::action::{Action, FileType};
+use crate::action::*;
 use clap::{ArgMatches, Command};
 use std::env;
 use std::process::Command as SysCommand;
@@ -9,13 +9,13 @@ pub fn get_action() -> Action {
 	let mut command = Command::new("edit")
 		.about("Open your todo list in your editor")
 		.after_help("Ensure the EDITOR environent variable is set.");
-	command = Action::_add_todotxt_file_options(command);
+	command = FileType::TodoTxt.add_args(command);
 	Action { name, command }
 }
 
 /// Execute the `edit` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let filename = Action::determine_filename(FileType::TodoTxt, args);
+	let filename = FileType::TodoTxt.filename(args);
 	let editor =
 		editor().unwrap_or_else(|_| panic!("Could not determine EDITOR"));
 

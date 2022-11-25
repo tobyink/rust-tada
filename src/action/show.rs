@@ -1,6 +1,5 @@
-use crate::action::{Action, FileType};
+use crate::action::*;
 use crate::item::{TshirtSize, Urgency, URGENCIES};
-use crate::list::List;
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
@@ -11,8 +10,8 @@ pub fn get_action() -> Action {
 	let name = String::from("show");
 	let mut command = Command::new("show").about("Show the full todo list");
 
-	command = Action::_add_todotxt_file_options(command);
-	command = Action::_add_output_options(command);
+	command = FileType::TodoTxt.add_args(command);
+	command = ItemFormatter::add_args(command);
 	command = command
 		.arg(
 			Arg::new("sort")
@@ -58,11 +57,10 @@ pub fn execute(args: &ArgMatches) {
 		.unwrap_or(&default_sort_by_type);
 
 	let mut out = io::stdout();
-	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
-			.expect("Could not read todo list");
-	let mut cfg = Action::build_output_config(args);
-	cfg.line_number_digits = list.lines.len().to_string().len();
+	let list = FileType::TodoTxt.load(args);
+
+	let mut formatter = ItemFormatter::from_argmatches(args);
+	formatter.line_number_digits = list.lines.len().to_string().len();
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_items_by_urgency(list.items());
@@ -81,7 +79,7 @@ pub fn execute(args: &ArgMatches) {
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					i.write_to(&mut out, &cfg);
+					formatter.write_item_to(i, &mut out);
 				}
 				writeln!(&out).expect("panik");
 			}
@@ -101,7 +99,7 @@ pub fn execute(args: &ArgMatches) {
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					i.write_to(&mut out, &cfg);
+					formatter.write_item_to(i, &mut out);
 				}
 				writeln!(&out).expect("panik");
 			}
@@ -119,16 +117,16 @@ pub fn execute(args: &ArgMatches) {
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					i.write_to(&mut out, &cfg);
+					formatter.write_item_to(i, &mut out);
 				}
 				writeln!(&out).expect("panik");
 			}
 		}
 	} else {
 		for i in sort_items_by(sort_by_type.as_str(), list.items()).iter() {
-			i.write_to(&mut out, &cfg);
+			formatter.write_item_to(i, &mut out);
 		}
 	}
 
-	Action::maybe_warnings(&list);
+	maybe_housekeeping_warnings(&list);
 }

@@ -1,4 +1,4 @@
-use crate::action::{Action, FileType};
+use crate::action::*;
 use crate::item::{Item, Urgency};
 use crate::list::{Line, List};
 use clap::{Arg, ArgMatches, Command};
@@ -12,7 +12,7 @@ pub fn get_action() -> Action {
 		.after_help("After success, displays the added task.")
 		.arg(Arg::new("task").help("Task text (may use todo.txt features)"));
 
-	command = Action::_add_todotxt_file_options(command);
+	command = FileType::TodoTxt.add_args(command);
 	command = command
 		.arg(
 			Arg::new("no-date")
@@ -65,7 +65,7 @@ pub fn get_action() -> Action {
 				.aliases(["nextmonth"])
 				.help("Include a due date the end of next month"),
 		);
-	command = Action::_add_output_options(command);
+	command = ItemFormatter::add_args(command);
 
 	Action { name, command }
 }
@@ -76,6 +76,7 @@ pub struct AddActionConfig {
 	pub no_fixup: bool,
 	pub urgency: Option<Urgency>,
 	pub quiet: bool,
+	pub formatter: ItemFormatter,
 }
 
 impl Default for AddActionConfig {
@@ -92,6 +93,7 @@ impl AddActionConfig {
 			no_fixup: false,
 			urgency: None,
 			quiet: false,
+			formatter: ItemFormatter::default(),
 		}
 	}
 
@@ -111,11 +113,13 @@ impl AddActionConfig {
 			None
 		};
 		let quiet = *args.get_one::<bool>("quiet").unwrap();
+		let formatter = ItemFormatter::from_argmatches(args);
 		Self {
 			no_date,
 			no_fixup,
 			urgency,
 			quiet,
+			formatter,
 		}
 	}
 }
@@ -128,16 +132,12 @@ pub fn execute(args: &ArgMatches) {
 	let new_line = process_line(input, &cfg);
 
 	if !cfg.quiet {
-		let cfg = Action::build_output_config(args);
 		let mut out = io::stdout();
-		new_line
-			.item
-			.as_ref()
-			.unwrap()
-			.write_to(&mut out, &cfg);
+		cfg.formatter
+			.write_item_to(new_line.item.as_ref().unwrap(), &mut out);
 	}
 
-	let filename = Action::determine_filename(FileType::TodoTxt, args);
+	let filename = FileType::TodoTxt.filename(args);
 	List::append_lines_to_url(filename, Vec::from([&new_line]));
 }
 
@@ -244,6 +244,7 @@ mod tests {
 			no_fixup: true,
 			urgency: None,
 			quiet: true,
+			formatter: ItemFormatter::default(),
 		};
 		let line = process_line(&String::from("ABC start:today"), &cfg);
 		assert_eq!(LineKind::Item, line.kind);
@@ -257,6 +258,7 @@ mod tests {
 			no_fixup: false,
 			urgency: Some(Urgency::Today),
 			quiet: true,
+			formatter: ItemFormatter::default(),
 		};
 		let line = process_line(&String::from("ABC start:today"), &cfg);
 		assert_eq!(LineKind::Item, line.kind);

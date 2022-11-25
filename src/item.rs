@@ -1,22 +1,10 @@
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
-use console::Style;
 use date_time_parser::DateParser as NaturalDateParser;
 use freezebox::FreezeBox;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
-use substring::Substring;
-
-pub struct ItemFormatConfig {
-	pub width: usize,
-	pub colour: bool,
-	pub with_creation_date: bool,
-	pub with_completion_date: bool,
-	pub with_line_numbers: bool,
-	pub with_newline: bool,
-	pub line_number_digits: usize,
-}
 
 /// An item in a todo list.
 pub struct Item {
@@ -703,135 +691,11 @@ impl Item {
 			self.tshirt_size().unwrap_or(TshirtSize::Medium),
 		)
 	}
-
-	/// Write this item to a stream, not in todo.txt format!
-	///
-	/// Allows for pretty formatting, etc.
-	pub fn write_to(
-		&self,
-		stream: &mut dyn std::io::Write,
-		cfg: &ItemFormatConfig,
-	) {
-		let mut r: String = String::new();
-
-		if self.completion {
-			r.push_str("x ");
-		} else {
-			r.push_str("  ");
-		}
-
-		if self.priority == '\0' {
-			r.push_str("(?) ");
-		} else {
-			let style = match self.importance() {
-				Some('A') => Style::new().red().bold().force_styling(true),
-				Some('B') => Style::new().yellow().bold().force_styling(true),
-				Some('C') => Style::new().green().bold().force_styling(true),
-				Some(_) => Style::new().bold().force_styling(true),
-				_ => Style::new(),
-			};
-			let paren = format!("({}) ", style.apply_to(self.priority));
-			r.push_str(&paren);
-		}
-
-		if cfg.with_completion_date {
-			if self.completion && self.completion_date.is_some() {
-				let date = self
-					.completion_date
-					.unwrap()
-					.format("%Y-%m-%d ")
-					.to_string();
-				r.push_str(&date);
-			} else if self.completion {
-				r.push_str("????-??-?? ");
-			} else {
-				r.push_str("           ");
-			}
-		}
-
-		if cfg.with_creation_date {
-			if self.creation_date.is_some() {
-				let date = self
-					.creation_date
-					.unwrap()
-					.format("%Y-%m-%d ")
-					.to_string();
-				r.push_str(&date);
-			} else {
-				r.push_str("????-??-?? ");
-			}
-		}
-
-		if cfg.with_line_numbers {
-			r.push_str(
-				format!(
-					"#{:0width$} ",
-					self.line_number(),
-					width = cfg.line_number_digits
-				)
-				.as_str(),
-			)
-		}
-
-		let len = cfg.width - console::strip_ansi_codes(&r).len();
-		r.push_str(self.description.substring(0, len));
-
-		if self.completion || !self.is_startable() {
-			if cfg.colour {
-				r = format!(
-					"{}",
-					Style::new()
-						.dim()
-						.force_styling(true)
-						.apply_to(console::strip_ansi_codes(&r).to_string())
-				);
-			} else {
-				r = console::strip_ansi_codes(&r).to_string();
-			}
-		} else if !cfg.colour {
-			r = console::strip_ansi_codes(&r).to_string();
-		}
-
-		if cfg.with_newline {
-			writeln!(stream, "{}", r).expect("panik");
-		} else {
-			write!(stream, "{}", r).expect("panik");
-		}
-	}
-}
-
-/// Config object for the `write_to` method.
-impl ItemFormatConfig {
-	/// Constructor for item format config, given an output width
-	pub fn new(width: usize) -> ItemFormatConfig {
-		ItemFormatConfig {
-			width,
-			colour: false,
-			with_creation_date: false,
-			with_completion_date: false,
-			with_line_numbers: false,
-			with_newline: true,
-			line_number_digits: 2,
-		}
-	}
-
-	/// Alternative constructor, which detects width from the terminal
-	pub fn new_based_on_terminal() -> ItemFormatConfig {
-		let term = console::Term::stdout();
-		let (_height, width) = term.size();
-		Self::new(width.into())
-	}
 }
 
 impl Default for Item {
 	fn default() -> Self {
 		Self::new()
-	}
-}
-
-impl Default for ItemFormatConfig {
-	fn default() -> Self {
-		Self::new_based_on_terminal()
 	}
 }
 

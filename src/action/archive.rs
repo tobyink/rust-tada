@@ -1,4 +1,4 @@
-use crate::action::{Action, FileType};
+use crate::action::*;
 use crate::list::{Line, LineKind, List};
 use clap::{ArgMatches, Command};
 
@@ -8,8 +8,8 @@ pub fn get_action() -> Action {
 	let mut command = Command::new("archive")
 		.about("Move completed tasks from todo.txt to done.txt");
 
-	command = Action::_add_todotxt_file_options(command);
-	command = Action::_add_donetxt_file_options(command);
+	command = FileType::TodoTxt.add_args(command);
+	command = FileType::DoneTxt.add_args(command);
 
 	Action { name, command }
 }
@@ -17,8 +17,8 @@ pub fn get_action() -> Action {
 /// Execute the `archive` subcommand.
 #[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
-	let todo_filename = Action::determine_filename(FileType::TodoTxt, args);
-	let done_filename = Action::determine_filename(FileType::DoneTxt, args);
+	let todo_filename = FileType::TodoTxt.filename(args);
+	let done_filename = FileType::DoneTxt.filename(args);
 	let (num, result) = run_archive(&todo_filename, &done_filename);
 
 	if num > 0 {
@@ -27,7 +27,7 @@ pub fn execute(args: &ArgMatches) {
 		println!("No complete tasks found in {}", todo_filename);
 	}
 
-	Action::maybe_warnings(&result);
+	maybe_housekeeping_warnings(&result);
 }
 
 /// Logic of archiving a todo.txt to a done.txt.

@@ -1,5 +1,4 @@
-use crate::action::{Action, FileType};
-use crate::list::List;
+use crate::action::*;
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
@@ -15,8 +14,8 @@ pub fn get_action() -> Action {
 			have a start date in the future.",
 		);
 
-	command = Action::_add_todotxt_file_options(command);
-	command = Action::_add_output_options(command);
+	command = FileType::TodoTxt.add_args(command);
+	command = ItemFormatter::add_args(command);
 	command = command
 		.arg(
 			Arg::new("number")
@@ -48,12 +47,10 @@ pub fn execute(args: &ArgMatches) {
 	let max = args.get_one::<usize>("number").unwrap_or(&3);
 
 	let mut out = io::stdout();
-	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
-			.expect("Could not read todo list");
+	let list = FileType::TodoTxt.load(args);
 
-	let mut cfg = Action::build_output_config(args);
-	cfg.line_number_digits = list.lines.len().to_string().len();
+	let mut formatter = ItemFormatter::from_argmatches(args);
+	formatter.line_number_digits = list.lines.len().to_string().len();
 
 	let quick = sort_items_by("size", list.items())
 		.into_iter()
@@ -62,6 +59,6 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 
 	for i in sort_items_by(sort_by_type.as_str(), quick).iter() {
-		i.write_to(&mut out, &cfg);
+		formatter.write_item_to(i, &mut out);
 	}
 }

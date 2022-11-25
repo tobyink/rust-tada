@@ -1,5 +1,4 @@
-use crate::action::{Action, FileType};
-use crate::list::List;
+use crate::action::*;
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
@@ -13,9 +12,9 @@ pub fn get_action() -> Action {
 			Searches are case-insensitive."
 		);
 
-	command = Action::_add_todotxt_file_options(command);
-	command = Action::_add_output_options(command);
-	command = Action::_add_search_terms_option(command);
+	command = FileType::TodoTxt.add_args(command);
+	command = ItemFormatter::add_args(command);
+	command = SearchTerms::add_args(command);
 	command = command
 		.arg(
 			Arg::new("sort")
@@ -37,14 +36,13 @@ pub fn execute(args: &ArgMatches) {
 		.unwrap_or(&default_sort_by_type);
 
 	let mut out = io::stdout();
-	let list =
-		List::from_url(Action::determine_filename(FileType::TodoTxt, args))
-			.expect("Could not read todo list");
+	let list = FileType::TodoTxt.load(args);
 	let mut results = list.items();
-	let mut cfg = Action::build_output_config(args);
-	cfg.line_number_digits = list.lines.len().to_string().len();
+	let mut formatter = ItemFormatter::from_argmatches(args);
+	formatter.line_number_digits = list.lines.len().to_string().len();
 
-	for term in Action::determine_search_terms(args) {
+	let search_terms = SearchTerms::from_argmatches(args);
+	for term in &search_terms.terms {
 		results = match term.chars().next() {
 			Some('@') => find_items_by_context(term, results),
 			Some('+') => find_items_by_tag(term, results),
@@ -54,7 +52,7 @@ pub fn execute(args: &ArgMatches) {
 	}
 
 	for i in sort_items_by(sort_by_type.as_str(), results).iter() {
-		i.write_to(&mut out, &cfg);
+		formatter.write_item_to(i, &mut out);
 	}
 }
 
