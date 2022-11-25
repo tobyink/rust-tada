@@ -165,6 +165,11 @@ mod tests {
 	use crate::list::LineKind;
 
 	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("add"), get_action().name);
+	}
+
+	#[test]
 	fn test_add_action_config() {
 		let matches = get_action()
 			.command

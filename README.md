@@ -6,7 +6,7 @@ Command-line [todo.txt](https://github.com/todotxt/todo.txt) manager.
 
 ## Status
 
-Early implementation stage.
+Early development, but usable.
 
 ## Usage
 
