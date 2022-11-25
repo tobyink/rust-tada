@@ -171,6 +171,18 @@ mod tests {
 
 	#[test]
 	fn test_add_action_config() {
+		let cfg = AddActionConfig::new();
+		assert_eq!(false, cfg.no_date);
+		assert_eq!(false, cfg.no_fixup);
+		assert_eq!(None, cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
+		let cfg = AddActionConfig::default();
+		assert_eq!(false, cfg.no_date);
+		assert_eq!(false, cfg.no_fixup);
+		assert_eq!(None, cfg.urgency);
+		assert_eq!(false, cfg.quiet);
+
 		let matches = get_action()
 			.command
 			.get_matches_from(vec!["add"]);
