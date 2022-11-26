@@ -3,7 +3,7 @@ use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use console::Style;
 use promptly::prompt_default;
-use std::{env, fs};
+use std::{env, fs, io};
 use substring::Substring;
 
 /// Handy structure for holding subcommand metadata.
@@ -252,10 +252,24 @@ impl ItemFormatter {
 		cfg
 	}
 
-	/// Write an item to a stream, not in todo.txt format!
+	/// Write a heading row to a given output stream.
+	pub fn write_heading_to(&self, h: String, stream: &mut dyn io::Write) {
+		if self.with_newline {
+			writeln!(stream, "# {}", h).expect("panik");
+		} else {
+			write!(stream, "# {}", h).expect("panik");
+		}
+	}
+
+	/// Write a separator row to a given output stream.
+	pub fn write_separator_to(&self, stream: &mut dyn io::Write) {
+		writeln!(stream).expect("panik");
+	}
+
+	/// Write an item to a given output stream. (Not in todo.txt format!)
 	///
 	/// Allows for pretty formatting, etc.
-	pub fn write_item_to(&self, i: &Item, stream: &mut dyn std::io::Write) {
+	pub fn write_item_to(&self, i: &Item, stream: &mut dyn io::Write) {
 		let mut r: String = String::new();
 
 		if i.completion() {

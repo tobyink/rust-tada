@@ -3,7 +3,6 @@ use crate::item::{TshirtSize, Urgency, URGENCIES};
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
 use std::io;
-use std::io::Write;
 
 /// Options for the `show` subcommand.
 pub fn get_action() -> Action {
@@ -75,13 +74,13 @@ pub fn execute(args: &ArgMatches) {
 					Urgency::NextMonth => "Next month",
 					Urgency::Later => "Later",
 				};
-				writeln!(&out, "# {}", label).expect("panik");
+				formatter.write_heading_to(String::from(label), &mut out);
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					formatter.write_item_to(i, &mut out);
 				}
-				writeln!(&out).expect("panik");
+				formatter.write_separator_to(&mut out);
 			}
 		}
 	} else if *args.get_one::<bool>("importance").unwrap() {
@@ -95,13 +94,13 @@ pub fn execute(args: &ArgMatches) {
 					'D' => "Normal",
 					_ => "Unimportant",
 				};
-				writeln!(&out, "# {}", label).expect("panik");
+				formatter.write_heading_to(String::from(label), &mut out);
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					formatter.write_item_to(i, &mut out);
 				}
-				writeln!(&out).expect("panik");
+				formatter.write_separator_to(&mut out);
 			}
 		}
 	} else if *args.get_one::<bool>("size").unwrap() {
@@ -113,13 +112,13 @@ pub fn execute(args: &ArgMatches) {
 					TshirtSize::Medium => "Medium",
 					TshirtSize::Large => "Large",
 				};
-				writeln!(&out, "# {}", label).expect("panik");
+				formatter.write_heading_to(String::from(label), &mut out);
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
 					formatter.write_item_to(i, &mut out);
 				}
-				writeln!(&out).expect("panik");
+				formatter.write_separator_to(&mut out);
 			}
 		}
 	} else {
