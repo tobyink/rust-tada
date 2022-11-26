@@ -253,11 +253,24 @@ impl ItemFormatter {
 	}
 
 	/// Write a heading row to a given output stream.
-	pub fn write_heading_to(&self, h: String, stream: &mut dyn io::Write) {
+	pub fn write_heading_to(
+		&self,
+		heading: String,
+		stream: &mut dyn io::Write,
+	) {
+		let mut hh: String = format!("# {}", heading);
+		if self.colour {
+			let s = Style::new()
+				.white()
+				.bright()
+				.bold()
+				.force_styling(true);
+			hh = s.apply_to(hh).to_string();
+		}
 		if self.with_newline {
-			writeln!(stream, "# {}", h).expect("panik");
+			writeln!(stream, "{}", hh).expect("panik");
 		} else {
-			write!(stream, "# {}", h).expect("panik");
+			write!(stream, "{}", hh).expect("panik");
 		}
 	}
 
