@@ -30,28 +30,53 @@ pub fn execute(args: &ArgMatches) {
 	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
+	let search_terms = SearchTerms::from_argmatches(args);
 	let mut formatter = ItemFormatter::from_argmatches(args);
 	formatter.line_number_digits = list.lines.len().to_string().len();
-
-	let search_terms = SearchTerms::from_argmatches(args);
-	let mut new_list = List::new();
-
+	let mut io = io::stdout();
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let include_date = !*args.get_one::<bool>("no-date").unwrap();
 
-	let mut count = 0;
-	for line in list.lines {
+	let (count, new_list) = mark_items_done_in_list(
+		list,
+		search_terms,
+		formatter,
+		&mut io,
+		confirmation,
+		include_date,
+	);
+
+	if count > 0 {
+		new_list.to_url(todo_filename);
+		println!("Marked {} tasks complete!", count);
+	} else {
+		println!("No actions taken.");
+	}
+
+	maybe_housekeeping_warnings(&new_list);
+}
+
+/// Return a new list with certain tasks in the given list marked as complete, based on the
+/// search terms. Also returns a count of items modified.
+pub fn mark_items_done_in_list(
+	input: List,
+	search_terms: SearchTerms,
+	formatter: ItemFormatter,
+	out: &mut std::io::Stdout,
+	status: ConfirmationStatus,
+	include_date: bool,
+) -> (usize, List) {
+	let mut new_list = List::new();
+	let mut count: usize = 0;
+
+	for line in input.lines {
 		match line.kind {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_complete(
-						&item,
-						&formatter,
-						&mut io::stdout(),
-						confirmation,
-					) {
+					&& check_if_complete(&item, &formatter, out, status)
+				{
 					count += 1;
 					new_list.lines.push(line.but_done(include_date));
 				} else {
@@ -62,14 +87,7 @@ pub fn execute(args: &ArgMatches) {
 		}
 	}
 
-	if count > 0 {
-		new_list.to_url(todo_filename);
-		println!("Marked {} tasks complete!", count);
-	} else {
-		println!("No actions taken.");
-	}
-
-	maybe_housekeeping_warnings(&new_list);
+	(count, new_list)
 }
 
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.
