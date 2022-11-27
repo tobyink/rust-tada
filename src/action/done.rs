@@ -25,6 +25,7 @@ pub fn get_action() -> Action {
 }
 
 /// Execute the `done` subcommand.
+#[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
 	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
@@ -94,4 +95,103 @@ pub fn check_if_complete(
 ) -> bool {
 	outputter.write_item(item);
 	status.check(outputter, "Mark finished?", "Marking finished", "Skipping")
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::list::Line;
+	use chrono::Utc;
+	use tempfile::tempdir;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("done"), get_action().name);
+	}
+
+	#[test]
+	fn test_check_if_complete() {
+		let dir = tempdir().unwrap();
+		let buffer_filename = dir
+			.path()
+			.join("buffer.txt")
+			.display()
+			.to_string();
+		let mut i = Item::new();
+		i.set_description(String::from("XYZ"));
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		let r = check_if_complete(&i, &mut o, ConfirmationStatus::Yes);
+		assert_eq!(true, r);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(String::from("  (?) XYZ\nMarking finished\n\n"), got_output);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		let r = check_if_complete(&i, &mut o, ConfirmationStatus::No);
+		assert_eq!(false, r);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(String::from("  (?) XYZ\nSkipping\n\n"), got_output);
+	}
+
+	#[test]
+	fn test_mark_items_done_in_list() {
+		let lines: Vec<Line> = Vec::from([
+			Line::from_string(String::from("x 2000-01-01 Foo"), 0),
+			Line::from_string(String::from("2000-01-02 Foo"), 0),
+			Line::from_string(String::from("# Foo"), 0),
+			Line::from_string(String::from("Bar"), 0),
+		]);
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(Vec::<u8>::new());
+
+		let mut initial_list = List::new();
+		initial_list.lines = lines.clone();
+		let (count, got) = mark_items_done_in_list(
+			initial_list,
+			SearchTerms {
+				terms: vec![String::from("foo")],
+			},
+			&mut o,
+			ConfirmationStatus::Yes,
+			false,
+		);
+
+		assert_eq!(1, count);
+		assert_eq!(
+			"x 2000-01-01 Foo\n\
+			x 2000-01-02 Foo\n\
+			# Foo\n\
+			Bar\n",
+			got.serialize()
+		);
+
+		let mut initial_list = List::new();
+		initial_list.lines = lines.clone();
+		let (count, got) = mark_items_done_in_list(
+			initial_list,
+			SearchTerms {
+				terms: vec![String::from("foo")],
+			},
+			&mut o,
+			ConfirmationStatus::Yes,
+			true,
+		);
+
+		assert_eq!(1, count);
+		assert_eq!(
+			format!(
+				"x 2000-01-01 Foo\n\
+				x {} 2000-01-02 Foo\n\
+				# Foo\n\
+				Bar\n",
+				Utc::now().date_naive().format("%Y-%m-%d")
+			),
+			got.serialize()
+		);
+	}
 }
