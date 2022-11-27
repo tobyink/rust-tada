@@ -98,7 +98,7 @@ pub fn execute(args: &ArgMatches) {
 		new_list.to_url(todo_filename);
 	}
 
-	maybe_housekeeping_warnings(&new_list);
+	maybe_housekeeping_warnings(&mut formatter, &new_list);
 }
 
 /// Asks whether to pull an item, and prints out the response before returning a bool.
@@ -108,5 +108,5 @@ pub fn check_if_pull(
 	status: ConfirmationStatus,
 ) -> bool {
 	formatter.write_item(item);
-	status.check("Reschedule?", "Rescheduling", "Skipping")
+	status.check(formatter, "Reschedule?", "Rescheduling", "Skipping")
 }

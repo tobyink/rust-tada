@@ -45,12 +45,12 @@ pub fn execute(args: &ArgMatches) {
 
 	if count > 0 {
 		new_list.to_url(todo_filename);
-		println!("Marked {} tasks complete!", count);
+		formatter.write_status(format!("Marked {} tasks complete!", count));
 	} else {
-		println!("No actions taken.");
+		formatter.write_status(String::from("No actions taken."));
 	}
 
-	maybe_housekeeping_warnings(&new_list);
+	maybe_housekeeping_warnings(&mut formatter, &new_list);
 }
 
 /// Return a new list with certain tasks in the given list marked as complete, based on the
@@ -93,5 +93,5 @@ pub fn check_if_complete(
 	status: ConfirmationStatus,
 ) -> bool {
 	formatter.write_item(item);
-	status.check("Mark finished?", "Marking finished", "Skipping")
+	status.check(formatter, "Mark finished?", "Marking finished", "Skipping")
 }

@@ -52,9 +52,9 @@ pub fn execute(args: &ArgMatches) {
 
 	if count > 0 {
 		new_list.to_url(todo_filename);
-		println!("Removed {} tasks!", count);
+		formatter.write_status(format!("Removed {} tasks!", count));
 	} else {
-		println!("No actions taken.");
+		formatter.write_status(String::from("No actions taken."));
 	}
 }
 
@@ -65,5 +65,5 @@ pub fn check_if_delete(
 	status: ConfirmationStatus,
 ) -> bool {
 	formatter.write_item(item);
-	status.check("Remove?", "Removing", "Keeping")
+	status.check(formatter, "Remove?", "Removing", "Keeping")
 }

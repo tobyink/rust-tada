@@ -12,11 +12,13 @@ pub fn get_action() -> Action {
 			to ask for a new due date, but guesses when a sensible due date might be."
 		);
 	command = FileType::TodoTxt.add_args(command);
+	command = ItemFormatter::add_args_minimal(command);
 	Action { name, command }
 }
 
 /// Execute the `zen` subcommand.
 pub fn execute(args: &ArgMatches) {
+	let mut formatter = ItemFormatter::from_argmatches_minimal(args);
 	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
@@ -34,7 +36,7 @@ pub fn execute(args: &ArgMatches) {
 
 	new_list.to_url(todo_filename);
 
-	println!("{}", zen_quote());
+	formatter.write_status(String::from(zen_quote()));
 }
 
 pub fn zen_quote() -> &'static str {

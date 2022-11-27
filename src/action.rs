@@ -183,17 +183,9 @@ impl ItemFormatter {
 		Self::new(width.into())
 	}
 
-	/// Add some args to a Command so that it can format items.
-	pub fn add_args(cmd: Command) -> Command {
+	/// Add some args to a Command so that it can instantiate a basic ItemFormatter.
+	pub fn add_args_minimal(cmd: Command) -> Command {
 		cmd.arg(
-			Arg::new("max-width")
-				.long("max-width")
-				.aliases(["maxwidth"])
-				.value_parser(clap::value_parser!(usize))
-				.value_name("COLS")
-				.help("maximum width of terminal output"),
-		)
-		.arg(
 			Arg::new("colour")
 				.num_args(0)
 				.long("colour")
@@ -207,32 +199,45 @@ impl ItemFormatter {
 				.aliases(["no-color", "nocolour", "nocolor"])
 				.help("plain output"),
 		)
-		.arg(
-			Arg::new("show-lines")
-				.num_args(0)
-				.short('L')
-				.long("show-lines")
-				.aliases(["show-lines", "lines"])
-				.help("show line numbers for tasks"),
-		)
-		.arg(
-			Arg::new("show-created")
-				.num_args(0)
-				.long("show-created")
-				.aliases(["showcreated", "created"])
-				.help("show 'created' dates for tasks"),
-		)
-		.arg(
-			Arg::new("show-finished")
-				.num_args(0)
-				.long("show-finished")
-				.aliases(["showfinished", "finished"])
-				.help("show 'finished' dates for tasks"),
-		)
 	}
 
-	/// Initialize from ArgMatches.
-	pub fn from_argmatches(args: &ArgMatches) -> Self {
+	/// Add some args to a Command so that it can instantiate a more complete ItemFormatter.
+	pub fn add_args(cmd: Command) -> Command {
+		Self::add_args_minimal(cmd)
+			.arg(
+				Arg::new("max-width")
+					.long("max-width")
+					.aliases(["maxwidth"])
+					.value_parser(clap::value_parser!(usize))
+					.value_name("COLS")
+					.help("maximum width of terminal output"),
+			)
+			.arg(
+				Arg::new("show-lines")
+					.num_args(0)
+					.short('L')
+					.long("show-lines")
+					.aliases(["show-lines", "lines"])
+					.help("show line numbers for tasks"),
+			)
+			.arg(
+				Arg::new("show-created")
+					.num_args(0)
+					.long("show-created")
+					.aliases(["showcreated", "created"])
+					.help("show 'created' dates for tasks"),
+			)
+			.arg(
+				Arg::new("show-finished")
+					.num_args(0)
+					.long("show-finished")
+					.aliases(["showfinished", "finished"])
+					.help("show 'finished' dates for tasks"),
+			)
+	}
+
+	/// Initialize from minimal ArgMatches.
+	pub fn from_argmatches_minimal(args: &ArgMatches) -> Self {
 		let mut cfg = Self::new_based_on_terminal();
 		cfg.colour = if *args.get_one::<bool>("no-colour").unwrap() {
 			false
@@ -241,6 +246,12 @@ impl ItemFormatter {
 		} else {
 			console::colors_enabled()
 		};
+		cfg
+	}
+
+	/// Initialize from ArgMatches.
+	pub fn from_argmatches(args: &ArgMatches) -> Self {
+		let mut cfg = Self::from_argmatches_minimal(args);
 		cfg.with_creation_date = *args.get_one::<bool>("show-created").unwrap();
 		cfg.with_completion_date =
 			*args.get_one::<bool>("show-finished").unwrap();
@@ -254,7 +265,7 @@ impl ItemFormatter {
 		cfg
 	}
 
-	/// Write a heading row to a given output stream.
+	/// Write a heading row.
 	pub fn write_heading(&mut self, heading: String) {
 		let stream = &mut self.io;
 		let mut hh: String = format!("# {}", heading);
@@ -273,13 +284,61 @@ impl ItemFormatter {
 		}
 	}
 
-	/// Write a separator row to a given output stream.
+	/// Write a separator row.
 	pub fn write_separator(&mut self) {
 		let stream = &mut self.io;
 		writeln!(stream).expect("panik");
 	}
 
-	/// Write an item to a given output stream. (Not in todo.txt format!)
+	/// Write a status line.
+	pub fn write_status(&mut self, status: String) {
+		let stream = &mut self.io;
+		let mut hh: String = status;
+		if self.colour {
+			let s = Style::new()
+				.white()
+				.bright()
+				.force_styling(true);
+			hh = s.apply_to(hh).to_string();
+		}
+		if self.with_newline {
+			writeln!(stream, "{}", hh).expect("panik");
+		} else {
+			write!(stream, "{}", hh).expect("panik");
+		}
+	}
+
+	/// Write a hint line.
+	pub fn write_notice(&mut self, hint: String) {
+		let stream = &mut self.io;
+		let mut hh: String = hint;
+		if self.colour {
+			let s = Style::new().magenta().force_styling(true);
+			hh = s.apply_to(hh).to_string();
+		}
+		if self.with_newline {
+			writeln!(stream, "{}", hh).expect("panik");
+		} else {
+			write!(stream, "{}", hh).expect("panik");
+		}
+	}
+
+	/// Write a error line.
+	pub fn write_error(&mut self, errstr: String) {
+		let stream = &mut self.io;
+		let mut hh: String = errstr;
+		if self.colour {
+			let s = Style::new().red().force_styling(true);
+			hh = s.apply_to(hh).to_string();
+		}
+		if self.with_newline {
+			writeln!(stream, "{}", hh).expect("panik");
+		} else {
+			write!(stream, "{}", hh).expect("panik");
+		}
+	}
+
+	/// Write an item. (Not in todo.txt format!)
 	///
 	/// Allows for pretty formatting, etc.
 	pub fn write_item(&mut self, i: &Item) {
@@ -401,25 +460,26 @@ impl ConfirmationStatus {
 	/// Possibly prompt a user for confirmation.
 	pub fn check(
 		&self,
+		formatter: &mut ItemFormatter,
 		prompt_phrase: &str,
 		yes_phrase: &str,
 		no_phrase: &str,
 	) -> bool {
 		match self {
 			ConfirmationStatus::Yes => {
-				println!("{}\n", yes_phrase);
+				formatter.write_notice(format!("{}\n", yes_phrase));
 				true
 			}
 			ConfirmationStatus::No => {
-				println!("{}\n", no_phrase);
+				formatter.write_notice(format!("{}\n", no_phrase));
 				false
 			}
 			ConfirmationStatus::Ask => {
 				let response = prompt_default(prompt_phrase, true).unwrap();
 				if response {
-					println!("{}\n", yes_phrase);
+					formatter.write_notice(format!("{}\n", yes_phrase));
 				} else {
-					println!("{}\n", no_phrase);
+					formatter.write_notice(format!("{}\n", no_phrase));
 				}
 				response
 			}
@@ -518,7 +578,7 @@ impl Default for SearchTerms {
 	}
 }
 
-fn maybe_housekeeping_warnings(list: &List) {
+fn maybe_housekeeping_warnings(formatter: &mut ItemFormatter, list: &List) {
 	let mut done_blank = false;
 
 	let count_finished = list
@@ -530,13 +590,13 @@ fn maybe_housekeeping_warnings(list: &List) {
 		.count();
 	if count_finished > 9 {
 		if !done_blank {
-			println!();
+			formatter.write_separator();
 			done_blank = true;
 		}
-		println!(
+		formatter.write_notice(format!(
 			"There are {} finished tasks. Consider running `tada archive`.",
 			count_finished
-		);
+		));
 	}
 
 	let count_blank = list
@@ -546,13 +606,13 @@ fn maybe_housekeeping_warnings(list: &List) {
 		.count();
 	if count_blank > 9 {
 		if !done_blank {
-			println!();
+			formatter.write_separator();
 			// done_blank = true;
 		}
-		println!(
+		formatter.write_notice(format!(
 			"There are {} blank/comment lines. Consider running `tada tidy`.",
 			count_blank
-		);
+		));
 	}
 }
 

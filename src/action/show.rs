@@ -125,5 +125,5 @@ pub fn execute(args: &ArgMatches) {
 		}
 	}
 
-	maybe_housekeeping_warnings(&list);
+	maybe_housekeeping_warnings(&mut formatter, &list);
 }
