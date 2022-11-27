@@ -2,7 +2,6 @@ use crate::action::*;
 use crate::item::{Item, Urgency};
 use crate::list::{Line, List};
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `add` subcommand.
 pub fn get_action() -> Action {
@@ -133,14 +132,13 @@ impl AddActionConfig {
 /// Execute the `add` subcommand.
 #[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
-	let cfg = AddActionConfig::from_argmatches(args);
+	let mut cfg = AddActionConfig::from_argmatches(args);
 	let input = args.get_one::<String>("task").unwrap();
 	let new_line = process_line(input, &cfg);
 
 	if !cfg.quiet {
-		let mut out = io::stdout();
 		cfg.formatter
-			.write_item_to(new_line.item.as_ref().unwrap(), &mut out);
+			.write_item(new_line.item.as_ref().unwrap());
 	}
 
 	let filename = FileType::TodoTxt.filename(args);

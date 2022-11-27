@@ -1,7 +1,6 @@
 use crate::action::*;
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `find` subcommand.
 pub fn get_action() -> Action {
@@ -35,7 +34,6 @@ pub fn execute(args: &ArgMatches) {
 		.get_one::<String>("sort")
 		.unwrap_or(&default_sort_by_type);
 
-	let mut out = io::stdout();
 	let list = FileType::TodoTxt.load(args);
 	let mut results = list.items();
 	let mut formatter = ItemFormatter::from_argmatches(args);
@@ -52,7 +50,7 @@ pub fn execute(args: &ArgMatches) {
 	}
 
 	for i in sort_items_by(sort_by_type.as_str(), results).iter() {
-		formatter.write_item_to(i, &mut out);
+		formatter.write_item(i);
 	}
 }
 

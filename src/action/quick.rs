@@ -1,7 +1,6 @@
 use crate::action::*;
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `quick` subcommand.
 pub fn get_action() -> Action {
@@ -46,7 +45,6 @@ pub fn execute(args: &ArgMatches) {
 		.unwrap_or(&default_sort_by_type);
 	let max = args.get_one::<usize>("number").unwrap_or(&3);
 
-	let mut out = io::stdout();
 	let list = FileType::TodoTxt.load(args);
 
 	let mut formatter = ItemFormatter::from_argmatches(args);
@@ -59,6 +57,6 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 
 	for i in sort_items_by(sort_by_type.as_str(), quick).iter() {
-		formatter.write_item_to(i, &mut out);
+		formatter.write_item(i);
 	}
 }

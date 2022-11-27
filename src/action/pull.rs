@@ -2,7 +2,6 @@ use crate::action::*;
 use crate::item::{Item, Urgency};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `pull` subcommand.
 pub fn get_action() -> Action {
@@ -83,12 +82,8 @@ pub fn execute(args: &ArgMatches) {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_pull(
-						&item,
-						&formatter,
-						&mut io::stdout(),
-						confirmation,
-					) {
+					&& check_if_pull(&item, &mut formatter, confirmation)
+				{
 					count += 1;
 					new_list.lines.push(line.but_pull(urgency));
 				} else {
@@ -109,10 +104,9 @@ pub fn execute(args: &ArgMatches) {
 /// Asks whether to pull an item, and prints out the response before returning a bool.
 pub fn check_if_pull(
 	item: &Item,
-	formatter: &ItemFormatter,
-	out: &mut std::io::Stdout,
+	formatter: &mut ItemFormatter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item_to(item, out);
+	formatter.write_item(item);
 	status.check("Reschedule?", "Rescheduling", "Skipping")
 }

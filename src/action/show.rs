@@ -2,7 +2,6 @@ use crate::action::*;
 use crate::item::{TshirtSize, Urgency, URGENCIES};
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `show` subcommand.
 pub fn get_action() -> Action {
@@ -55,7 +54,6 @@ pub fn execute(args: &ArgMatches) {
 		.get_one::<String>("sort")
 		.unwrap_or(&default_sort_by_type);
 
-	let mut out = io::stdout();
 	let list = FileType::TodoTxt.load(args);
 
 	let mut formatter = ItemFormatter::from_argmatches(args);
@@ -74,13 +72,13 @@ pub fn execute(args: &ArgMatches) {
 					Urgency::NextMonth => "Next month",
 					Urgency::Later => "Later",
 				};
-				formatter.write_heading_to(String::from(label), &mut out);
+				formatter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item_to(i, &mut out);
+					formatter.write_item(i);
 				}
-				formatter.write_separator_to(&mut out);
+				formatter.write_separator();
 			}
 		}
 	} else if *args.get_one::<bool>("importance").unwrap() {
@@ -94,13 +92,13 @@ pub fn execute(args: &ArgMatches) {
 					'D' => "Normal",
 					_ => "Unimportant",
 				};
-				formatter.write_heading_to(String::from(label), &mut out);
+				formatter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item_to(i, &mut out);
+					formatter.write_item(i);
 				}
-				formatter.write_separator_to(&mut out);
+				formatter.write_separator();
 			}
 		}
 	} else if *args.get_one::<bool>("size").unwrap() {
@@ -112,18 +110,18 @@ pub fn execute(args: &ArgMatches) {
 					TshirtSize::Medium => "Medium",
 					TshirtSize::Large => "Large",
 				};
-				formatter.write_heading_to(String::from(label), &mut out);
+				formatter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item_to(i, &mut out);
+					formatter.write_item(i);
 				}
-				formatter.write_separator_to(&mut out);
+				formatter.write_separator();
 			}
 		}
 	} else {
 		for i in sort_items_by(sort_by_type.as_str(), list.items()).iter() {
-			formatter.write_item_to(i, &mut out);
+			formatter.write_item(i);
 		}
 	}
 

@@ -2,7 +2,6 @@ use crate::action::*;
 use crate::item::Item;
 use crate::list::{Line, LineKind, List};
 use clap::{ArgMatches, Command};
-use std::io;
 
 /// Options for the `remove` subcommand.
 pub fn get_action() -> Action {
@@ -39,12 +38,8 @@ pub fn execute(args: &ArgMatches) {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
-					&& check_if_delete(
-						&item,
-						&formatter,
-						&mut io::stdout(),
-						confirmation,
-					) {
+					&& check_if_delete(&item, &mut formatter, confirmation)
+				{
 					count += 1;
 					new_list.lines.push(Line::new_blank());
 				} else {
@@ -66,10 +61,9 @@ pub fn execute(args: &ArgMatches) {
 /// Asks whether to delete an item, and prints out the response before returning a bool.
 pub fn check_if_delete(
 	item: &Item,
-	formatter: &ItemFormatter,
-	out: &mut std::io::Stdout,
+	formatter: &mut ItemFormatter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item_to(item, out);
+	formatter.write_item(item);
 	status.check("Remove?", "Removing", "Keeping")
 }

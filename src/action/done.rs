@@ -2,7 +2,6 @@ use crate::action::*;
 use crate::item::Item;
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgMatches, Command};
-use std::io;
 
 /// Options for the `done` subcommand.
 pub fn get_action() -> Action {
@@ -33,15 +32,13 @@ pub fn execute(args: &ArgMatches) {
 	let search_terms = SearchTerms::from_argmatches(args);
 	let mut formatter = ItemFormatter::from_argmatches(args);
 	formatter.line_number_digits = list.lines.len().to_string().len();
-	let mut io = io::stdout();
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let include_date = !*args.get_one::<bool>("no-date").unwrap();
 
 	let (count, new_list) = mark_items_done_in_list(
 		list,
 		search_terms,
-		formatter,
-		&mut io,
+		&mut formatter,
 		confirmation,
 		include_date,
 	);
@@ -61,8 +58,7 @@ pub fn execute(args: &ArgMatches) {
 pub fn mark_items_done_in_list(
 	input: List,
 	search_terms: SearchTerms,
-	formatter: ItemFormatter,
-	out: &mut std::io::Stdout,
+	formatter: &mut ItemFormatter,
 	status: ConfirmationStatus,
 	include_date: bool,
 ) -> (usize, List) {
@@ -75,7 +71,7 @@ pub fn mark_items_done_in_list(
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_complete(&item, &formatter, out, status)
+					&& check_if_complete(&item, formatter, status)
 				{
 					count += 1;
 					new_list.lines.push(line.but_done(include_date));
@@ -93,10 +89,9 @@ pub fn mark_items_done_in_list(
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.
 pub fn check_if_complete(
 	item: &Item,
-	formatter: &ItemFormatter,
-	out: &mut std::io::Stdout,
+	formatter: &mut ItemFormatter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item_to(item, out);
+	formatter.write_item(item);
 	status.check("Mark finished?", "Marking finished", "Skipping")
 }

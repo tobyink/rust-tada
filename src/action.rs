@@ -158,6 +158,7 @@ pub struct ItemFormatter {
 	pub with_line_numbers: bool,
 	pub with_newline: bool,
 	pub line_number_digits: usize,
+	pub io: Box<dyn io::Write>,
 }
 
 impl ItemFormatter {
@@ -171,6 +172,7 @@ impl ItemFormatter {
 			with_line_numbers: false,
 			with_newline: true,
 			line_number_digits: 2,
+			io: Box::new(io::stdout()),
 		}
 	}
 
@@ -253,11 +255,8 @@ impl ItemFormatter {
 	}
 
 	/// Write a heading row to a given output stream.
-	pub fn write_heading_to(
-		&self,
-		heading: String,
-		stream: &mut dyn io::Write,
-	) {
+	pub fn write_heading(&mut self, heading: String) {
+		let stream = &mut self.io;
 		let mut hh: String = format!("# {}", heading);
 		if self.colour {
 			let s = Style::new()
@@ -275,14 +274,16 @@ impl ItemFormatter {
 	}
 
 	/// Write a separator row to a given output stream.
-	pub fn write_separator_to(&self, stream: &mut dyn io::Write) {
+	pub fn write_separator(&mut self) {
+		let stream = &mut self.io;
 		writeln!(stream).expect("panik");
 	}
 
 	/// Write an item to a given output stream. (Not in todo.txt format!)
 	///
 	/// Allows for pretty formatting, etc.
-	pub fn write_item_to(&self, i: &Item, stream: &mut dyn io::Write) {
+	pub fn write_item(&mut self, i: &Item) {
+		let stream = &mut self.io;
 		let mut r: String = String::new();
 
 		if i.completion() {
