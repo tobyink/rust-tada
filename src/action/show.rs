@@ -9,7 +9,7 @@ pub fn get_action() -> Action {
 	let mut command = Command::new("show").about("Show the full todo list");
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = command
 		.arg(
 			Arg::new("sort")
@@ -56,8 +56,8 @@ pub fn execute(args: &ArgMatches) {
 
 	let list = FileType::TodoTxt.load(args);
 
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_items_by_urgency(list.items());
@@ -72,13 +72,13 @@ pub fn execute(args: &ArgMatches) {
 					Urgency::NextMonth => "Next month",
 					Urgency::Later => "Later",
 				};
-				formatter.write_heading(String::from(label));
+				outputter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item(i);
+					outputter.write_item(i);
 				}
-				formatter.write_separator();
+				outputter.write_separator();
 			}
 		}
 	} else if *args.get_one::<bool>("importance").unwrap() {
@@ -92,13 +92,13 @@ pub fn execute(args: &ArgMatches) {
 					'D' => "Normal",
 					_ => "Unimportant",
 				};
-				formatter.write_heading(String::from(label));
+				outputter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item(i);
+					outputter.write_item(i);
 				}
-				formatter.write_separator();
+				outputter.write_separator();
 			}
 		}
 	} else if *args.get_one::<bool>("size").unwrap() {
@@ -110,20 +110,20 @@ pub fn execute(args: &ArgMatches) {
 					TshirtSize::Medium => "Medium",
 					TshirtSize::Large => "Large",
 				};
-				formatter.write_heading(String::from(label));
+				outputter.write_heading(String::from(label));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
-					formatter.write_item(i);
+					outputter.write_item(i);
 				}
-				formatter.write_separator();
+				outputter.write_separator();
 			}
 		}
 	} else {
 		for i in sort_items_by(sort_by_type.as_str(), list.items()).iter() {
-			formatter.write_item(i);
+			outputter.write_item(i);
 		}
 	}
 
-	maybe_housekeeping_warnings(&mut formatter, &list);
+	maybe_housekeeping_warnings(&mut outputter, &list);
 }

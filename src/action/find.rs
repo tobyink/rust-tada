@@ -12,7 +12,7 @@ pub fn get_action() -> Action {
 		);
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = SearchTerms::add_args(command);
 	command = command
 		.arg(
@@ -36,8 +36,8 @@ pub fn execute(args: &ArgMatches) {
 
 	let list = FileType::TodoTxt.load(args);
 	let mut results = list.items();
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
 	for term in &search_terms.terms {
@@ -50,7 +50,7 @@ pub fn execute(args: &ArgMatches) {
 	}
 
 	for i in sort_items_by(sort_by_type.as_str(), results).iter() {
-		formatter.write_item(i);
+		outputter.write_item(i);
 	}
 }
 

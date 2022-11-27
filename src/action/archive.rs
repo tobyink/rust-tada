@@ -10,7 +10,7 @@ pub fn get_action() -> Action {
 
 	command = FileType::TodoTxt.add_args(command);
 	command = FileType::DoneTxt.add_args(command);
-	command = ItemFormatter::add_args_minimal(command);
+	command = Outputter::add_args_minimal(command);
 
 	Action { name, command }
 }
@@ -18,22 +18,22 @@ pub fn get_action() -> Action {
 /// Execute the `archive` subcommand.
 #[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
-	let mut formatter = ItemFormatter::from_argmatches_minimal(args);
+	let mut outputter = Outputter::from_argmatches_minimal(args);
 	let todo_filename = FileType::TodoTxt.filename(args);
 	let done_filename = FileType::DoneTxt.filename(args);
 	let (num, result) = run_archive(&todo_filename, &done_filename);
 
 	if num > 0 {
-		formatter
+		outputter
 			.write_status(format!("Moved {} tasks to {}", num, done_filename));
 	} else {
-		formatter.write_status(format!(
+		outputter.write_status(format!(
 			"No complete tasks found in {}",
 			todo_filename
 		));
 	}
 
-	maybe_housekeeping_warnings(&mut formatter, &result);
+	maybe_housekeeping_warnings(&mut outputter, &result);
 }
 
 /// Logic of archiving a todo.txt to a done.txt.

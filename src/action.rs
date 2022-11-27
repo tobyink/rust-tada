@@ -150,7 +150,7 @@ impl FileType {
 }
 
 /// Provides pretty output for Item objects.
-pub struct ItemFormatter {
+pub struct Outputter {
 	pub width: usize,
 	pub colour: bool,
 	pub with_creation_date: bool,
@@ -161,7 +161,7 @@ pub struct ItemFormatter {
 	pub io: Box<dyn io::Write>,
 }
 
-impl ItemFormatter {
+impl Outputter {
 	/// Constructor for item format config, given an output width
 	pub fn new(width: usize) -> Self {
 		Self {
@@ -183,7 +183,7 @@ impl ItemFormatter {
 		Self::new(width.into())
 	}
 
-	/// Add some args to a Command so that it can instantiate a basic ItemFormatter.
+	/// Add some args to a Command so that it can instantiate a basic Outputter.
 	pub fn add_args_minimal(cmd: Command) -> Command {
 		cmd.arg(
 			Arg::new("colour")
@@ -201,7 +201,7 @@ impl ItemFormatter {
 		)
 	}
 
-	/// Add some args to a Command so that it can instantiate a more complete ItemFormatter.
+	/// Add some args to a Command so that it can instantiate a more complete Outputter.
 	pub fn add_args(cmd: Command) -> Command {
 		Self::add_args_minimal(cmd)
 			.arg(
@@ -431,7 +431,7 @@ impl ItemFormatter {
 	}
 }
 
-impl Default for ItemFormatter {
+impl Default for Outputter {
 	fn default() -> Self {
 		Self::new_based_on_terminal()
 	}
@@ -460,26 +460,26 @@ impl ConfirmationStatus {
 	/// Possibly prompt a user for confirmation.
 	pub fn check(
 		&self,
-		formatter: &mut ItemFormatter,
+		outputter: &mut Outputter,
 		prompt_phrase: &str,
 		yes_phrase: &str,
 		no_phrase: &str,
 	) -> bool {
 		match self {
 			ConfirmationStatus::Yes => {
-				formatter.write_notice(format!("{}\n", yes_phrase));
+				outputter.write_notice(format!("{}\n", yes_phrase));
 				true
 			}
 			ConfirmationStatus::No => {
-				formatter.write_notice(format!("{}\n", no_phrase));
+				outputter.write_notice(format!("{}\n", no_phrase));
 				false
 			}
 			ConfirmationStatus::Ask => {
 				let response = prompt_default(prompt_phrase, true).unwrap();
 				if response {
-					formatter.write_notice(format!("{}\n", yes_phrase));
+					outputter.write_notice(format!("{}\n", yes_phrase));
 				} else {
-					formatter.write_notice(format!("{}\n", no_phrase));
+					outputter.write_notice(format!("{}\n", no_phrase));
 				}
 				response
 			}
@@ -578,7 +578,7 @@ impl Default for SearchTerms {
 	}
 }
 
-fn maybe_housekeeping_warnings(formatter: &mut ItemFormatter, list: &List) {
+fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 	let mut done_blank = false;
 
 	let count_finished = list
@@ -590,10 +590,10 @@ fn maybe_housekeeping_warnings(formatter: &mut ItemFormatter, list: &List) {
 		.count();
 	if count_finished > 9 {
 		if !done_blank {
-			formatter.write_separator();
+			outputter.write_separator();
 			done_blank = true;
 		}
-		formatter.write_notice(format!(
+		outputter.write_notice(format!(
 			"There are {} finished tasks. Consider running `tada archive`.",
 			count_finished
 		));
@@ -606,10 +606,10 @@ fn maybe_housekeeping_warnings(formatter: &mut ItemFormatter, list: &List) {
 		.count();
 	if count_blank > 9 {
 		if !done_blank {
-			formatter.write_separator();
+			outputter.write_separator();
 			// done_blank = true;
 		}
-		formatter.write_notice(format!(
+		outputter.write_notice(format!(
 			"There are {} blank/comment lines. Consider running `tada tidy`.",
 			count_blank
 		));

@@ -10,7 +10,7 @@ pub fn get_action() -> Action {
 		Command::new("done").about("Mark a task or tasks as done");
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = SearchTerms::add_args(command);
 	command = command.arg(
 		Arg::new("no-date")
@@ -30,27 +30,27 @@ pub fn execute(args: &ArgMatches) {
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 	let search_terms = SearchTerms::from_argmatches(args);
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let include_date = !*args.get_one::<bool>("no-date").unwrap();
 
 	let (count, new_list) = mark_items_done_in_list(
 		list,
 		search_terms,
-		&mut formatter,
+		&mut outputter,
 		confirmation,
 		include_date,
 	);
 
 	if count > 0 {
 		new_list.to_url(todo_filename);
-		formatter.write_status(format!("Marked {} tasks complete!", count));
+		outputter.write_status(format!("Marked {} tasks complete!", count));
 	} else {
-		formatter.write_status(String::from("No actions taken."));
+		outputter.write_status(String::from("No actions taken."));
 	}
 
-	maybe_housekeeping_warnings(&mut formatter, &new_list);
+	maybe_housekeeping_warnings(&mut outputter, &new_list);
 }
 
 /// Return a new list with certain tasks in the given list marked as complete, based on the
@@ -58,7 +58,7 @@ pub fn execute(args: &ArgMatches) {
 pub fn mark_items_done_in_list(
 	input: List,
 	search_terms: SearchTerms,
-	formatter: &mut ItemFormatter,
+	outputter: &mut Outputter,
 	status: ConfirmationStatus,
 	include_date: bool,
 ) -> (usize, List) {
@@ -71,7 +71,7 @@ pub fn mark_items_done_in_list(
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_complete(&item, formatter, status)
+					&& check_if_complete(&item, outputter, status)
 				{
 					count += 1;
 					new_list.lines.push(line.but_done(include_date));
@@ -89,9 +89,9 @@ pub fn mark_items_done_in_list(
 /// Asks whether to mark an item as complete, and prints out the response before returning a bool.
 pub fn check_if_complete(
 	item: &Item,
-	formatter: &mut ItemFormatter,
+	outputter: &mut Outputter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item(item);
-	status.check(formatter, "Mark finished?", "Marking finished", "Skipping")
+	outputter.write_item(item);
+	status.check(outputter, "Mark finished?", "Marking finished", "Skipping")
 }

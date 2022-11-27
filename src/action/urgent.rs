@@ -14,7 +14,7 @@ pub fn get_action() -> Action {
 		);
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = command
 		.arg(
 			Arg::new("number")
@@ -47,8 +47,8 @@ pub fn execute(args: &ArgMatches) {
 
 	let list = FileType::TodoTxt.load(args);
 
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let urgent = sort_items_by("due", list.items())
 		.into_iter()
@@ -57,6 +57,6 @@ pub fn execute(args: &ArgMatches) {
 		.collect();
 
 	for i in sort_items_by(sort_by_type.as_str(), urgent).iter() {
-		formatter.write_item(i);
+		outputter.write_item(i);
 	}
 }

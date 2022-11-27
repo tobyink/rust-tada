@@ -23,7 +23,7 @@ pub struct AddActionConfig {
 	pub no_fixup: bool,
 	pub urgency: Option<Urgency>,
 	pub quiet: bool,
-	pub formatter: ItemFormatter,
+	pub outputter: Outputter,
 }
 
 impl Default for AddActionConfig {
@@ -40,7 +40,7 @@ impl AddActionConfig {
 			no_fixup: false,
 			urgency: None,
 			quiet: false,
-			formatter: ItemFormatter::default(),
+			outputter: Outputter::default(),
 		}
 	}
 
@@ -99,7 +99,7 @@ impl AddActionConfig {
 					.aliases(["nextmonth"])
 					.help("Include a due date the end of next month"),
 			);
-		ItemFormatter::add_args(cmd)
+		Outputter::add_args(cmd)
 	}
 
 	/// Create an AddActionConfig from an appropriate ArgMatches.
@@ -118,13 +118,13 @@ impl AddActionConfig {
 			None
 		};
 		let quiet = *args.get_one::<bool>("quiet").unwrap();
-		let formatter = ItemFormatter::from_argmatches(args);
+		let outputter = Outputter::from_argmatches(args);
 		Self {
 			no_date,
 			no_fixup,
 			urgency,
 			quiet,
-			formatter,
+			outputter,
 		}
 	}
 }
@@ -137,7 +137,7 @@ pub fn execute(args: &ArgMatches) {
 	let new_line = process_line(input, &cfg);
 
 	if !cfg.quiet {
-		cfg.formatter
+		cfg.outputter
 			.write_item(new_line.item.as_ref().unwrap());
 	}
 
@@ -248,7 +248,7 @@ mod tests {
 			no_fixup: true,
 			urgency: None,
 			quiet: true,
-			formatter: ItemFormatter::default(),
+			outputter: Outputter::default(),
 		};
 		let line = process_line(&String::from("ABC start:today"), &cfg);
 		assert_eq!(LineKind::Item, line.kind);
@@ -262,7 +262,7 @@ mod tests {
 			no_fixup: false,
 			urgency: Some(Urgency::Today),
 			quiet: true,
-			formatter: ItemFormatter::default(),
+			outputter: Outputter::default(),
 		};
 		let line = process_line(&String::from("ABC start:today"), &cfg);
 		assert_eq!(LineKind::Item, line.kind);

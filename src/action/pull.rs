@@ -11,7 +11,7 @@ pub fn get_action() -> Action {
 		.after_help("If a task has a start date, that will be set to today.");
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = SearchTerms::add_args(command);
 	command = command
 		.arg(
@@ -56,8 +56,8 @@ pub fn execute(args: &ArgMatches) {
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
 	let mut new_list = List::new();
@@ -82,7 +82,7 @@ pub fn execute(args: &ArgMatches) {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_pull(&item, &mut formatter, confirmation)
+					&& check_if_pull(&item, &mut outputter, confirmation)
 				{
 					count += 1;
 					new_list.lines.push(line.but_pull(urgency));
@@ -98,15 +98,15 @@ pub fn execute(args: &ArgMatches) {
 		new_list.to_url(todo_filename);
 	}
 
-	maybe_housekeeping_warnings(&mut formatter, &new_list);
+	maybe_housekeeping_warnings(&mut outputter, &new_list);
 }
 
 /// Asks whether to pull an item, and prints out the response before returning a bool.
 pub fn check_if_pull(
 	item: &Item,
-	formatter: &mut ItemFormatter,
+	outputter: &mut Outputter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item(item);
-	status.check(formatter, "Reschedule?", "Rescheduling", "Skipping")
+	outputter.write_item(item);
+	status.check(outputter, "Reschedule?", "Rescheduling", "Skipping")
 }

@@ -11,7 +11,7 @@ pub fn get_action() -> Action {
 		.about("Remove a task or tasks");
 
 	command = FileType::TodoTxt.add_args(command);
-	command = ItemFormatter::add_args(command);
+	command = Outputter::add_args(command);
 	command = SearchTerms::add_args(command);
 	command = ConfirmationStatus::add_args(command);
 
@@ -24,8 +24,8 @@ pub fn execute(args: &ArgMatches) {
 	let list = List::from_url(todo_filename.clone())
 		.expect("Could not read todo list");
 
-	let mut formatter = ItemFormatter::from_argmatches(args);
-	formatter.line_number_digits = list.lines.len().to_string().len();
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
 	let mut new_list = List::new();
@@ -38,7 +38,7 @@ pub fn execute(args: &ArgMatches) {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
-					&& check_if_delete(&item, &mut formatter, confirmation)
+					&& check_if_delete(&item, &mut outputter, confirmation)
 				{
 					count += 1;
 					new_list.lines.push(Line::new_blank());
@@ -52,18 +52,18 @@ pub fn execute(args: &ArgMatches) {
 
 	if count > 0 {
 		new_list.to_url(todo_filename);
-		formatter.write_status(format!("Removed {} tasks!", count));
+		outputter.write_status(format!("Removed {} tasks!", count));
 	} else {
-		formatter.write_status(String::from("No actions taken."));
+		outputter.write_status(String::from("No actions taken."));
 	}
 }
 
 /// Asks whether to delete an item, and prints out the response before returning a bool.
 pub fn check_if_delete(
 	item: &Item,
-	formatter: &mut ItemFormatter,
+	outputter: &mut Outputter,
 	status: ConfirmationStatus,
 ) -> bool {
-	formatter.write_item(item);
-	status.check(formatter, "Remove?", "Removing", "Keeping")
+	outputter.write_item(item);
+	status.check(outputter, "Remove?", "Removing", "Keeping")
 }
