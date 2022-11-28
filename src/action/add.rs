@@ -46,6 +46,7 @@ impl AddActionConfig {
 		}
 	}
 
+	/// Add arguments to a clap Command for the `add` action's options.
 	pub fn add_args(cmd: Command) -> Command {
 		let cmd = cmd
 			.arg(
@@ -147,6 +148,7 @@ pub fn execute(args: &ArgMatches) {
 	List::append_lines_to_url(filename, Vec::from([&new_line]));
 }
 
+/// Process a line to be added to a todo list.
 pub fn process_line(input: &str, cfg: &AddActionConfig) -> Line {
 	let mut item = Item::parse(input);
 
