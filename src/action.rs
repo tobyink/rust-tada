@@ -763,7 +763,7 @@ pub fn execute_simple_list_action(
 
 /// Show warnings if the todo list contains a large number of blank lines,
 /// completed items, etc.
-fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
+pub fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 	let mut done_blank = false;
 
 	let count_finished = list
