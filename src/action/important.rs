@@ -1,8 +1,7 @@
 //! Show the most important tasks
 
 use crate::action::*;
-use crate::util::*;
-use clap::{Arg, ArgMatches, Command};
+use clap::{ArgMatches, Command};
 
 /// Options for the `important` subcommand.
 pub fn get_action() -> Action {
@@ -14,51 +13,35 @@ pub fn get_action() -> Action {
 			"Ignores tasks which are marked as already complete or \
 			have a start date in the future.",
 		);
-
 	command = FileType::TodoTxt.add_args(command);
 	command = Outputter::add_args(command);
-	command = command
-		.arg(
-			Arg::new("number")
-				.num_args(1)
-				.short('n')
-				.long("number")
-				.value_parser(clap::value_parser!(usize))
-				.value_name("N")
-				.help("maximum number to show (default: 3)"),
-		)
-		.arg(
-			Arg::new("sort")
-				.num_args(1)
-				.short('s')
-				.long("sort")
-				.value_name("BY")
-				.help("sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'"),
-		);
-
+	command = OutputCount::add_args(command);
+	command = SortOrder::add_args(command, default_sort_order());
 	Action { name, command }
 }
 
+/// The default sort order for output.
+pub fn default_sort_order() -> SortOrder {
+	SortOrder::Importance
+}
+
 /// Execute the `important` subcommand.
+#[cfg(not(tarpaulin_include))]
 pub fn execute(args: &ArgMatches) {
-	let default_sort_by_type = String::from("importance");
-	let sort_by_type = args
-		.get_one::<String>("sort")
-		.unwrap_or(&default_sort_by_type);
-	let max = args.get_one::<usize>("number").unwrap_or(&3);
+	execute_simple_list_action(args, default_sort_order());
+}
 
-	let list = FileType::TodoTxt.load(args);
+#[cfg(test)]
+mod tests {
+	use super::*;
 
-	let mut outputter = Outputter::from_argmatches(args);
-	outputter.line_number_digits = list.lines.len().to_string().len();
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("important"), get_action().name);
+	}
 
-	let important = sort_items_by("importance", list.items())
-		.into_iter()
-		.filter(|i| i.is_startable() && !i.completion())
-		.take(*max)
-		.collect();
-
-	for i in sort_items_by(sort_by_type.as_str(), important).iter() {
-		outputter.write_item(i);
+	#[test]
+	fn test_default_sort_order() {
+		assert_eq!(SortOrder::Importance, default_sort_order());
 	}
 }

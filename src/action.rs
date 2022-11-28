@@ -8,6 +8,21 @@ use promptly::prompt_default;
 use std::{env, fs, io};
 use substring::Substring;
 
+pub mod add;
+pub mod archive;
+pub mod done;
+pub mod edit;
+pub mod find;
+pub mod important;
+pub mod path;
+pub mod pull;
+pub mod quick;
+pub mod remove;
+pub mod show;
+pub mod tidy;
+pub mod urgent;
+pub mod zen;
+
 /// Handy structure for holding subcommand metadata.
 pub struct Action {
 	pub name: String,
@@ -508,6 +523,7 @@ impl ConfirmationStatus {
 }
 
 /// Structure for holding command-line search terms.
+#[derive(Clone)]
 pub struct SearchTerms {
 	pub terms: Vec<String>,
 }
@@ -593,6 +609,7 @@ impl Default for SearchTerms {
 }
 
 /// An order for sorting items into.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SortOrder {
 	Urgency,
 	Importance,
@@ -609,7 +626,7 @@ pub struct InvalidSortOrder;
 
 impl SortOrder {
 	/// Add some args to a Command so that it can accept a sort order.
-	pub fn add_args(cmd: Command, default_val: &str) -> Command {
+	pub fn add_args(cmd: Command, default_val: SortOrder) -> Command {
 		cmd.arg(
 			Arg::new("sort")
 				.num_args(1)
@@ -618,19 +635,30 @@ impl SortOrder {
 				.value_name("BY")
 				.help(format!(
 					"sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default: {})",
-					default_val
+					default_val.to_string()
 				))
 		)
 	}
 
+	pub fn to_string(&self) -> &str {
+		match self {
+			SortOrder::Urgency => "urgency",
+			SortOrder::Importance => "importance",
+			SortOrder::TshirtSize => "size",
+			SortOrder::Alphabetical => "alpha",
+			SortOrder::DueDate => "due",
+			SortOrder::Original => "original",
+			SortOrder::Smart => "smart",
+		}
+	}
+
 	/// Read sort order from ArgMatches.
-	pub fn from_argmatches(args: &ArgMatches, default_val: &str) -> Self {
-		let default_string = String::from(default_val);
-		let from_user = args
-			.get_one::<String>("sort")
-			.unwrap_or(&default_string);
-		Self::from_string(from_user)
-			.unwrap_or_else(|_| Self::from_string(default_val).unwrap())
+	pub fn from_argmatches(args: &ArgMatches, default_order: Self) -> Self {
+		match args.get_one::<String>("sort") {
+			Some(o) => Self::from_string(o)
+				.unwrap_or_else(|_| panic!("Expected sort order, got '{}'", o)),
+			None => default_order,
+		}
 	}
 
 	/// Accept string sort orders like "urgency" and return a SortOrder.
@@ -677,6 +705,62 @@ impl SortOrder {
 	}
 }
 
+/// Represents a user-expressed number of items to be output.
+pub struct OutputCount {
+	pub count: usize,
+}
+
+impl OutputCount {
+	/// Instantiate from a number.
+	pub fn new(count: usize) -> Self {
+		Self { count }
+	}
+
+	/// Add some args to a Command so that it can accept an output count.
+	pub fn add_args(cmd: Command) -> Command {
+		cmd.arg(
+			Arg::new("number")
+				.num_args(1)
+				.short('n')
+				.long("number")
+				.value_parser(clap::value_parser!(usize))
+				.value_name("N")
+				.help("maximum number to show (default: 3)"),
+		)
+	}
+
+	/// Read output count from ArgMatches.
+	pub fn from_argmatches(args: &ArgMatches) -> Self {
+		let count = args.get_one::<usize>("number").unwrap_or(&3);
+		Self::new(*count)
+	}
+}
+
+/// Helper for subcommands like `important`, `urgent`, etc.
+pub fn execute_simple_list_action(
+	args: &ArgMatches,
+	selection_order: SortOrder,
+) {
+	let output_order = SortOrder::from_argmatches(args, selection_order);
+	let output_count = OutputCount::from_argmatches(args);
+
+	let list = FileType::TodoTxt.load(args);
+
+	let mut outputter = Outputter::from_argmatches(args);
+	outputter.line_number_digits = list.lines.len().to_string().len();
+
+	let selected = selection_order
+		.sort_items(list.items())
+		.into_iter()
+		.filter(|i| i.is_startable() && !i.completion())
+		.take(output_count.count)
+		.collect();
+
+	for i in output_order.sort_items(selected).iter() {
+		outputter.write_item(i);
+	}
+}
+
 /// Show warnings if the todo list contains a large number of blank lines,
 /// completed items, etc.
 fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
@@ -717,17 +801,12 @@ fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 	}
 }
 
-pub mod add;
-pub mod archive;
-pub mod done;
-pub mod edit;
-pub mod find;
-pub mod important;
-pub mod path;
-pub mod pull;
-pub mod quick;
-pub mod remove;
-pub mod show;
-pub mod tidy;
-pub mod urgent;
-pub mod zen;
+// TODO TEST: Action
+// TODO TEST: FileType
+// TODO TEST: Outputter
+// TODO TEST: ConfirmationStatus
+// TODO TEST: SearchTerms
+// TODO TEST: SortOrder
+// TODO TEST: OutputCount
+// TODO TEST: execute_simple_list_action()
+// TODO TEST: maybe_housekeeping_warnings()

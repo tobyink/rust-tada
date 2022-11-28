@@ -26,7 +26,6 @@ pub fn execute(args: &ArgMatches) {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use tempfile::tempdir;
 
 	#[test]
 	fn test_get_action() {

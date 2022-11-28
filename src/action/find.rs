@@ -21,8 +21,9 @@ pub fn get_action() -> Action {
 	Action { name, command }
 }
 
-pub fn default_sort_order() -> &'static str {
-	"smart"
+/// The default sort order for output.
+pub fn default_sort_order() -> SortOrder {
+	SortOrder::Smart
 }
 
 /// Execute the `find` subcommand.
@@ -81,7 +82,7 @@ mod tests {
 
 	#[test]
 	fn test_default_sort_order() {
-		assert_eq!("smart", default_sort_order());
+		assert_eq!(SortOrder::Smart, default_sort_order());
 	}
 
 	#[test]
