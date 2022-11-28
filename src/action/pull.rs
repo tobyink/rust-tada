@@ -112,3 +112,42 @@ pub fn check_if_pull(
 	outputter.write_item(item);
 	status.check(outputter, "Reschedule?", "Rescheduling", "Skipping")
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use tempfile::tempdir;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("pull"), get_action().name);
+	}
+
+	#[test]
+	fn test_check_if_pull() {
+		let dir = tempdir().unwrap();
+		let buffer_filename = dir
+			.path()
+			.join("buffer.txt")
+			.display()
+			.to_string();
+		let mut i = Item::new();
+		i.set_description(String::from("XYZ"));
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		let r = check_if_pull(&i, &mut o, ConfirmationStatus::Yes);
+		assert_eq!(true, r);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(String::from("  (?) XYZ\nRescheduling\n\n"), got_output);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		let r = check_if_pull(&i, &mut o, ConfirmationStatus::No);
+		assert_eq!(false, r);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(String::from("  (?) XYZ\nSkipping\n\n"), got_output);
+	}
+}
