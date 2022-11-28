@@ -1,4 +1,23 @@
 //! Types related to individual tasks.
+//!
+//! # Examples
+//!
+//! ```
+//! use chrono::NaiveDate;
+//! use tada::item::{Item, TshirtSize};
+//!
+//! let mut i = Item::parse("(A) clean my @home @L");
+//!
+//! assert_eq!('A', i.importance().unwrap());
+//! assert_eq!("clean my @home @L", i.description());
+//! assert!(i.has_context("home"));
+//! assert!(i.has_context("l"));
+//! assert_eq!(TshirtSize::Large, i.tshirt_size().unwrap());
+//!
+//! i.set_completion(true);
+//! i.set_completion_date(NaiveDate::from_ymd_opt(2022, 12, 1).unwrap());
+//! println!("{}", i);
+//! ```
 
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use date_time_parser::DateParser as NaturalDateParser;
@@ -9,6 +28,16 @@ use std::collections::HashMap;
 use std::fmt;
 
 /// An item in a todo list.
+///
+/// # Examples
+///
+/// ```
+/// use tada::Item;
+/// let i = Item::parse("(A) clean my @home");
+/// assert_eq!('A', i.importance().unwrap());
+/// assert_eq!("clean my @home", i.description());
+/// assert!(i.has_context("home"));
+/// ```
 pub struct Item {
 	line_number: usize,
 	completion: bool,
