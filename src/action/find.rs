@@ -96,7 +96,7 @@ mod tests {
 		)
 		.unwrap();
 
-		let t = SearchTerms::from_str("Foo");
+		let t = SearchTerms::from_string("Foo");
 		assert_eq!(
 			"Foo\n\
 			Foo bar\n\
@@ -106,21 +106,21 @@ mod tests {
 			List::from_items(find_results(&t, &list)).serialize(),
 		);
 
-		let t = SearchTerms::from_str("@Foo");
+		let t = SearchTerms::from_string("@Foo");
 		assert_eq!(
 			"(A) @foo\n\
 			",
 			List::from_items(find_results(&t, &list)).serialize(),
 		);
 
-		let t = SearchTerms::from_str("+Foo");
+		let t = SearchTerms::from_string("+Foo");
 		assert_eq!(
 			"+foo\n\
 			",
 			List::from_items(find_results(&t, &list)).serialize(),
 		);
 
-		let t = SearchTerms::from_str("BAR");
+		let t = SearchTerms::from_string("BAR");
 		assert_eq!(
 			"Foo bar\n\
 			Bar\n\
@@ -138,7 +138,7 @@ mod tests {
 			List::from_items(find_results(&t, &list)).serialize(),
 		);
 
-		let t = SearchTerms::from_str("baz");
+		let t = SearchTerms::from_string("baz");
 		assert_eq!("", List::from_items(find_results(&t, &list)).serialize());
 	}
 }
