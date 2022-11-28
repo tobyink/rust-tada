@@ -865,7 +865,7 @@ impl fmt::Display for Item {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests_item {
 	use super::*;
 	use chrono::NaiveDate;
 

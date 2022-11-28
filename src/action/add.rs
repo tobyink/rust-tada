@@ -178,19 +178,62 @@ mod tests {
 	}
 
 	#[test]
-	fn test_add_action_config() {
+	fn test_process_line() {
+		let cfg = AddActionConfig {
+			no_date: true,
+			no_fixup: true,
+			urgency: None,
+			quiet: true,
+			outputter: Outputter::default(),
+		};
+		let line = process_line(&String::from("ABC start:today"), &cfg);
+		assert_eq!(LineKind::Item, line.kind);
+		let item = line.item.unwrap();
+		assert_eq!("ABC start:today", item.description());
+		assert_eq!(None, item.creation_date());
+		assert_eq!("today", item.kv().get("start").unwrap());
+
+		let cfg = AddActionConfig {
+			no_date: false,
+			no_fixup: false,
+			urgency: Some(Urgency::Today),
+			quiet: true,
+			outputter: Outputter::default(),
+		};
+		let line = process_line(&String::from("ABC start:today"), &cfg);
+		assert_eq!(LineKind::Item, line.kind);
+		let item = line.item.unwrap();
+		assert!(item.creation_date().is_some());
+		assert_eq!(item.creation_date(), item.start_date());
+		assert_eq!(item.creation_date(), item.due_date());
+		assert_ne!("today", item.kv().get("start").unwrap());
+	}
+}
+
+#[cfg(test)]
+mod tests_add_action_config {
+	use super::*;
+
+	#[test]
+	fn test_new() {
 		let cfg = AddActionConfig::new();
 		assert_eq!(false, cfg.no_date);
 		assert_eq!(false, cfg.no_fixup);
 		assert_eq!(None, cfg.urgency);
 		assert_eq!(false, cfg.quiet);
+	}
 
+	#[test]
+	fn test_default() {
 		let cfg = AddActionConfig::default();
 		assert_eq!(false, cfg.no_date);
 		assert_eq!(false, cfg.no_fixup);
 		assert_eq!(None, cfg.urgency);
 		assert_eq!(false, cfg.quiet);
+	}
 
+	#[test]
+	fn test_from_argmatches() {
 		let matches = get_action()
 			.command
 			.get_matches_from(vec!["add"]);
@@ -243,37 +286,5 @@ mod tests {
 		assert_eq!(true, cfg.no_fixup);
 		assert_eq!(Some(Urgency::NextMonth), cfg.urgency);
 		assert_eq!(true, cfg.quiet);
-	}
-
-	#[test]
-	pub fn test_process_line() {
-		let cfg = AddActionConfig {
-			no_date: true,
-			no_fixup: true,
-			urgency: None,
-			quiet: true,
-			outputter: Outputter::default(),
-		};
-		let line = process_line(&String::from("ABC start:today"), &cfg);
-		assert_eq!(LineKind::Item, line.kind);
-		let item = line.item.unwrap();
-		assert_eq!("ABC start:today", item.description());
-		assert_eq!(None, item.creation_date());
-		assert_eq!("today", item.kv().get("start").unwrap());
-
-		let cfg = AddActionConfig {
-			no_date: false,
-			no_fixup: false,
-			urgency: Some(Urgency::Today),
-			quiet: true,
-			outputter: Outputter::default(),
-		};
-		let line = process_line(&String::from("ABC start:today"), &cfg);
-		assert_eq!(LineKind::Item, line.kind);
-		let item = line.item.unwrap();
-		assert!(item.creation_date().is_some());
-		assert_eq!(item.creation_date(), item.start_date());
-		assert_eq!(item.creation_date(), item.due_date());
-		assert_ne!("today", item.kv().get("start").unwrap());
 	}
 }

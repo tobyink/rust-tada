@@ -350,7 +350,7 @@ impl Default for List {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests_list {
 	use super::*;
 	use std::fs::File;
 	use std::io::Write;
