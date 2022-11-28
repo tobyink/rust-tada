@@ -44,3 +44,13 @@ pub fn execute(args: &ArgMatches) {
 	}
 	new_list.to_url(todo_filename);
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("tidy"), get_action().name);
+	}
+}

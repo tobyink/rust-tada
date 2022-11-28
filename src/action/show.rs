@@ -108,3 +108,13 @@ pub fn execute(args: &ArgMatches) {
 
 	maybe_housekeeping_warnings(&mut outputter, &list);
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("show"), get_action().name);
+	}
+}

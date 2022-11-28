@@ -76,3 +76,13 @@ pub fn zen_quote() -> &'static str {
 
 	quotes.choose(&mut rand::thread_rng()).unwrap()
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("zen"), get_action().name);
+	}
+}
