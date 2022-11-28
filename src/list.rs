@@ -11,6 +11,13 @@ use std::io::{BufRead, BufReader, Error, Write};
 use std::path::Path;
 use url::Url;
 
+lazy_static! {
+	/// Regular expression to match lines which are entirely whitespace.
+	static ref RE_LINE_BLANK: Regex = Regex::new(r"^\s*$").unwrap();
+	/// Regular expression to match lines which are comments.
+	static ref RE_LINE_COMMENT: Regex = Regex::new(r"^\s*#").unwrap();
+}
+
 /// A line type.
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LineKind {
@@ -29,20 +36,6 @@ pub struct Line {
 	pub text: String,
 	pub item: Option<Item>,
 	pub num: usize,
-}
-
-/// A todo list.
-#[derive(Debug)]
-pub struct List {
-	pub path: Option<String>,
-	pub lines: Vec<Line>,
-}
-
-lazy_static! {
-	/// Regular expression to match lines which are entirely whitespace.
-	static ref RE_LINE_BLANK: Regex = Regex::new(r"^\s*$").unwrap();
-	/// Regular expression to match lines which are comments.
-	static ref RE_LINE_COMMENT: Regex = Regex::new(r"^\s*#").unwrap();
 }
 
 impl Line {
@@ -118,6 +111,19 @@ impl Line {
 			_ => self.clone(),
 		}
 	}
+}
+
+impl Default for Line {
+	fn default() -> Self {
+		Self::new_blank()
+	}
+}
+
+/// A todo list.
+#[derive(Debug)]
+pub struct List {
+	pub path: Option<String>,
+	pub lines: Vec<Line>,
 }
 
 impl List {
@@ -330,11 +336,23 @@ impl List {
 			.map(|l| l.item.as_ref().unwrap())
 			.collect()
 	}
-}
 
-impl Default for Line {
-	fn default() -> Self {
-		Self::new_blank()
+	/// Count the blank/comment lines in the list.
+	pub fn count_blank(&self) -> usize {
+		self.lines
+			.iter()
+			.filter(|l| l.kind != LineKind::Item)
+			.count()
+	}
+
+	/// Count the completed items in the list.
+	pub fn count_completed(&self) -> usize {
+		self.lines
+			.iter()
+			.filter(|l| {
+				l.kind == LineKind::Item && l.item.clone().unwrap().completion()
+			})
+			.count()
 	}
 }
 

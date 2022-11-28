@@ -772,29 +772,19 @@ pub fn execute_simple_list_action(
 pub fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 	let mut done_blank = false;
 
-	let count_finished = list
-		.lines
-		.iter()
-		.filter(|l| {
-			l.kind == LineKind::Item && l.item.clone().unwrap().completion()
-		})
-		.count();
-	if count_finished > 9 {
+	let count_completed = list.count_completed();
+	if count_completed > 9 {
 		if !done_blank {
 			outputter.write_separator();
 			done_blank = true;
 		}
 		outputter.write_notice(format!(
 			"There are {} finished tasks. Consider running `tada archive`.",
-			count_finished
+			count_completed
 		));
 	}
 
-	let count_blank = list
-		.lines
-		.iter()
-		.filter(|l| l.kind != LineKind::Item)
-		.count();
+	let count_blank = list.count_blank();
 	if count_blank > 9 {
 		if !done_blank {
 			outputter.write_separator();
