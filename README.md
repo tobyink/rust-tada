@@ -66,11 +66,13 @@ Commands:
   archive    Move completed tasks from todo.txt to done.txt
   tidy       Remove blank lines and comments from a todo list
   zen        Automatically reschedule overdue tasks
+  path       Prints the full path to your todo list
   help       Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help information
   -V, --version  Print version information
+
 ```
 
 The shortcuts `tada i`, `tada u`, and `tada q` can be used to show important,
@@ -83,7 +85,7 @@ line number.
 ### tada add
 
 ```text
-Add an item to the todo list
+Add a task to the todo list
 
 Usage: tada add [OPTIONS] [task]
 
@@ -100,15 +102,16 @@ Options:
   -S, --soon              Include a due date of overmorrow
   -W, --next-week         Include a due date the end of next week
   -M, --next-month        Include a due date the end of next month
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -h, --help              Print help information
 
 After success, displays the added task.
+
 ```
 
 ### tada remove
@@ -124,15 +127,16 @@ Arguments:
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
   -y, --yes               assume 'yes' to prompts
   -n, --no                assume 'no' to prompts
   -h, --help              Print help information
+
 ```
 
 ### tada edit
@@ -148,6 +152,7 @@ Options:
   -h, --help         Print help information
 
 Ensure the EDITOR environent variable is set.
+
 ```
 
 ### tada pull
@@ -163,9 +168,9 @@ Arguments:
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -178,6 +183,7 @@ Options:
   -h, --help              Print help information
 
 If a task has a start date, that will be set to today.
+
 ```
 
 ### tada done
@@ -193,9 +199,9 @@ Arguments:
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -203,6 +209,7 @@ Options:
   -y, --yes               assume 'yes' to prompts
   -n, --no                assume 'no' to prompts
   -h, --help              Print help information
+
 ```
 
 ### tada find
@@ -218,18 +225,19 @@ Arguments:
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
-  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'
+  -s, --sort <BY>         sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default: smart)
   -h, --help              Print help information
 
 Multiple search terms may be provided, which will be combined with an 'AND' operator.
 
 Searches are case-insensitive.
+
 ```
 
 ### tada show
@@ -242,9 +250,9 @@ Usage: tada show [OPTIONS]
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -253,10 +261,10 @@ Options:
   -u, --urgency           group by urgency
   -z, --size              group by tshirt size
   -h, --help              Print help information
+
 ```
 
 ### tada important
-
 
 ```text
 Show the most important tasks
@@ -266,9 +274,9 @@ Usage: tada important [OPTIONS]
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -277,6 +285,7 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
+
 ```
 
 ### tada urgent
@@ -289,9 +298,9 @@ Usage: tada urgent [OPTIONS]
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -300,6 +309,7 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
+
 ```
 
 ### tada quick
@@ -312,9 +322,9 @@ Usage: tada quick [OPTIONS]
 Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
-      --max-width <COLS>  maximum width of terminal output
       --colour            coloured output
       --no-colour         plain output
+      --max-width <COLS>  maximum width of terminal output
   -L, --show-lines        show line numbers for tasks
       --show-created      show 'created' dates for tasks
       --show-finished     show 'finished' dates for tasks
@@ -323,6 +333,7 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
+
 ```
 
 ### tada archive
@@ -336,7 +347,10 @@ Options:
   -f, --file <FILE>       the path or URL for todo.txt
   -l, --local             look for files in local directory only
       --done-file <FILE>  the path or URL for done.txt
+      --colour            coloured output
+      --no-colour         plain output
   -h, --help              Print help information
+
 ```
 
 ### tada tidy
@@ -353,6 +367,7 @@ Options:
   -h, --help         Print help information
 
 This is the only command which will renumber tasks in your todo list.
+
 ```
 
 ### tada zen
@@ -365,16 +380,49 @@ Usage: tada zen [OPTIONS]
 Options:
   -f, --file <FILE>  the path or URL for todo.txt
   -l, --local        look for files in local directory only
+      --colour       coloured output
+      --no-colour    plain output
   -h, --help         Print help information
 
 Zen will reschedule any overdue tasks on your todo list. It does not consult you
 to ask for a new due date, but guesses when a sensible due date might be.
+
 ```
 
 Exactly how zen works is subject to change, but it will aim to reschedule
 tasks which are both small *and* important to be done first, then tasks which
 are either small *or* important, and finally larger and less important tasks.
 It will only reschedule tasks which are already overdue and not finished.
+
+### tada path
+
+```text
+Prints the full path to your todo list
+
+Usage: tada path [OPTIONS]
+
+Options:
+  -f, --file <FILE>  the path or URL for todo.txt
+  -l, --local        look for files in local directory only
+  -h, --help         Print help information
+
+This allows things like:
+
+  /path/to/some/editor `tada path`
+
+```
+
+### tada help
+
+```text
+Print this message or the help of the given subcommand(s)
+
+Usage: tada help [COMMAND]...
+
+Arguments:
+  [COMMAND]...  Print help for the subcommand(s)
+
+```
 
 ### Recurring Tasks
 
