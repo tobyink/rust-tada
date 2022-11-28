@@ -1,3 +1,5 @@
+//! Mark a task or tasks as done
+
 use crate::action::*;
 use crate::item::Item;
 use crate::list::{LineKind, List};

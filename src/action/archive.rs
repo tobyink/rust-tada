@@ -1,3 +1,5 @@
+//! Move completed tasks from todo.txt to done.txt
+
 use crate::action::*;
 use crate::list::{Line, LineKind, List};
 use clap::{ArgMatches, Command};

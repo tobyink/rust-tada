@@ -1,3 +1,5 @@
+//! Open your todo list in your editor
+
 use crate::action::*;
 use clap::{ArgMatches, Command};
 use std::{env, io, process};

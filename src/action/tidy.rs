@@ -1,3 +1,5 @@
+//! Remove blank lines and comments from a todo list
+
 use crate::action::*;
 use crate::list::{Line, List};
 use crate::util::*;

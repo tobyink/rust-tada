@@ -1,3 +1,5 @@
+//! Remove a task or tasks
+
 use crate::action::*;
 use crate::item::Item;
 use crate::list::{Line, LineKind, List};

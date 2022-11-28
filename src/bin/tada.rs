@@ -1,3 +1,5 @@
+//! Provides the `tada` command
+
 use clap::Command;
 use std::process;
 use tada::action;

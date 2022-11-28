@@ -1,3 +1,5 @@
+//! Search for a task
+
 use crate::action::*;
 use crate::util::*;
 use clap::{ArgMatches, Command};

@@ -1,3 +1,7 @@
+//! Useful functions for manipulating todo lists.
+//!
+//! These mostly operate on `Vec<&Item>`.
+
 use crate::action::SortOrder;
 use crate::item::{Item, TshirtSize, Urgency};
 use std::collections::HashMap;

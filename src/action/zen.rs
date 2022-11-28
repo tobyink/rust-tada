@@ -1,3 +1,5 @@
+//! Automatically reschedule overdue tasks
+
 use crate::action::*;
 use crate::list::Line;
 use clap::{ArgMatches, Command};

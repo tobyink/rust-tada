@@ -1,3 +1,5 @@
+//! Show the full todo list
+
 use crate::action::*;
 use crate::item::{TshirtSize, Urgency, URGENCIES};
 use crate::util::*;

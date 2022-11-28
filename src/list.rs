@@ -1,3 +1,5 @@
+//! Types related to todo list files.
+
 use crate::item::{Item, Urgency};
 use lazy_static::lazy_static;
 use path_absolutize::*;

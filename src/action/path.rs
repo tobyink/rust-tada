@@ -1,3 +1,5 @@
+//! Prints the full path to your todo list
+
 use crate::action::*;
 use clap::{ArgMatches, Command};
 

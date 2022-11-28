@@ -1,3 +1,5 @@
+//! Implementation of the command-line interface.
+
 use crate::item::{Item, TshirtSize, Urgency};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
@@ -12,7 +14,7 @@ pub struct Action {
 	pub command: Command,
 }
 
-/// A type of file.
+/// A type of file that tada can operate on.
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
 pub enum FileType {
 	TodoTxt,
@@ -675,6 +677,8 @@ impl SortOrder {
 	}
 }
 
+/// Show warnings if the todo list contains a large number of blank lines,
+/// completed items, etc.
 fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 	let mut done_blank = false;
 

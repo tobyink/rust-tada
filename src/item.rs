@@ -1,3 +1,5 @@
+//! Types related to individual tasks.
+
 use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 use date_time_parser::DateParser as NaturalDateParser;
 use freezebox::FreezeBox;

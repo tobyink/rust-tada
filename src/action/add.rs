@@ -1,3 +1,5 @@
+//! Add a task to the todo list
+
 use crate::action::*;
 use crate::item::{Item, Urgency};
 use crate::list::{Line, List};
