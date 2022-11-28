@@ -77,7 +77,7 @@ pub fn group_items_by_urgency(
 	let mut out: HashMap<Urgency, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
-			.entry(i.urgency().unwrap_or(Urgency::Soon))
+			.entry(i.urgency().unwrap_or_default())
 			.or_insert_with(Vec::new);
 		list.push(i);
 	}
@@ -91,7 +91,7 @@ pub fn group_items_by_size(
 	let mut out: HashMap<TshirtSize, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
-			.entry(i.tshirt_size().unwrap_or(TshirtSize::Medium))
+			.entry(i.tshirt_size().unwrap_or_default())
 			.or_insert_with(Vec::new);
 		list.push(i);
 	}
@@ -105,7 +105,7 @@ pub fn group_items_by_importance(
 	let mut out: HashMap<Importance, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
-			.entry(i.importance().unwrap_or(Importance::default()))
+			.entry(i.importance().unwrap_or_default())
 			.or_insert_with(Vec::new);
 		list.push(i);
 	}

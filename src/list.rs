@@ -11,11 +11,14 @@ use std::io::{BufRead, BufReader, Error, Write};
 use std::path::Path;
 use url::Url;
 
-/// A line type — item, comment, or blank
+/// A line type.
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum LineKind {
+	/// A line representing a task.
 	Item,
+	/// A line which starts with a `#`.
 	Comment,
+	/// An empty line.
 	Blank,
 }
 

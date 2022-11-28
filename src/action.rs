@@ -1,6 +1,6 @@
 //! Implementation of the command-line interface.
 
-use crate::item::{Importance, Item, TshirtSize, Urgency};
+use crate::item::{Importance, Item};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use console::Style;
@@ -692,14 +692,14 @@ impl SortOrder {
 		let mut out = items.clone();
 		match self {
 			SortOrder::Urgency => {
-				out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
+				out.sort_by_cached_key(|i| i.urgency().unwrap_or_default())
 			}
-			SortOrder::Importance => out.sort_by_cached_key(|i| {
-				i.importance().unwrap_or(Importance::default())
-			}),
-			SortOrder::TshirtSize => out.sort_by_cached_key(|i| {
-				i.tshirt_size().unwrap_or(TshirtSize::Medium)
-			}),
+			SortOrder::Importance => {
+				out.sort_by_cached_key(|i| i.importance().unwrap_or_default())
+			}
+			SortOrder::TshirtSize => {
+				out.sort_by_cached_key(|i| i.tshirt_size().unwrap_or_default())
+			}
 			SortOrder::Alphabetical => {
 				out.sort_by_cached_key(|i| i.description().to_lowercase())
 			}

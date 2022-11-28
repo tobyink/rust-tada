@@ -168,6 +168,7 @@ impl Importance {
 }
 
 impl Default for Importance {
+	/// Default is D.
 	fn default() -> Self {
 		Self::D
 	}
@@ -176,16 +177,47 @@ impl Default for Importance {
 /// Seven levels of urgency are defined.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Urgency {
+	/// A due date earlier than today.
 	Overdue,
+	/// A due date today.
 	Today,
+	/// A due date tomorrow or overmorrow.
 	Soon,
+	/// A due date by the end of this week. Note that if it is Friday or later, any
+	/// tasks due this week will fall into the `Today` or `Soon` urgencies instead.
 	ThisWeek,
+	/// A due date by the end of next week.
 	NextWeek,
+	/// A due date by the end of next month.
+	///
+	/// There is no `ThisMonth` urgency because for almost half the month any tasks
+	/// would fall into the `ThisWeek` or `NextWeek` urgencies instead, making
+	/// `ThisMonth` fairly useless.
 	NextMonth,
+	/// Any due date after the end of next month.
 	Later,
 }
 
 impl Urgency {
+	/// Calculate urgency from a due date.
+	pub fn from_due_date(due: NaiveDate) -> Self {
+		if due < *DATE_TODAY {
+			Self::Overdue
+		} else if due == *DATE_TODAY {
+			Self::Today
+		} else if due <= *DATE_SOON {
+			Self::Soon
+		} else if due <= *DATE_WEEKEND {
+			Self::ThisWeek
+		} else if due <= *DATE_NEXT_WEEKEND {
+			Self::NextWeek
+		} else if due <= *DATE_NEXT_MONTH {
+			Self::NextMonth
+		} else {
+			Self::Later
+		}
+	}
+
 	/// Returns a heading suitable for items of this urgency.
 	pub fn to_string(&self) -> &str {
 		match self {
@@ -213,6 +245,14 @@ impl Urgency {
 	}
 }
 
+impl Default for Urgency {
+	/// Default is soon, but you should rely on the default as little as possible.
+	/// It is useful when sorting tasks by urgency.
+	fn default() -> Self {
+		Self::Soon
+	}
+}
+
 /// Three sizes are defined.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum TshirtSize {
@@ -234,6 +274,13 @@ impl TshirtSize {
 	/// Returns a list of known sizes, in a sane order.
 	pub fn all() -> Vec<Self> {
 		Vec::from([Self::Small, Self::Medium, Self::Large])
+	}
+}
+
+impl Default for TshirtSize {
+	/// Default is medium.
+	fn default() -> Self {
+		Self::Medium
 	}
 }
 
@@ -598,26 +645,7 @@ impl Item {
 	}
 
 	fn _build_urgency(&self) -> Option<Urgency> {
-		let due = match self.due_date() {
-			Some(d) => d,
-			None => return None,
-		};
-
-		if due < *DATE_TODAY {
-			Some(Urgency::Overdue)
-		} else if due == *DATE_TODAY {
-			Some(Urgency::Today)
-		} else if due <= *DATE_SOON {
-			Some(Urgency::Soon)
-		} else if due <= *DATE_WEEKEND {
-			Some(Urgency::ThisWeek)
-		} else if due <= *DATE_NEXT_WEEKEND {
-			Some(Urgency::NextWeek)
-		} else if due <= *DATE_NEXT_MONTH {
-			Some(Urgency::NextMonth)
-		} else {
-			Some(Urgency::Later)
-		}
+		self.due_date().map(Urgency::from_due_date)
 	}
 
 	/// Set task urgency.
@@ -772,8 +800,7 @@ impl Item {
 	pub fn smart_key(&self) -> (Urgency, Importance, TshirtSize) {
 		(
 			self.urgency().unwrap_or(Urgency::Soon),
-			self.importance()
-				.unwrap_or(Importance::default()),
+			self.importance().unwrap_or_default(),
 			self.tshirt_size().unwrap_or(TshirtSize::Medium),
 		)
 	}
