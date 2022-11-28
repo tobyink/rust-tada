@@ -162,22 +162,6 @@ impl List {
 					.unwrap(),
 			),
 			"http" | "https" => Self::from_http(url),
-			"sftp" => {
-				let mut host = String::from(url.host_str().unwrap());
-				let username = String::from(url.username());
-				if !username.is_empty() {
-					host = username + "@" + &host;
-				}
-				if let Some(password) = url.port() {
-					host = "ssh://".to_owned()
-						+ &host + ":" + &password.to_string();
-				}
-				let mut path = String::from(url.path());
-				if path.starts_with("/~/") {
-					path = String::from(path.get(3..).unwrap());
-				}
-				List::from_sftp(host, path)
-			}
 			_ => panic!("non-file URL: {:?}", url),
 		}
 	}
@@ -241,11 +225,6 @@ impl List {
 			std::io::ErrorKind::Other,
 			format!("HTTP response: {}", response.status()),
 		))
-	}
-
-	/// Read a todo list over SFTP (not implemented yet).
-	pub fn from_sftp(_host: String, _path: String) -> Result<Self, Error> {
-		panic!("SFTP not implemented yet")
 	}
 
 	// Save a todo list to a URL.
@@ -329,12 +308,20 @@ impl List {
 		list.to_url(url.to_string());
 	}
 
-	/// Get a Vec of Item objects from an already-parsed file.
+	/// Get a Vec<&Item> from an already-parsed file.
 	pub fn items(&self) -> Vec<&Item> {
 		let iter = self.lines.iter();
 		iter.filter(|l| l.kind == LineKind::Item)
 			.map(|l| l.item.as_ref().unwrap())
 			.collect()
+	}
+
+	/// Count the items in the list.
+	pub fn count_items(&self) -> usize {
+		self.lines
+			.iter()
+			.filter(|l| l.kind == LineKind::Item)
+			.count()
 	}
 
 	/// Count the blank/comment lines in the list.
