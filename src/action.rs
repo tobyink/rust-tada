@@ -522,7 +522,7 @@ impl SearchTerms {
 	}
 
 	/// Create a new set of search terms from a single String.
-	pub fn from_str(term: &str) -> Self {
+	pub fn from_string(term: &str) -> Self {
 		Self {
 			terms: Vec::from([String::from(term)]),
 		}
@@ -627,12 +627,12 @@ impl SortOrder {
 		let from_user = args
 			.get_one::<String>("sort")
 			.unwrap_or(&default_string);
-		Self::from_str(&from_user)
-			.unwrap_or_else(|_| Self::from_str(default_val).unwrap())
+		Self::from_string(from_user)
+			.unwrap_or_else(|_| Self::from_string(default_val).unwrap())
 	}
 
 	/// Accept string sort orders like "urgency" and return a SortOrder.
-	pub fn from_str(sortby: &str) -> Result<Self, InvalidSortOrder> {
+	pub fn from_string(sortby: &str) -> Result<Self, InvalidSortOrder> {
 		match sortby.to_lowercase().as_str() {
 			"urgency" | "urgent" | "urg" => Ok(SortOrder::Urgency),
 			"importance" | "import" | "imp" | "important" => {

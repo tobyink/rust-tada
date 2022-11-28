@@ -76,7 +76,7 @@ mod tests {
 	fn test_get_action() {
 		assert_eq!(String::from("find"), get_action().name);
 	}
-	
+
 	#[test]
 	fn test_default_sort_order() {
 		assert_eq!("smart", default_sort_order());

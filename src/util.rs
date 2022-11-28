@@ -7,7 +7,7 @@ pub fn sort_items_by<'a>(
 	sortby: &'a str,
 	items: Vec<&'a Item>,
 ) -> Vec<&'a Item> {
-	match SortOrder::from_str(sortby) {
+	match SortOrder::from_string(sortby) {
 		Ok(o) => o.sort_items(items),
 		Err(_) => {
 			eprintln!("Invalid sort order");
