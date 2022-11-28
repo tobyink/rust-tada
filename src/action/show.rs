@@ -1,7 +1,7 @@
 //! Show the full todo list
 
 use crate::action::*;
-use crate::item::{TshirtSize, Urgency, URGENCIES};
+use crate::item::{TshirtSize, Urgency};
 use crate::util::*;
 use clap::{Arg, ArgMatches, Command};
 
@@ -63,18 +63,9 @@ pub fn execute(args: &ArgMatches) {
 
 	if *args.get_one::<bool>("urgency").unwrap() {
 		let split = group_items_by_urgency(list.items());
-		for u in URGENCIES.iter() {
-			if let Some(items) = split.get(u) {
-				let label = match u {
-					Urgency::Overdue => "Overdue",
-					Urgency::Today => "Today",
-					Urgency::Soon => "Soon",
-					Urgency::ThisWeek => "This week",
-					Urgency::NextWeek => "Next week",
-					Urgency::NextMonth => "Next month",
-					Urgency::Later => "Later",
-				};
-				outputter.write_heading(String::from(label));
+		for u in Urgency::all() {
+			if let Some(items) = split.get(&u) {
+				outputter.write_heading(String::from(u.to_string()));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
@@ -105,14 +96,9 @@ pub fn execute(args: &ArgMatches) {
 		}
 	} else if *args.get_one::<bool>("size").unwrap() {
 		let split = group_items_by_size(list.items());
-		for u in [TshirtSize::Small, TshirtSize::Medium, TshirtSize::Large] {
+		for u in TshirtSize::all() {
 			if let Some(items) = split.get(&u) {
-				let label = match u {
-					TshirtSize::Small => "Small",
-					TshirtSize::Medium => "Medium",
-					TshirtSize::Large => "Large",
-				};
-				outputter.write_heading(String::from(label));
+				outputter.write_heading(String::from(u.to_string()));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{

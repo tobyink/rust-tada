@@ -53,8 +53,31 @@ pub fn execute_shortcut(term: &str) {
 
 /// Given search terms and a list, returns items from the list matching the search terms.
 ///
-/// If there is more than one search term, then each item returned will match all terms.
+/// If there is more than one search term, then each item returned will match ALL terms.
 /// That is, the search terms are combined with an AND operator, not an OR operator.
+///
+/// The usual search_terms.item_matches(i) will return true if the item matches ANY term.
+///
+/// # Examples
+///
+/// ```
+/// use tada::List;
+/// use tada::action::SearchTerms;
+/// use tada::action::find::find_results;
+///
+/// let terms = SearchTerms::from_vec(Vec::from([
+///   String::from("foo"),
+///   String::from("bar"),
+/// ]));
+/// let list = List::from_string(String::from(
+///   "Foo\n\
+///    Bar\n\
+///    Foo bar\n\
+///   ")).unwrap();
+/// let found = find_results(&terms, &list);
+/// assert_eq!(1, found.len());
+/// assert_eq!("Foo bar", found[0].description());
+/// ```
 pub fn find_results<'a, 'b: 'a>(
 	search_terms: &'a SearchTerms,
 	list: &'b List,

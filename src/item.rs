@@ -12,7 +12,7 @@
 //! assert_eq!("clean my @home @L", i.description());
 //! assert!(i.has_context("home"));
 //! assert!(i.has_context("l"));
-//! assert_eq!(TshirtSize::Large, i.tshirt_size().unwrap());
+//! assert_eq!(Some(TshirtSize::Large), i.tshirt_size());
 //!
 //! i.set_completion(true);
 //! i.set_completion_date(NaiveDate::from_ymd_opt(2022, 12, 1).unwrap());
@@ -26,116 +26,6 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
-
-/// An item in a todo list.
-///
-/// # Examples
-///
-/// ```
-/// use tada::Item;
-/// let i = Item::parse("(A) clean my @home");
-/// assert_eq!('A', i.importance().unwrap());
-/// assert_eq!("clean my @home", i.description());
-/// assert!(i.has_context("home"));
-/// ```
-pub struct Item {
-	line_number: usize,
-	completion: bool,
-	priority: char,
-	completion_date: Option<NaiveDate>,
-	creation_date: Option<NaiveDate>,
-	description: String,
-	_importance: FreezeBox<Option<char>>,
-	_due_date: FreezeBox<Option<NaiveDate>>,
-	_start_date: FreezeBox<Option<NaiveDate>>,
-	_urgency: FreezeBox<Option<Urgency>>,
-	_tshirt_size: FreezeBox<Option<TshirtSize>>,
-	_tags: FreezeBox<Vec<String>>,
-	_contexts: FreezeBox<Vec<String>>,
-	_kv: FreezeBox<HashMap<String, String>>,
-}
-
-/// Seven levels of urgency are defined.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
-pub enum Urgency {
-	Overdue,
-	Today,
-	Soon,
-	ThisWeek,
-	NextWeek,
-	NextMonth,
-	Later,
-}
-
-pub static URGENCIES: [Urgency; 7] = [
-	Urgency::Overdue,
-	Urgency::Today,
-	Urgency::Soon,
-	Urgency::ThisWeek,
-	Urgency::NextWeek,
-	Urgency::NextMonth,
-	Urgency::Later,
-];
-
-/// Three sizes are defined.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
-pub enum TshirtSize {
-	Small,
-	Medium,
-	Large,
-}
-
-impl Clone for Item {
-	fn clone(&self) -> Self {
-		Item {
-			line_number: self.line_number,
-			completion: self.completion,
-			priority: self.priority,
-			completion_date: self.completion_date,
-			creation_date: self.creation_date,
-			description: self.description.clone(),
-			..Item::new()
-		}
-	}
-}
-
-impl fmt::Debug for Item {
-	/// Debugging output; used for format!("{:?}")
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		f.debug_struct("Item")
-			.field("completion", &self.completion)
-			.field("priority", &self.priority)
-			.field("completion_date", &self.completion_date)
-			.field("creation_date", &self.creation_date)
-			.field("description", &self.description)
-			.finish()
-	}
-}
-
-impl fmt::Display for Item {
-	/// File-ready output; used for format!("{}")
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		if self.completion {
-			write!(f, "x ")?;
-		}
-
-		if self.priority != '\0' {
-			write!(f, "({}) ", self.priority)?;
-		}
-
-		if self.completion {
-			if let Some(d) = self.completion_date {
-				write!(f, "{} ", d.format("%Y-%m-%d"))?;
-			}
-		}
-
-		if let Some(d) = self.creation_date {
-			write!(f, "{} ", d.format("%Y-%m-%d"))?;
-		}
-
-		write!(f, "{}", self.description)
-	}
-}
 
 lazy_static! {
 	/// Regular expression to capture the parts of a tada list line.
@@ -219,6 +109,98 @@ lazy_static! {
 		.pred_opt()
 		.unwrap()
 	};
+}
+
+/// Seven levels of urgency are defined.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
+pub enum Urgency {
+	Overdue,
+	Today,
+	Soon,
+	ThisWeek,
+	NextWeek,
+	NextMonth,
+	Later,
+}
+
+impl Urgency {
+	/// Returns a heading suitable for items of this urgency.
+	pub fn to_string(&self) -> &str {
+		match self {
+			Self::Overdue => "Overdue",
+			Self::Today => "Today",
+			Self::Soon => "Soon",
+			Self::ThisWeek => "This week",
+			Self::NextWeek => "Next week",
+			Self::NextMonth => "Next month",
+			Self::Later => "Later",
+		}
+	}
+
+	/// Returns a list of known urgencies, in a sane order.
+	pub fn all() -> Vec<Self> {
+		Vec::from([
+			Self::Overdue,
+			Self::Today,
+			Self::Soon,
+			Self::ThisWeek,
+			Self::NextWeek,
+			Self::NextMonth,
+			Self::Later,
+		])
+	}
+}
+
+/// Three sizes are defined.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
+pub enum TshirtSize {
+	Small,
+	Medium,
+	Large,
+}
+
+impl TshirtSize {
+	/// Returns a heading suitable for items of this size.
+	pub fn to_string(&self) -> &str {
+		match self {
+			Self::Small => "Small",
+			Self::Medium => "Medium",
+			Self::Large => "Large",
+		}
+	}
+
+	/// Returns a list of known sizes, in a sane order.
+	pub fn all() -> Vec<Self> {
+		Vec::from([Self::Small, Self::Medium, Self::Large])
+	}
+}
+
+/// An item in a todo list.
+///
+/// # Examples
+///
+/// ```
+/// use tada::Item;
+/// let i = Item::parse("(A) clean my @home");
+/// assert_eq!('A', i.importance().unwrap());
+/// assert_eq!("clean my @home", i.description());
+/// assert!(i.has_context("home"));
+/// ```
+pub struct Item {
+	line_number: usize,
+	completion: bool,
+	priority: char,
+	completion_date: Option<NaiveDate>,
+	creation_date: Option<NaiveDate>,
+	description: String,
+	_importance: FreezeBox<Option<char>>,
+	_due_date: FreezeBox<Option<NaiveDate>>,
+	_start_date: FreezeBox<Option<NaiveDate>>,
+	_urgency: FreezeBox<Option<Urgency>>,
+	_tshirt_size: FreezeBox<Option<TshirtSize>>,
+	_tags: FreezeBox<Vec<String>>,
+	_contexts: FreezeBox<Vec<String>>,
+	_kv: FreezeBox<HashMap<String, String>>,
 }
 
 impl Item {
@@ -727,6 +709,58 @@ impl Item {
 impl Default for Item {
 	fn default() -> Self {
 		Self::new()
+	}
+}
+
+impl Clone for Item {
+	fn clone(&self) -> Self {
+		Item {
+			line_number: self.line_number,
+			completion: self.completion,
+			priority: self.priority,
+			completion_date: self.completion_date,
+			creation_date: self.creation_date,
+			description: self.description.clone(),
+			..Item::new()
+		}
+	}
+}
+
+impl fmt::Debug for Item {
+	/// Debugging output; used for format!("{:?}")
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		f.debug_struct("Item")
+			.field("completion", &self.completion)
+			.field("priority", &self.priority)
+			.field("completion_date", &self.completion_date)
+			.field("creation_date", &self.creation_date)
+			.field("description", &self.description)
+			.finish()
+	}
+}
+
+impl fmt::Display for Item {
+	/// File-ready output; used for format!("{}")
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		if self.completion {
+			write!(f, "x ")?;
+		}
+
+		if self.priority != '\0' {
+			write!(f, "({}) ", self.priority)?;
+		}
+
+		if self.completion {
+			if let Some(d) = self.completion_date {
+				write!(f, "{} ", d.format("%Y-%m-%d"))?;
+			}
+		}
+
+		if let Some(d) = self.creation_date {
+			write!(f, "{} ", d.format("%Y-%m-%d"))?;
+		}
+
+		write!(f, "{}", self.description)
 	}
 }
 
