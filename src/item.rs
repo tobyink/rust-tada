@@ -799,9 +799,9 @@ impl Item {
 	/// Key used for smart sorting
 	pub fn smart_key(&self) -> (Urgency, Importance, TshirtSize) {
 		(
-			self.urgency().unwrap_or(Urgency::Soon),
+			self.urgency().unwrap_or_default(),
 			self.importance().unwrap_or_default(),
-			self.tshirt_size().unwrap_or(TshirtSize::Medium),
+			self.tshirt_size().unwrap_or_default(),
 		)
 	}
 }
