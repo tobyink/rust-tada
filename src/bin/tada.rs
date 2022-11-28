@@ -19,6 +19,7 @@ fn actions() -> Vec<Action> {
 		action::archive::get_action(),
 		action::tidy::get_action(),
 		action::zen::get_action(),
+		action::path::get_action(),
 	])
 }
 
@@ -51,6 +52,7 @@ fn main() {
 		("edit", args) => action::edit::execute(args),
 		("find", args) => action::find::execute(args),
 		("important", args) => action::important::execute(args),
+		("path", args) => action::path::execute(args),
 		("pull", args) => action::pull::execute(args),
 		("quick", args) => action::quick::execute(args),
 		("remove", args) => action::remove::execute(args),
