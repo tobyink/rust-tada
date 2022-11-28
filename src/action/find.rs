@@ -41,8 +41,8 @@ pub fn execute(args: &ArgMatches) {
 }
 
 /// Execute the `find` subcommand via shortcut.
+#[cfg(not(tarpaulin_include))]
 pub fn execute_shortcut(term: &str) {
-	#[cfg(not(tarpaulin_include))]
 	let cmd = get_action().command;
 	let matches = cmd.get_matches_from(vec!["find", term]);
 	execute(&matches);
