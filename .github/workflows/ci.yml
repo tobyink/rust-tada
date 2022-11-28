@@ -121,6 +121,6 @@ jobs:
       - name: cargo tarpaulin
         run: cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
       - name: upload to codecov.io
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: false
