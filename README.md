@@ -72,7 +72,6 @@ Commands:
 Options:
   -h, --help     Print help information
   -V, --version  Print version information
-
 ```
 
 The shortcuts `tada i`, `tada u`, and `tada q` can be used to show important,
@@ -111,7 +110,6 @@ Options:
   -h, --help              Print help information
 
 After success, displays the added task.
-
 ```
 
 ### tada remove
@@ -136,7 +134,6 @@ Options:
   -y, --yes               assume 'yes' to prompts
   -n, --no                assume 'no' to prompts
   -h, --help              Print help information
-
 ```
 
 ### tada edit
@@ -152,7 +149,6 @@ Options:
   -h, --help         Print help information
 
 Ensure the EDITOR environent variable is set.
-
 ```
 
 ### tada pull
@@ -183,7 +179,6 @@ Options:
   -h, --help              Print help information
 
 If a task has a start date, that will be set to today.
-
 ```
 
 ### tada done
@@ -209,7 +204,6 @@ Options:
   -y, --yes               assume 'yes' to prompts
   -n, --no                assume 'no' to prompts
   -h, --help              Print help information
-
 ```
 
 ### tada find
@@ -237,7 +231,6 @@ Options:
 Multiple search terms may be provided, which will be combined with an 'AND' operator.
 
 Searches are case-insensitive.
-
 ```
 
 ### tada show
@@ -261,7 +254,6 @@ Options:
   -u, --urgency           group by urgency
   -z, --size              group by tshirt size
   -h, --help              Print help information
-
 ```
 
 ### tada important
@@ -285,7 +277,6 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
-
 ```
 
 ### tada urgent
@@ -309,7 +300,6 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
-
 ```
 
 ### tada quick
@@ -333,7 +323,6 @@ Options:
   -h, --help              Print help information
 
 Ignores tasks which are marked as already complete or have a start date in the future.
-
 ```
 
 ### tada archive
@@ -350,7 +339,6 @@ Options:
       --colour            coloured output
       --no-colour         plain output
   -h, --help              Print help information
-
 ```
 
 ### tada tidy
@@ -367,7 +355,6 @@ Options:
   -h, --help         Print help information
 
 This is the only command which will renumber tasks in your todo list.
-
 ```
 
 ### tada zen
@@ -386,7 +373,6 @@ Options:
 
 Zen will reschedule any overdue tasks on your todo list. It does not consult you
 to ask for a new due date, but guesses when a sensible due date might be.
-
 ```
 
 Exactly how zen works is subject to change, but it will aim to reschedule
@@ -409,7 +395,6 @@ Options:
 This allows things like:
 
   /path/to/some/editor `tada path`
-
 ```
 
 ### tada help
@@ -421,7 +406,6 @@ Usage: tada help [COMMAND]...
 
 Arguments:
   [COMMAND]...  Print help for the subcommand(s)
-
 ```
 
 ### Recurring Tasks

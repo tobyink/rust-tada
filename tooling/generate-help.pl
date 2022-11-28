@@ -41,8 +41,7 @@ print <<"HELP";
 ### tada
 
 ```text
-$main_help
-```
+$main_help```
 
 $extra_help{MAIN}
 HELP
@@ -51,7 +50,6 @@ print <<"HELP" for @commands;
 ### tada $_
 
 ```text
-$help{$_}
-```
+$help{$_}```
 @{[ defined $extra_help{$_} ? ("\n".$extra_help{$_}) : "" ]}
 HELP
