@@ -1,3 +1,4 @@
+use crate::action::SortOrder;
 use crate::item::{Item, TshirtSize, Urgency};
 use std::collections::HashMap;
 
@@ -6,28 +7,13 @@ pub fn sort_items_by<'a>(
 	sortby: &'a str,
 	items: Vec<&'a Item>,
 ) -> Vec<&'a Item> {
-	let mut out = items.clone();
-	match sortby.to_lowercase().as_str() {
-		"urgency" | "urgent" | "urg" => {
-			out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
+	match SortOrder::from_str(sortby) {
+		Ok(o) => o.sort_items(items),
+		Err(_) => {
+			eprintln!("Invalid sort order");
+			items
 		}
-		"importance" | "import" | "imp" | "important" => {
-			out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
-		}
-		"size" | "tshirt" | "quick" => out.sort_by_cached_key(|i| {
-			i.tshirt_size().unwrap_or(TshirtSize::Medium)
-		}),
-		"alphabetical" | "alphabet" | "alpha" => {
-			out.sort_by_cached_key(|i| i.description().to_lowercase())
-		}
-		"due-date" | "duedate" | "due" => {
-			out.sort_by_cached_key(|i| i.due_date())
-		}
-		"original" | "orig" => out.sort_by_cached_key(|i| i.line_number()),
-		"smart" => out.sort_by_cached_key(|i| i.smart_key()),
-		_ => panic!("unknown sorting: '{}'", sortby),
-	};
-	out
+	}
 }
 
 /// Filter Vec<&Item> by an @context.

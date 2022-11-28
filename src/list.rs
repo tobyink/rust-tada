@@ -116,8 +116,8 @@ impl Line {
 }
 
 impl List {
-	pub fn new() -> List {
-		List {
+	pub fn new() -> Self {
+		Self {
 			path: None,
 			lines: Vec::new(),
 		}
@@ -131,8 +131,16 @@ impl List {
 		})
 	}
 
+	pub fn from_items(lines: Vec<&Item>) -> Self {
+		let mut list = List::new();
+		for l in lines {
+			list.lines.push(Line::from_item(l.clone()));
+		}
+		list
+	}
+
 	/// Parse a todo list from a URL.
-	pub fn from_url(u: String) -> Result<List, Error> {
+	pub fn from_url(u: String) -> Result<Self, Error> {
 		let url = Self::_handle_url(u);
 		match url.scheme() {
 			"file" => Self::from_filename(
@@ -164,7 +172,7 @@ impl List {
 	}
 
 	/// Parse a todo list from a filename.
-	pub fn from_filename(path: String) -> Result<List, Error> {
+	pub fn from_filename(path: String) -> Result<Self, Error> {
 		let file = File::open(&path)?;
 		let mut list = Self::from_file(file)?;
 		list.path = Some(path);
@@ -172,7 +180,7 @@ impl List {
 	}
 
 	/// Parse a todo list from an open file.
-	pub fn from_file(f: File) -> Result<List, Error> {
+	pub fn from_file(f: File) -> Result<Self, Error> {
 		let mut count = 0;
 		let io = BufReader::new(f);
 		let lines = io
@@ -187,7 +195,7 @@ impl List {
 	}
 
 	/// Parse a todo list from a string.
-	pub fn from_string(s: String) -> Result<List, Error> {
+	pub fn from_string(s: String) -> Result<Self, Error> {
 		let mut count = 0;
 		let lines = s
 			.lines()
@@ -201,7 +209,7 @@ impl List {
 	}
 
 	/// Read a todo list over HTTP.
-	pub fn from_http(url: Url) -> Result<List, Error> {
+	pub fn from_http(url: Url) -> Result<Self, Error> {
 		let client = Client::new();
 		let mut request = client.get(url);
 		if let Ok(x) = env::var("TADA_HTTP_USER_AGENT") {
@@ -225,7 +233,7 @@ impl List {
 	}
 
 	/// Read a todo list over SFTP (not implemented yet).
-	pub fn from_sftp(_host: String, _path: String) -> Result<List, Error> {
+	pub fn from_sftp(_host: String, _path: String) -> Result<Self, Error> {
 		panic!("SFTP not implemented yet")
 	}
 

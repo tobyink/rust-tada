@@ -1,4 +1,4 @@
-use crate::item::Item;
+use crate::item::{Item, TshirtSize, Urgency};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use console::Style;
@@ -516,6 +516,18 @@ impl SearchTerms {
 		Self { terms: Vec::new() }
 	}
 
+	/// Create a new set of search terms from a Vec of Strings.
+	pub fn from_vec(terms: Vec<String>) -> Self {
+		Self { terms }
+	}
+
+	/// Create a new set of search terms from a single String.
+	pub fn from_str(term: &str) -> Self {
+		Self {
+			terms: Vec::from([String::from(term)]),
+		}
+	}
+
 	/// Add some args to a Command so that it can accept search terms.
 	pub fn add_args(cmd: Command) -> Command {
 		cmd.arg(
@@ -575,6 +587,91 @@ impl SearchTerms {
 impl Default for SearchTerms {
 	fn default() -> Self {
 		Self::new()
+	}
+}
+
+/// An order for sorting items into.
+pub enum SortOrder {
+	Urgency,
+	Importance,
+	TshirtSize,
+	Alphabetical,
+	DueDate,
+	Original,
+	Smart,
+}
+
+/// An error raised when given an unknown sort order.
+#[derive(Debug, Clone)]
+pub struct InvalidSortOrder;
+
+impl SortOrder {
+	/// Add some args to a Command so that it can accept a sort order.
+	pub fn add_args(cmd: Command, default_val: &str) -> Command {
+		cmd.arg(
+			Arg::new("sort")
+				.num_args(1)
+				.short('s')
+				.long("sort")
+				.value_name("BY")
+				.help(format!(
+					"sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default: {})",
+					default_val
+				))
+		)
+	}
+
+	/// Read sort order from ArgMatches.
+	pub fn from_argmatches(args: &ArgMatches, default_val: &str) -> Self {
+		let default_string = String::from(default_val);
+		let from_user = args
+			.get_one::<String>("sort")
+			.unwrap_or(&default_string);
+		Self::from_str(&from_user)
+			.unwrap_or_else(|_| Self::from_str(default_val).unwrap())
+	}
+
+	/// Accept string sort orders like "urgency" and return a SortOrder.
+	pub fn from_str(sortby: &str) -> Result<Self, InvalidSortOrder> {
+		match sortby.to_lowercase().as_str() {
+			"urgency" | "urgent" | "urg" => Ok(SortOrder::Urgency),
+			"importance" | "import" | "imp" | "important" => {
+				Ok(SortOrder::Importance)
+			}
+			"tshirtsize" | "size" | "tshirt" | "quick" => {
+				Ok(SortOrder::TshirtSize)
+			}
+			"alphabetical" | "alphabet" | "alpha" => {
+				Ok(SortOrder::Alphabetical)
+			}
+			"due-date" | "duedate" | "due" => Ok(SortOrder::DueDate),
+			"original" | "orig" => Ok(SortOrder::Original),
+			"smart" => Ok(SortOrder::Smart),
+			_ => Err(InvalidSortOrder),
+		}
+	}
+
+	/// Sort items by this sort order.
+	pub fn sort_items<'a>(&self, items: Vec<&'a Item>) -> Vec<&'a Item> {
+		let mut out = items.clone();
+		match self {
+			SortOrder::Urgency => {
+				out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
+			}
+			SortOrder::Importance => {
+				out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
+			}
+			SortOrder::TshirtSize => out.sort_by_cached_key(|i| {
+				i.tshirt_size().unwrap_or(TshirtSize::Medium)
+			}),
+			SortOrder::Alphabetical => {
+				out.sort_by_cached_key(|i| i.description().to_lowercase())
+			}
+			SortOrder::DueDate => out.sort_by_cached_key(|i| i.due_date()),
+			SortOrder::Original => out.sort_by_cached_key(|i| i.line_number()),
+			SortOrder::Smart => out.sort_by_cached_key(|i| i.smart_key()),
+		};
+		out
 	}
 }
 

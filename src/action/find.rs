@@ -1,6 +1,6 @@
 use crate::action::*;
 use crate::util::*;
-use clap::{Arg, ArgMatches, Command};
+use clap::{ArgMatches, Command};
 
 /// Options for the `find` subcommand.
 pub fn get_action() -> Action {
@@ -14,32 +14,49 @@ pub fn get_action() -> Action {
 	command = FileType::TodoTxt.add_args(command);
 	command = Outputter::add_args(command);
 	command = SearchTerms::add_args(command);
-	command = command
-		.arg(
-			Arg::new("sort")
-				.num_args(1)
-				.short('s')
-				.long("sort")
-				.value_name("BY")
-				.help("sort by 'smart', 'urgency', 'importance' (default), 'size', 'alpha', or 'due'"),
-		);
+	command = SortOrder::add_args(command, default_sort_order());
 
 	Action { name, command }
 }
 
-/// Execute the `find` subcommand.
-pub fn execute(args: &ArgMatches) {
-	let default_sort_by_type = String::from("smart");
-	let sort_by_type = args
-		.get_one::<String>("sort")
-		.unwrap_or(&default_sort_by_type);
+pub fn default_sort_order() -> &'static str {
+	"smart"
+}
 
+/// Execute the `find` subcommand.
+#[cfg(not(tarpaulin_include))]
+pub fn execute(args: &ArgMatches) {
 	let list = FileType::TodoTxt.load(args);
-	let mut results = list.items();
+
 	let mut outputter = Outputter::from_argmatches(args);
 	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
+	let results = find_results(&search_terms, &list);
+	let sort_order = SortOrder::from_argmatches(args, default_sort_order());
+
+	for i in sort_order.sort_items(results).iter() {
+		outputter.write_item(i);
+	}
+}
+
+/// Execute the `find` subcommand via shortcut.
+pub fn execute_shortcut(term: &str) {
+	#[cfg(not(tarpaulin_include))]
+	let cmd = get_action().command;
+	let matches = cmd.get_matches_from(vec!["find", term]);
+	execute(&matches);
+}
+
+/// Given search terms and a list, returns items from the list matching the search terms.
+///
+/// If there is more than one search term, then each item returned will match all terms.
+/// That is, the search terms are combined with an AND operator, not an OR operator.
+pub fn find_results<'a, 'b: 'a>(
+	search_terms: &'a SearchTerms,
+	list: &'b List,
+) -> Vec<&'a Item> {
+	let mut results = list.items();
 	for term in &search_terms.terms {
 		results = match term.chars().next() {
 			Some('@') => find_items_by_context(term, results),
@@ -48,15 +65,80 @@ pub fn execute(args: &ArgMatches) {
 			_ => find_items_by_string(term, results),
 		};
 	}
-
-	for i in sort_items_by(sort_by_type.as_str(), results).iter() {
-		outputter.write_item(i);
-	}
+	results
 }
 
-/// Execute the `find` subcommand via shortcut.
-pub fn execute_shortcut(term: &str) {
-	let cmd = get_action().command;
-	let matches = cmd.get_matches_from(vec!["find", term]);
-	execute(&matches);
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_get_action() {
+		assert_eq!(String::from("find"), get_action().name);
+	}
+	
+	#[test]
+	fn test_default_sort_order() {
+		assert_eq!("smart", default_sort_order());
+	}
+
+	#[test]
+	fn test_find_results() {
+		let list = List::from_string(
+			"Foo\n\
+			Foo bar\n\
+			Bar\n\
+			#Foo\n\
+			+foo\n\
+			(A) @foo\n\
+			"
+			.to_string(),
+		)
+		.unwrap();
+
+		let t = SearchTerms::from_str("Foo");
+		assert_eq!(
+			"Foo\n\
+			Foo bar\n\
+			+foo\n\
+			(A) @foo\n\
+			",
+			List::from_items(find_results(&t, &list)).serialize(),
+		);
+
+		let t = SearchTerms::from_str("@Foo");
+		assert_eq!(
+			"(A) @foo\n\
+			",
+			List::from_items(find_results(&t, &list)).serialize(),
+		);
+
+		let t = SearchTerms::from_str("+Foo");
+		assert_eq!(
+			"+foo\n\
+			",
+			List::from_items(find_results(&t, &list)).serialize(),
+		);
+
+		let t = SearchTerms::from_str("BAR");
+		assert_eq!(
+			"Foo bar\n\
+			Bar\n\
+			",
+			List::from_items(find_results(&t, &list)).serialize(),
+		);
+
+		let t = SearchTerms::from_vec(Vec::from([
+			String::from("BAR"),
+			String::from("fOO"),
+		]));
+		assert_eq!(
+			"Foo bar\n\
+			",
+			List::from_items(find_results(&t, &list)).serialize(),
+		);
+
+		let t = SearchTerms::from_str("baz");
+		assert_eq!("", List::from_items(find_results(&t, &list)).serialize());
+	}
 }
