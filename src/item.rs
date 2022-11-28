@@ -4,11 +4,11 @@
 //!
 //! ```
 //! use chrono::NaiveDate;
-//! use tada::item::{Item, TshirtSize};
+//! use tada::item::{Importance, Item, TshirtSize, Urgency};
 //!
 //! let mut i = Item::parse("(A) clean my @home @L");
 //!
-//! assert_eq!('A', i.importance().unwrap());
+//! assert_eq!(Some(Importance::A), i.importance());
 //! assert_eq!("clean my @home @L", i.description());
 //! assert!(i.has_context("home"));
 //! assert!(i.has_context("l"));
@@ -111,6 +111,68 @@ lazy_static! {
 	};
 }
 
+/// Five levels of importance are defined.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
+pub enum Importance {
+	/// Critical
+	A,
+	/// Important
+	B,
+	/// Semi-important
+	C,
+	/// Normal
+	D,
+	/// Unimportant
+	E,
+}
+
+impl Importance {
+	/// Get an importance from a letter.
+	pub fn from_char(c: char) -> Option<Self> {
+		match c {
+			'A' => Some(Self::A),
+			'B' => Some(Self::B),
+			'C' => Some(Self::C),
+			'D' => Some(Self::D),
+			'E'..='Z' => Some(Self::E),
+			_ => None,
+		}
+	}
+
+	/// Returns a letter representing this importance.
+	pub fn to_char(&self) -> char {
+		match self {
+			Self::A => 'A',
+			Self::B => 'B',
+			Self::C => 'C',
+			Self::D => 'D',
+			Self::E => 'E',
+		}
+	}
+
+	/// Returns a heading suitable for items of this importance.
+	pub fn to_string(&self) -> &str {
+		match self {
+			Self::A => "Critical",
+			Self::B => "Important",
+			Self::C => "Semi-important",
+			Self::D => "Normal",
+			Self::E => "Unimportant",
+		}
+	}
+
+	/// Returns a list of known importances, in a sane order.
+	pub fn all() -> Vec<Self> {
+		Vec::from([Self::A, Self::B, Self::C, Self::D, Self::E])
+	}
+}
+
+impl Default for Importance {
+	fn default() -> Self {
+		Self::D
+	}
+}
+
 /// Seven levels of urgency are defined.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Urgency {
@@ -180,9 +242,9 @@ impl TshirtSize {
 /// # Examples
 ///
 /// ```
-/// use tada::Item;
+/// use tada::{Importance, Item};
 /// let i = Item::parse("(A) clean my @home");
-/// assert_eq!('A', i.importance().unwrap());
+/// assert_eq!(Some(Importance::A), i.importance());
 /// assert_eq!("clean my @home", i.description());
 /// assert!(i.has_context("home"));
 /// ```
@@ -193,7 +255,7 @@ pub struct Item {
 	completion_date: Option<NaiveDate>,
 	creation_date: Option<NaiveDate>,
 	description: String,
-	_importance: FreezeBox<Option<char>>,
+	_importance: FreezeBox<Option<Importance>>,
 	_due_date: FreezeBox<Option<NaiveDate>>,
 	_start_date: FreezeBox<Option<NaiveDate>>,
 	_urgency: FreezeBox<Option<Urgency>>,
@@ -276,7 +338,10 @@ impl Item {
 	pub fn zen(&self) -> Item {
 		if self.urgency() == Some(Urgency::Overdue) {
 			let mut new = self.clone();
-			let important = matches!(new.importance(), Some('A') | Some('B'));
+			let important = matches!(
+				new.importance(),
+				Some(Importance::A) | Some(Importance::B)
+			);
 			let small = matches!(new.tshirt_size(), Some(TshirtSize::Small));
 			let new_urgency = if important && small {
 				Urgency::Soon
@@ -459,9 +524,9 @@ impl Item {
 
 	/// Return the importance of this task.
 	///
-	/// Basically the same as priority, except all letters after E
-	/// are treated as being the same as E. Returns None for \0.
-	pub fn importance(&self) -> Option<char> {
+	/// Basically the same as priority, except it's an enum and all letters after E
+	/// are treated as being the same as E.
+	pub fn importance(&self) -> Option<Importance> {
 		if !self._importance.is_initialized() {
 			self._importance
 				.lazy_init(self._build_importance());
@@ -469,13 +534,20 @@ impl Item {
 		*self._importance
 	}
 
-	fn _build_importance(&self) -> Option<char> {
-		let priority = self.priority;
-		match priority {
-			'\0' => None,
-			'A' | 'B' | 'C' | 'D' => Some(priority),
-			_ => Some('E'),
-		}
+	fn _build_importance(&self) -> Option<Importance> {
+		Importance::from_char(self.priority)
+	}
+
+	/// Set the item's importance.
+	pub fn set_importance(&mut self, i: Importance) {
+		self.priority = i.to_char();
+		self._importance = FreezeBox::default();
+	}
+
+	/// Set the item's importance.
+	pub fn clear_importance(&mut self) {
+		self.priority = '\0';
+		self._importance = FreezeBox::default();
 	}
 
 	/// Return the date when this task is due by.
@@ -697,10 +769,11 @@ impl Item {
 	}
 
 	/// Key used for smart sorting
-	pub fn smart_key(&self) -> (Urgency, char, TshirtSize) {
+	pub fn smart_key(&self) -> (Urgency, Importance, TshirtSize) {
 		(
 			self.urgency().unwrap_or(Urgency::Soon),
-			self.importance().unwrap_or('D'),
+			self.importance()
+				.unwrap_or(Importance::default()),
 			self.tshirt_size().unwrap_or(TshirtSize::Medium),
 		)
 	}
@@ -824,8 +897,8 @@ mod tests {
 		);
 		assert_eq!("foo bar baz".to_string(), i.description);
 		assert!(i.urgency().is_none());
-		assert_eq!('B', i.importance().unwrap());
-		assert!(i.tshirt_size().is_none());
+		assert_eq!(Some(Importance::B), i.importance());
+		assert_eq!(None, i.tshirt_size());
 		assert_eq!(Vec::<String>::new(), i.tags());
 		assert_eq!(Vec::<String>::new(), i.contexts());
 		assert_eq!(HashMap::<String, String>::new(), i.kv());

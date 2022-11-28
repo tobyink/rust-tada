@@ -6,7 +6,7 @@
 //!
 //! Early development, but usable.
 
-pub use item::{Item, TshirtSize, Urgency};
+pub use item::{Importance, Item, TshirtSize, Urgency};
 pub use list::{Line, LineKind, List};
 
 pub mod action;

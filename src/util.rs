@@ -3,7 +3,7 @@
 //! These mostly operate on `Vec<&Item>`.
 
 use crate::action::SortOrder;
-use crate::item::{Item, TshirtSize, Urgency};
+use crate::item::{Importance, Item, TshirtSize, Urgency};
 use std::collections::HashMap;
 
 /// Sort Vec<&Item> in a variety of ways.
@@ -98,14 +98,14 @@ pub fn group_items_by_size(
 	out
 }
 
-/// Group a Vec<&Item> into categories based on task improtance.
+/// Group a Vec<&Item> into categories based on task importance.
 pub fn group_items_by_importance(
 	items: Vec<&Item>,
-) -> HashMap<char, Vec<&Item>> {
-	let mut out: HashMap<char, Vec<&Item>> = HashMap::new();
+) -> HashMap<Importance, Vec<&Item>> {
+	let mut out: HashMap<Importance, Vec<&Item>> = HashMap::new();
 	for i in items {
 		let list = out
-			.entry(i.importance().unwrap_or('D'))
+			.entry(i.importance().unwrap_or(Importance::default()))
 			.or_insert_with(Vec::new);
 		list.push(i);
 	}

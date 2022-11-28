@@ -1,6 +1,6 @@
 //! Implementation of the command-line interface.
 
-use crate::item::{Item, TshirtSize, Urgency};
+use crate::item::{Importance, Item, TshirtSize, Urgency};
 use crate::list::{LineKind, List};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use console::Style;
@@ -372,9 +372,15 @@ impl Outputter {
 			r.push_str("(?) ");
 		} else {
 			let style = match i.importance() {
-				Some('A') => Style::new().red().bold().force_styling(true),
-				Some('B') => Style::new().yellow().bold().force_styling(true),
-				Some('C') => Style::new().green().bold().force_styling(true),
+				Some(Importance::A) => {
+					Style::new().red().bold().force_styling(true)
+				}
+				Some(Importance::B) => {
+					Style::new().yellow().bold().force_styling(true)
+				}
+				Some(Importance::C) => {
+					Style::new().green().bold().force_styling(true)
+				}
 				Some(_) => Style::new().bold().force_styling(true),
 				_ => Style::new(),
 			};
@@ -688,9 +694,9 @@ impl SortOrder {
 			SortOrder::Urgency => {
 				out.sort_by_cached_key(|i| i.urgency().unwrap_or(Urgency::Soon))
 			}
-			SortOrder::Importance => {
-				out.sort_by_cached_key(|i| i.importance().unwrap_or('D'))
-			}
+			SortOrder::Importance => out.sort_by_cached_key(|i| {
+				i.importance().unwrap_or(Importance::default())
+			}),
 			SortOrder::TshirtSize => out.sort_by_cached_key(|i| {
 				i.tshirt_size().unwrap_or(TshirtSize::Medium)
 			}),

@@ -76,16 +76,9 @@ pub fn execute(args: &ArgMatches) {
 		}
 	} else if *args.get_one::<bool>("importance").unwrap() {
 		let split = group_items_by_importance(list.items());
-		for u in ['A', 'B', 'C', 'D', 'E'] {
+		for u in Importance::all() {
 			if let Some(items) = split.get(&u) {
-				let label = match u {
-					'A' => "Critical",
-					'B' => "Important",
-					'C' => "Semi-important",
-					'D' => "Normal",
-					_ => "Unimportant",
-				};
-				outputter.write_heading(String::from(label));
+				outputter.write_heading(String::from(u.to_string()));
 				for i in
 					sort_items_by(sort_by_type.as_str(), items.to_vec()).iter()
 				{
