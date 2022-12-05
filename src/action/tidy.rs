@@ -19,7 +19,7 @@ pub fn get_action() -> Action {
 				.short('s')
 				.long("sort")
 				.value_name("BY")
-				.help("sort by 'smart', 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig' (default)"),
+				.help("Sort by 'smart', 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig' (default)"),
 		);
 
 	Action { name, command }

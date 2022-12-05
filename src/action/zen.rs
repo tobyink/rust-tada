@@ -10,7 +10,7 @@ pub fn get_action() -> Action {
 	let name = String::from("zen");
 	let mut command = Command::new("zen").about("Automatically reschedule overdue tasks")
 		.after_help(
-			"Zen will reschedule any overdue tasks on your todo list. It does not consult you\n\
+			"Zen will reschedule any overdue tasks on your todo list. It does not consult you \
 			to ask for a new due date, but guesses when a sensible due date might be."
 		);
 	command = FileType::TodoTxt.add_args(command);

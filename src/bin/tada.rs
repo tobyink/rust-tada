@@ -31,7 +31,7 @@ fn main() {
 		.version("0.2.0")
 		.about("A todo list manager")
 		.subcommand_required(true)
-		.term_width(80)
+		.term_width(72)
 		.allow_external_subcommands(true);
 
 	for action in actions() {

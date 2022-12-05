@@ -19,7 +19,7 @@ pub fn get_action() -> Action {
 				.short('s')
 				.long("sort")
 				.value_name("BY")
-				.help("sort by 'smart' (default), 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig'"),
+				.help("Sort by 'smart' (default), 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig'"),
 		)
 		.arg(
 			Arg::new("importance")
@@ -27,7 +27,7 @@ pub fn get_action() -> Action {
 				.short('i')
 				.long("importance")
 				.aliases(["import", "imp", "important"])
-				.help("group by importance"),
+				.help("Group by importance"),
 		)
 		.arg(
 			Arg::new("urgency")
@@ -35,7 +35,7 @@ pub fn get_action() -> Action {
 				.short('u')
 				.long("urgency")
 				.aliases(["urgent", "urg"])
-				.help("group by urgency"),
+				.help("Group by urgency"),
 		)
 		.arg(
 			Arg::new("size")
@@ -43,7 +43,7 @@ pub fn get_action() -> Action {
 				.short('z')
 				.long("size")
 				.aliases(["tshirt-size", "tshirt", "quick"])
-				.help("group by tshirt size"),
+				.help("Group by tshirt size"),
 		);
 
 	Action { name, command }

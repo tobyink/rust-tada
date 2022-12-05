@@ -145,14 +145,14 @@ impl FileType {
 				.short('f')
 				.long("file")
 				.value_name("FILE")
-				.help("the path or URL for todo.txt"),
+				.help("The path or URL for todo.txt"),
 		)
 		.arg(
 			Arg::new("local")
 				.num_args(0)
 				.short('l')
 				.long("local")
-				.help("look for files in local directory only"),
+				.help("Look for files in local directory only"),
 		)
 	}
 
@@ -161,7 +161,7 @@ impl FileType {
 			Arg::new("done-file")
 				.long("done-file")
 				.value_name("FILE")
-				.help("the path or URL for done.txt"),
+				.help("The path or URL for done.txt"),
 		)
 	}
 }
@@ -207,14 +207,14 @@ impl Outputter {
 				.num_args(0)
 				.long("colour")
 				.aliases(["color"])
-				.help("coloured output"),
+				.help("Coloured output"),
 		)
 		.arg(
 			Arg::new("no-colour")
 				.num_args(0)
 				.long("no-colour")
 				.aliases(["no-color", "nocolour", "nocolor"])
-				.help("plain output"),
+				.help("Plain output"),
 		)
 	}
 
@@ -227,7 +227,7 @@ impl Outputter {
 					.aliases(["maxwidth"])
 					.value_parser(clap::value_parser!(usize))
 					.value_name("COLS")
-					.help("maximum width of terminal output"),
+					.help("Maximum width of terminal output"),
 			)
 			.arg(
 				Arg::new("show-lines")
@@ -235,21 +235,21 @@ impl Outputter {
 					.short('L')
 					.long("show-lines")
 					.aliases(["show-lines", "lines"])
-					.help("show line numbers for tasks"),
+					.help("Show line numbers for tasks"),
 			)
 			.arg(
 				Arg::new("show-created")
 					.num_args(0)
 					.long("show-created")
 					.aliases(["showcreated", "created"])
-					.help("show 'created' dates for tasks"),
+					.help("Show 'created' dates for tasks"),
 			)
 			.arg(
 				Arg::new("show-finished")
 					.num_args(0)
 					.long("show-finished")
 					.aliases(["showfinished", "finished"])
-					.help("show 'finished' dates for tasks"),
+					.help("Show 'finished' dates for tasks"),
 			)
 	}
 
@@ -516,14 +516,14 @@ impl ConfirmationStatus {
 				.num_args(0)
 				.short('y')
 				.long("yes")
-				.help("assume 'yes' to prompts"),
+				.help("Assume 'yes' to prompts"),
 		)
 		.arg(
 			Arg::new("no")
 				.num_args(0)
 				.short('n')
 				.long("no")
-				.help("assume 'no' to prompts"),
+				.help("Assume 'no' to prompts"),
 		)
 	}
 }
@@ -558,7 +558,7 @@ impl SearchTerms {
 			Arg::new("search-term")
 				.action(ArgAction::Append)
 				.required(true)
-				.help("a tag, context, line number, or string"),
+				.help("A tag, context, line number, or string"),
 		)
 	}
 
@@ -640,7 +640,7 @@ impl SortOrder {
 				.long("sort")
 				.value_name("BY")
 				.help(format!(
-					"sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default: {})",
+					"Sort by 'smart', 'urgency', 'importance', 'size', 'alpha', or 'due' (default: {})",
 					default_val.to_string()
 				))
 		)
@@ -731,7 +731,7 @@ impl OutputCount {
 				.long("number")
 				.value_parser(clap::value_parser!(usize))
 				.value_name("N")
-				.help("maximum number to show (default: 3)"),
+				.help("Maximum number to show (default: 3)"),
 		)
 	}
 
