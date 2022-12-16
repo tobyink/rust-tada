@@ -711,6 +711,67 @@ impl SortOrder {
 	}
 }
 
+/// A chosen grouping for items.
+#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
+pub enum Grouping {
+	None,
+	Urgency,
+	Importance,
+	TshirtSize,
+}
+
+impl Grouping {
+	pub fn add_args(cmd: Command) -> Command {
+		cmd.arg(
+			Arg::new("importance")
+				.num_args(0)
+				.short('i')
+				.long("importance")
+				.aliases(["import", "imp", "important"])
+				.help("Group by importance"),
+		)
+		.arg(
+			Arg::new("urgency")
+				.num_args(0)
+				.short('u')
+				.long("urgency")
+				.aliases(["urgent", "urg"])
+				.help("Group by urgency"),
+		)
+		.arg(
+			Arg::new("size")
+				.num_args(0)
+				.short('z')
+				.long("size")
+				.aliases(["tshirt-size", "tshirt", "quick"])
+				.help("Group by tshirt size"),
+		)
+	}
+
+	pub fn from_argmatches(args: &ArgMatches) -> Self {
+		let g = args
+			.get_one::<bool>("importance")
+			.unwrap_or(&false);
+		if *g {
+			return Self::Importance;
+		}
+
+		let g = args
+			.get_one::<bool>("urgency")
+			.unwrap_or(&false);
+		if *g {
+			return Self::Urgency;
+		}
+
+		let g = args.get_one::<bool>("size").unwrap_or(&false);
+		if *g {
+			return Self::TshirtSize;
+		}
+
+		Self::None
+	}
+}
+
 /// Represents a user-expressed number of items to be output.
 pub struct OutputCount {
 	pub count: usize,
@@ -803,6 +864,7 @@ pub fn maybe_housekeeping_warnings(outputter: &mut Outputter, list: &List) {
 // TODO TEST: ConfirmationStatus
 // TODO TEST: SearchTerms
 // TODO TEST: SortOrder
+// TODO TEST: Grouping
 // TODO TEST: OutputCount
 // TODO TEST: execute_simple_list_action()
 // TODO TEST: maybe_housekeeping_warnings()
