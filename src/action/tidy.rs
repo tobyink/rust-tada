@@ -25,7 +25,6 @@ pub fn execute(args: &ArgMatches) {
 	let todo_filename = FileType::TodoTxt.filename(args);
 	let list = FileType::TodoTxt.load(args);
 	let sort_order = SortOrder::from_argmatches(args, default_sort_order());
-
 	list.but_tidy(&sort_order).to_url(todo_filename);
 }
 
