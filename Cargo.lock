@@ -294,7 +294,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb21c69b9fea5e15dbc1049e4b77145dd0ba1c84019c488102de0dc4ea4b0a27"
 dependencies = [
  "cfg-if",
+<<<<<<< working copy
  "rustix",
+=======
+ "rustix 0.36.4",
+>>>>>>> merge rev
  "windows-sys 0.42.0",
 ]
 
@@ -583,8 +587,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "927609f78c2913a6f6ac3c27a4fe87f43e2a35367c0c4b0f8265e8f49a104330"
 dependencies = [
  "hermit-abi 0.2.6",
+<<<<<<< working copy
  "io-lifetimes",
  "rustix",
+=======
+ "io-lifetimes 1.0.1",
+ "rustix 0.36.4",
+>>>>>>> merge rev
  "windows-sys 0.42.0",
 ]
 
@@ -1006,7 +1015,25 @@ dependencies = [
  "errno",
  "io-lifetimes",
  "libc",
+<<<<<<< working copy
  "linux-raw-sys",
+=======
+ "linux-raw-sys 0.0.46",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "rustix"
+version = "0.36.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb93e85278e08bb5788653183213d3a60fc242b10cb9be96586f5a73dcb67c23"
+dependencies = [
+ "bitflags",
+ "errno",
+ "io-lifetimes 1.0.1",
+ "libc",
+ "linux-raw-sys 0.1.2",
+>>>>>>> merge rev
  "windows-sys 0.42.0",
 ]
 
