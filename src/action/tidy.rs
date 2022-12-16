@@ -1,9 +1,7 @@
 //! Remove blank lines and comments from a todo list
 
 use crate::action::*;
-use crate::list::{Line, List};
-use crate::util::*;
-use clap::{Arg, ArgMatches, Command};
+use clap::{ArgMatches, Command};
 
 /// Options for the `tidy` subcommand.
 pub fn get_action() -> Action {
@@ -12,37 +10,23 @@ pub fn get_action() -> Action {
 		.after_help("This is the only command which will renumber tasks in your todo list.");
 
 	command = FileType::TodoTxt.add_args(command);
-	command = command
-		.arg(
-			Arg::new("sort")
-				.num_args(1)
-				.short('s')
-				.long("sort")
-				.value_name("BY")
-				.help("Sort by 'smart', 'urgency', 'importance', 'size', 'alpha', 'due', or 'orig' (default)"),
-		);
+	command = SortOrder::add_args(command, default_sort_order());
 
 	Action { name, command }
 }
 
+/// The default sort order for output.
+pub fn default_sort_order() -> SortOrder {
+	SortOrder::Original
+}
+
 /// Execute the `tidy` subcommand.
 pub fn execute(args: &ArgMatches) {
-	let default_sort_by_type = String::from("orig");
-	let sort_by_type = args
-		.get_one::<String>("sort")
-		.unwrap_or(&default_sort_by_type);
-
 	let todo_filename = FileType::TodoTxt.filename(args);
-	let list = List::from_url(todo_filename.clone())
-		.expect("Could not read todo list");
+	let list = FileType::TodoTxt.load(args);
+	let sort_order = SortOrder::from_argmatches(args, default_sort_order());
 
-	let mut new_list = List::new();
-	for item in sort_items_by(sort_by_type.as_str(), list.items()) {
-		new_list
-			.lines
-			.push(Line::from_item(item.clone()));
-	}
-	new_list.to_url(todo_filename);
+	list.but_tidy(&sort_order).to_url(todo_filename);
 }
 
 #[cfg(test)]
@@ -52,5 +36,10 @@ mod tests {
 	#[test]
 	fn test_get_action() {
 		assert_eq!(String::from("tidy"), get_action().name);
+	}
+
+	#[test]
+	fn test_default_sort_order() {
+		assert_eq!(SortOrder::Original, default_sort_order());
 	}
 }

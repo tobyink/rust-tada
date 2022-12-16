@@ -341,6 +341,17 @@ impl List {
 			})
 			.count()
 	}
+
+	/// Clone the list, but removing blank lines and comments, and optionally sort it.
+	pub fn but_tidy(&self, sort_order: &crate::action::SortOrder) -> Self {
+		let mut new_list = Self::new();
+		for item in sort_order.sort_items(self.items()).into_iter() {
+			new_list
+				.lines
+				.push(Line::from_item(item.clone()));
+		}
+		new_list
+	}
 }
 
 impl Default for List {
