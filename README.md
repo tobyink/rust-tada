@@ -255,9 +255,8 @@ Options:
   -L, --show-lines        Show line numbers for tasks
       --show-created      Show 'created' dates for tasks
       --show-finished     Show 'finished' dates for tasks
-  -s, --sort <BY>         Sort by 'smart' (default), 'urgency',
-                          'importance', 'size', 'alpha', 'due', or
-                          'orig'
+  -s, --sort <BY>         Sort by 'smart', 'urgency', 'importance',
+                          'size', 'alpha', or 'due' (default: smart)
   -i, --importance        Group by importance
   -u, --urgency           Group by urgency
   -z, --size              Group by tshirt size
@@ -367,7 +366,7 @@ Options:
   -f, --file <FILE>  The path or URL for todo.txt
   -l, --local        Look for files in local directory only
   -s, --sort <BY>    Sort by 'smart', 'urgency', 'importance', 'size',
-                     'alpha', 'due', or 'orig' (default)
+                     'alpha', or 'due' (default: original)
   -h, --help         Print help information
 
 This is the only command which will renumber tasks in your todo list.
