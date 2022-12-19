@@ -5,6 +5,8 @@ use std::process;
 use tada::action;
 use tada::action::Action;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// Get a list of valid subcommands.
 fn actions() -> Vec<Action> {
 	Vec::from([
@@ -28,7 +30,7 @@ fn actions() -> Vec<Action> {
 /// Main body of the `tada` command.
 fn main() {
 	let mut cmd = Command::new("tada")
-		.version("0.2.0")
+		.version(VERSION)
 		.about("A todo list manager")
 		.subcommand_required(true)
 		.term_width(72)
