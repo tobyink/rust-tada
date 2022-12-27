@@ -23,7 +23,7 @@ tempfile = "3.3.0"
 lazy_static = "1.4.0"
 console = "0.15.0"
 substring = "1.4.0"
-clap = { version = "4.0.29", features = ["wrap_help"] }
+clap = { version = "4.0.32", features = ["wrap_help"] }
 freezebox = "0.2.3"
 url = "2.3.1"
 promptly = "0.3.1"
