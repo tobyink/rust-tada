@@ -30,17 +30,44 @@ pub fn execute(args: &ArgMatches) {
 	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
-	let mut new_list = List::new();
-
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 
+	let (new_list, count) = remove_items_from_list(
+		list,
+		search_terms,
+		confirmation,
+		&mut outputter,
+	);
+
+	if count > 0 {
+		new_list.to_url(todo_filename);
+		outputter.write_status(format!("Removed {} tasks!", count));
+	} else {
+		outputter.write_status(String::from("No actions taken."));
+	}
+}
+
+/// Given a list and set of search terms, creates a copy of the list but without any items
+/// matching the search terms. (In fact, replaces removed items with a blank line.)
+///
+/// The confirmation status and outputter will be used to check whether each individual item
+/// should be altered.
+///
+/// Also returns the number of items removed.
+pub fn remove_items_from_list(
+	list: List,
+	search_terms: SearchTerms,
+	confirmation: ConfirmationStatus,
+	outputter: &mut Outputter,
+) -> (List, usize) {
+	let mut new_list = List::new();
 	let mut count = 0;
 	for line in list.lines {
 		match line.kind {
 			LineKind::Item => {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
-					&& check_if_delete(&item, &mut outputter, confirmation)
+					&& check_if_delete(&item, outputter, confirmation)
 				{
 					count += 1;
 					new_list.lines.push(Line::new_blank());
@@ -51,13 +78,7 @@ pub fn execute(args: &ArgMatches) {
 			_ => new_list.lines.push(line),
 		}
 	}
-
-	if count > 0 {
-		new_list.to_url(todo_filename);
-		outputter.write_status(format!("Removed {} tasks!", count));
-	} else {
-		outputter.write_status(String::from("No actions taken."));
-	}
+	(new_list, count)
 }
 
 /// Asks whether to delete an item, and prints out the response before returning a bool.
@@ -106,5 +127,33 @@ mod tests {
 		assert_eq!(false, r);
 		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
 		assert_eq!(String::from("  (?) XYZ\nKeeping\n\n"), got_output);
+	}
+
+	#[test]
+	fn test_remove_items_from_list() {
+		let source_list = List {
+			lines: Vec::from([
+				Line::from_string(String::from("Foo1"), 0),
+				Line::from_string(String::from("x Foo2"), 0),
+				Line::from_string(String::from(""), 0),
+				Line::from_string(String::from("Bar"), 0),
+			]),
+			path: None,
+		};
+
+		let (got, count) = remove_items_from_list(
+			source_list,
+			SearchTerms {
+				terms: Vec::from([String::from("foo")]),
+			},
+			ConfirmationStatus::Yes,
+			&mut Outputter::new(1000),
+		);
+		assert_eq!(2, count);
+
+		assert_eq!(LineKind::Blank, got.lines[0].kind);
+		assert_eq!(LineKind::Blank, got.lines[1].kind);
+		assert_eq!(LineKind::Blank, got.lines[2].kind);
+		assert_eq!(LineKind::Item, got.lines[3].kind);
 	}
 }
