@@ -1,4 +1,4 @@
-## 0.2.0 (????-??-??)
+## 0.1.1 (????-??-??)
 
 - Refactored `action.rs`, providing a useful API for writing actions.
 - Added a `path` action.
