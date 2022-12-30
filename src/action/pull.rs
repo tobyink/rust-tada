@@ -62,7 +62,6 @@ pub fn execute(args: &ArgMatches) {
 	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
-	let mut new_list = List::new();
 
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let urgency = if *args.get_one::<bool>("today").unwrap() {
@@ -77,6 +76,35 @@ pub fn execute(args: &ArgMatches) {
 		Urgency::Today
 	};
 
+	let (new_list, count) = pull_items_forward_in_list(
+		list,
+		search_terms,
+		urgency,
+		confirmation,
+		&mut outputter,
+	);
+	if count > 0 {
+		new_list.to_url(todo_filename);
+	}
+
+	maybe_housekeeping_warnings(&mut outputter, &new_list);
+}
+
+/// Given a list, set of search terms, and an urgency, creates a copy of the list
+/// with all items matching the search terms "pulled forward" to have that urgency.
+///
+/// The confirmation status and outputter will be used to check whether each
+/// individual item should be altered.
+///
+/// Also returns the number of items changed.
+pub fn pull_items_forward_in_list(
+	list: List,
+	search_terms: SearchTerms,
+	urgency: Urgency,
+	confirmation: ConfirmationStatus,
+	outputter: &mut Outputter,
+) -> (List, usize) {
+	let mut new_list = List::new();
 	let mut count = 0;
 	for line in list.lines {
 		match line.kind {
@@ -84,7 +112,7 @@ pub fn execute(args: &ArgMatches) {
 				let item = line.item.clone().unwrap();
 				if search_terms.item_matches(&item)
 					&& (!item.completion())
-					&& check_if_pull(&item, &mut outputter, confirmation)
+					&& check_if_pull(&item, outputter, confirmation)
 				{
 					count += 1;
 					new_list.lines.push(line.but_pull(urgency));
@@ -95,12 +123,7 @@ pub fn execute(args: &ArgMatches) {
 			_ => new_list.lines.push(line),
 		}
 	}
-
-	if count > 0 {
-		new_list.to_url(todo_filename);
-	}
-
-	maybe_housekeeping_warnings(&mut outputter, &new_list);
+	(new_list, count)
 }
 
 /// Asks whether to pull an item, and prints out the response before returning a bool.
@@ -116,6 +139,8 @@ pub fn check_if_pull(
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::Line;
+	use chrono::{Duration, Utc};
 	use tempfile::tempdir;
 
 	#[test]
@@ -149,5 +174,49 @@ mod tests {
 		assert_eq!(false, r);
 		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
 		assert_eq!(String::from("  (?) XYZ\nSkipping\n\n"), got_output);
+	}
+
+	#[test]
+	fn test_pull_items_forward_in_list() {
+		let source_list = List {
+			lines: Vec::from([
+				Line::from_string(String::from("Foo1 start:3999-01-01"), 0),
+				Line::from_string(String::from("Foo2 due:3999-01-01"), 0),
+				Line::from_string(String::from(""), 0),
+				Line::from_string(String::from("Bar"), 0),
+			]),
+			path: None,
+		};
+
+		let (got, count) = pull_items_forward_in_list(
+			source_list,
+			SearchTerms {
+				terms: Vec::from([String::from("foo")]),
+			},
+			Urgency::Soon,
+			ConfirmationStatus::Yes,
+			&mut Outputter::new(1000),
+		);
+		assert_eq!(2, count);
+
+		let got_items = got.items();
+
+		let item = got_items.get(0).unwrap();
+		assert_eq!(Some(Utc::now().date_naive()), item.start_date());
+		assert_eq!(
+			Some(Utc::now().date_naive() + Duration::days(2)),
+			item.due_date()
+		);
+
+		let item = got_items.get(1).unwrap();
+		assert_eq!(None, item.start_date());
+		assert_eq!(
+			Some(Utc::now().date_naive() + Duration::days(2)),
+			item.due_date()
+		);
+
+		let item = got_items.get(2).unwrap();
+		assert_eq!(None, item.start_date());
+		assert_eq!(None, item.due_date());
 	}
 }

@@ -12,6 +12,14 @@
   improving its test coverage.
 - Refactored the `find` action, exposing some of its internals and
   improving its test coverage.
+- Refactored the `important` action, exposing some of its internals and
+  improving its test coverage.
+- Refactored the `pull` action, exposing some of its internals and
+  improving its test coverage.
+- Refactored the `quick` action, exposing some of its internals and
+  improving its test coverage.
+- Refactored the `urgent` action, exposing some of its internals and
+  improving its test coverage.
 
 ## 0.1.0 (2022-11-23)
 
