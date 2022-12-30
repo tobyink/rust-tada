@@ -62,7 +62,6 @@ pub fn execute(args: &ArgMatches) {
 	outputter.line_number_digits = list.lines.len().to_string().len();
 
 	let search_terms = SearchTerms::from_argmatches(args);
-
 	let confirmation = ConfirmationStatus::from_argmatches(args);
 	let urgency = if *args.get_one::<bool>("today").unwrap() {
 		Urgency::Today

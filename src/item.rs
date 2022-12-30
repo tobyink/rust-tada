@@ -406,6 +406,9 @@ impl Item {
 	/// Pull a task forward to being done with a new urgency, also clearing any start date.
 	pub fn but_pull(&self, new_urgency: Urgency) -> Item {
 		let mut new = self.clone();
+		if new.completion() {
+			return new;
+		}
 		new.set_urgency(new_urgency);
 
 		let re = Regex::new(r"start:(?:[^\s:]+)").unwrap();
