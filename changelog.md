@@ -18,6 +18,8 @@
   improving its test coverage.
 - Refactored the `quick` action, exposing some of its internals and
   improving its test coverage.
+- Refactored the `remove` action, exposing some of its internals and
+  improving its test coverage.
 - Refactored the `urgent` action, exposing some of its internals and
   improving its test coverage.
 
