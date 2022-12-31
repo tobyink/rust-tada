@@ -92,6 +92,8 @@ pub fn show_list(
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::Line;
+	use tempfile::tempdir;
 
 	#[test]
 	fn test_get_action() {
@@ -102,6 +104,140 @@ mod tests {
 	fn test_default_sort_order() {
 		assert_eq!(SortOrder::Smart, default_sort_order());
 	}
-}
 
-// TODO TEST: show_list()
+	#[test]
+	fn test_show_list() {
+		let dir = tempdir().unwrap();
+		let buffer_filename = dir
+			.path()
+			.join("buffer.txt")
+			.display()
+			.to_string();
+
+		let source_list = List {
+			lines: Vec::from([
+				Line::from_string(String::from("(A) 2000-01-01 Foo"), 1),
+				Line::from_string(String::from("(B) Bar"), 2),
+				Line::from_string(String::from("(D) Baz"), 3),
+				Line::from_string(String::from("Bat"), 4),
+			]),
+			path: None,
+		};
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		show_list(&source_list, &Grouping::None, &SortOrder::Original, &mut o);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(
+			String::from(
+				"  \
+			(A) Foo\n  \
+			(B) Bar\n  \
+			(D) Baz\n  \
+			(?) Bat\n"
+			),
+			got_output
+		);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		show_list(
+			&source_list,
+			&Grouping::None,
+			&SortOrder::Alphabetical,
+			&mut o,
+		);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(
+			String::from(
+				"  \
+			(B) Bar\n  \
+			(?) Bat\n  \
+			(D) Baz\n  \
+			(A) Foo\n"
+			),
+			got_output
+		);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		show_list(
+			&source_list,
+			&Grouping::Importance,
+			&SortOrder::Alphabetical,
+			&mut o,
+		);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(
+			String::from(
+				"\
+			# Critical\n  \
+			(A) Foo\n\n\
+			# Important\n  \
+			(B) Bar\n\n\
+			# Normal\n  \
+			(?) Bat\n  \
+			(D) Baz\n\n"
+			),
+			got_output
+		);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.with_creation_date = true;
+		o.with_completion_date = true;
+		o.with_line_numbers = true;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		show_list(
+			&source_list,
+			&Grouping::Importance,
+			&SortOrder::Original,
+			&mut o,
+		);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(
+			String::from(
+				"\
+			# Critical\n  \
+			(A)            2000-01-01 #01 Foo\n\n\
+			# Important\n  \
+			(B)            ????-??-?? #02 Bar\n\n\
+			# Normal\n  \
+			(D)            ????-??-?? #03 Baz\n  \
+			(?)            ????-??-?? #04 Bat\n\n"
+			),
+			got_output
+		);
+
+		let mut o = Outputter::new(9999);
+		o.colour = false;
+		o.with_creation_date = true;
+		o.with_completion_date = true;
+		o.with_line_numbers = true;
+		o.line_number_digits = 4;
+		o.io = Box::new(fs::File::create(buffer_filename.clone()).unwrap());
+		show_list(
+			&source_list,
+			&Grouping::Importance,
+			&SortOrder::Original,
+			&mut o,
+		);
+		let got_output = fs::read_to_string(buffer_filename.clone()).unwrap();
+		assert_eq!(
+			String::from(
+				"\
+			# Critical\n  \
+			(A)            2000-01-01 #0001 Foo\n\n\
+			# Important\n  \
+			(B)            ????-??-?? #0002 Bar\n\n\
+			# Normal\n  \
+			(D)            ????-??-?? #0003 Baz\n  \
+			(?)            ????-??-?? #0004 Bat\n\n"
+			),
+			got_output
+		);
+	}
+}
