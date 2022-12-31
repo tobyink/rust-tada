@@ -1,4 +1,27 @@
 //! Types related to todo list files.
+//!
+//! # Examples
+//!
+//! ```
+//! use tada::list::{List,LineKind};
+//!
+//! let data = String::from("(A) Foo\n(B) Bar\n\n# Comment\n");
+//! let list = List::from_string(data).unwrap();
+//!
+//! // Use list.lines to access raw lines from the list.
+//! assert_eq!(LineKind::Item, list.lines[0].kind);
+//! assert!(list.lines[0].item.is_some());
+//! assert_eq!(LineKind::Item, list.lines[1].kind);
+//! assert!(list.lines[1].item.is_some());
+//! assert_eq!(LineKind::Blank, list.lines[2].kind);
+//! assert!(list.lines[2].item.is_none());
+//! assert_eq!(LineKind::Comment, list.lines[3].kind);
+//! assert!(list.lines[3].item.is_none());
+//!
+//! // Use list.items() to get todo items from the list.
+//! let items = list.items();
+//! assert_eq!(2, items.len());
+//! ```
 
 use crate::item::{Item, Urgency};
 use lazy_static::lazy_static;
