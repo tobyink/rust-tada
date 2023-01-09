@@ -21,7 +21,7 @@ regex = "1.7"
 chrono = "0.4"
 tempfile = "3.3.0"
 lazy_static = "1.4.0"
-console = "0.15.0"
+console = "0.15.4"
 substring = "1.4.0"
 clap = { version = "4.0.32", features = ["wrap_help"] }
 freezebox = "0.2.3"
